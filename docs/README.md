@@ -4,4 +4,4 @@ Youssef Waleed || Salma Sherif
 
 ## ERD
 
-![ERD v1](docs/erd/ERD-v1.png)
+![ERD v1]("docs\ERD_V1.drawio.png")
