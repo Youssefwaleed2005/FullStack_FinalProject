@@ -1,0 +1,27 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Andalusia.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Andalusia.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": { },
+  "tags": [
+    {
+      "name": "Andalusia.Api"
+    }
+  ]
+}
