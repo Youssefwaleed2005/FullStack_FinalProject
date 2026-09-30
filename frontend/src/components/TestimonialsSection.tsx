@@ -4,27 +4,27 @@ import type { Testimonial } from "../types/Testimonial";
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    studentName: "Nour Hassan",
-    studentTitle: "Front-end developer",
-    message:
+    authorName: "Nour Hassan",
+    authorTitle: "Front-end developer",
+    content:
       "The full stack track took me from writing my first component to shipping a real project in a few months.",
-    avatarUrl: "https://placehold.co/80x80",
+    photoUrl: "https://placehold.co/80x80",
   },
   {
     id: 2,
-    studentName: "Omar Fathy",
-    studentTitle: "Data analyst",
-    message:
+    authorName: "Omar Fathy",
+    authorTitle: "Data analyst",
+    content:
       "Clear explanations and real projects. I was applying what I learned at work the same week.",
-    avatarUrl: "https://placehold.co/80x80",
+    photoUrl: "https://placehold.co/80x80",
   },
   {
     id: 3,
-    studentName: "Salma Adel",
-    studentTitle: "Software engineering student",
-    message:
+    authorName: "Salma Adel",
+    authorTitle: "Software engineering student",
+    content:
       "The instructors actually answer questions. That made the difference for me.",
-    avatarUrl: "https://placehold.co/80x80",
+    photoUrl: "https://placehold.co/80x80",
   },
 ];
 
@@ -47,20 +47,20 @@ function TestimonialsSection() {
           <Card key={testimonial.id} sx={{ width: 300 }}>
             <CardContent>
               <Typography variant="body1" sx={{ mb: 3 }}>
-                {testimonial.message}
+                {testimonial.content}
               </Typography>
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Avatar
-                  src={testimonial.avatarUrl}
-                  alt={testimonial.studentName}
+                  src={testimonial.photoUrl}
+                  alt={testimonial.authorName}
                 />
                 <Box>
                   <Typography variant="body2">
-                    {testimonial.studentName}
+                    {testimonial.authorName}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {testimonial.studentTitle}
+                    {testimonial.authorTitle}
                   </Typography>
                 </Box>
               </Box>
