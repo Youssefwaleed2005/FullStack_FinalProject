@@ -9,7 +9,7 @@ namespace Andalusia.Api.Data
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Course> Courses { get; set; }
-        public DbSet<Program> Programs { get; set; }
+        public DbSet<AcademyProgram> Programs { get; set; }
         public DbSet<CareerPath> CareerPaths { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Payment> Payments { get; set; }
