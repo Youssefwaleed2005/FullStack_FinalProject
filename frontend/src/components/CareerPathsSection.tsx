@@ -1,28 +1,39 @@
-import { Box, Typography, Card, CardContent, Button } from "@mui/material";
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import { getCareerPaths } from "../services/CareerPathService";
 import type { CareerPath } from "../types/CareerPath";
 
-const careerPaths: CareerPath[] = [
-  {
-    id: 1,
-    title: "Full Stack Developer",
-    description: "Front-end, back-end and databases .",
-    courseCount: 6,
-  },
-  {
-    id: 2,
-    title: "Data Analyst",
-    description: "Turn raw data into reporting and insight.         ",
-    courseCount: 4,
-  },
-  {
-    id: 3,
-    title: "UI/UX Designer",
-    description: "Research and interface design.",
-    courseCount: 5,
-  },
-];
-
 function CareerPathsSection() {
+  const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadCareerPaths() {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await getCareerPaths();
+        setCareerPaths(data);
+      } catch {
+        setError("Could not load career paths.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCareerPaths();
+  }, []);
+
   return (
     <Box sx={{ py: 8, px: 4 }}>
       <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
@@ -32,8 +43,22 @@ function CareerPathsSection() {
         variant="body1"
         sx={{ mb: 4, textAlign: "center", color: "text.secondary" }}
       >
-        Follow a guided track instead of picking courses one by one.
+        Follow a guided track instead of picking programs one by one.
       </Typography>
+
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && <Alert severity="error">{error}</Alert>}
+
+      {!loading && !error && careerPaths.length === 0 && (
+        <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
+          No career paths yet.
+        </Typography>
+      )}
 
       <Box
         sx={{
@@ -45,16 +70,22 @@ function CareerPathsSection() {
       >
         {careerPaths.map((path) => (
           <Card key={path.id} sx={{ width: 300 }}>
+            <CardMedia
+              component="img"
+              height="160"
+              image={path.imageUrl}
+              alt={path.title}
+            />
             <CardContent>
               <Typography variant="h6">{path.title}</Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "text.secondary", mb: 2 }}
               >
-                {path.description}
+                {path.shortDescription}
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>
-                {path.courseCount} courses
+                {path.programCount} programs
               </Typography>
               <Button variant="outlined" fullWidth>
                 View path
