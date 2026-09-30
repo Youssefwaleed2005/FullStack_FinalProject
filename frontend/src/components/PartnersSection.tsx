@@ -1,34 +1,30 @@
-import { Box, Typography } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
+import { getPartners } from "../services/partnerService";
 import type { Partner } from "../types/Partner";
 
-const partners: Partner[] = [
-  {
-    id: 1,
-    name: "Microsoft",
-    logoUrl: "https://placehold.co/160x60",
-    websiteUrl: "https://microsoft.com",
-  },
-  {
-    id: 2,
-    name: "Oracle",
-    logoUrl: "https://placehold.co/160x60",
-    websiteUrl: "https://oracle.com",
-  },
-  {
-    id: 3,
-    name: "IBM",
-    logoUrl: "https://placehold.co/160x60",
-    websiteUrl: "https://ibm.com",
-  },
-  {
-    id: 4,
-    name: "Cisco",
-    logoUrl: "https://placehold.co/160x60",
-    websiteUrl: "https://cisco.com",
-  },
-];
-
 function PartnersSection() {
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadPartners() {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await getPartners();
+        setPartners(data);
+      } catch {
+        setError("Could not load partners.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPartners();
+  }, []);
+
   return (
     <Box sx={{ py: 8, px: 4 }}>
       <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
@@ -41,6 +37,20 @@ function PartnersSection() {
         Trusted by organisations across the region.
       </Typography>
 
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && <Alert severity="error">{error}</Alert>}
+
+      {!loading && !error && partners.length === 0 && (
+        <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
+          No partners yet.
+        </Typography>
+      )}
+
       <Box
         sx={{
           display: "flex",
@@ -50,15 +60,31 @@ function PartnersSection() {
           alignItems: "center",
         }}
       >
-        {partners.map((partner) => (
-          <Box
-            key={partner.id}
-            component="img"
-            src={partner.logoUrl}
-            alt={partner.name}
-            sx={{ height: 60 }}
-          />
-        ))}
+        {partners
+          .filter((partner) => partner.logoUrl)
+          .map((partner) => {
+            const logo = (
+              <Box
+                component="img"
+                src={partner.logoUrl!}
+                alt={partner.name}
+                sx={{ height: 60 }}
+              />
+            );
+
+            return partner.websiteUrl ? (
+              <a
+                key={partner.id}
+                href={partner.websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {logo}
+              </a>
+            ) : (
+              <Box key={partner.id}>{logo}</Box>
+            );
+          })}
       </Box>
     </Box>
   );
