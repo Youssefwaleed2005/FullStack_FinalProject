@@ -1,87 +1,59 @@
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardMedia,
-  Button,
-} from "@mui/material";
+import { useEffect, useState } from "react";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import type { Course } from "../types/Course";
-
-const featuredCourses: Course[] = [
-  {
-    id: 1,
-    title: "React from scratch",
-    description: "Build modern web interfaces with React and TypeScript.",
-    price: 1200,
-    categoryId: 1,
-    instructorName: "Aly Zakaria",
-    thumbnailUrl: "https://placehold.co/600x400",
-  },
-  {
-    id: 2,
-    title: "ASP.NET Core Web API",
-    description: "Design and build REST APIs with .NET 8 and EF Core.",
-    price: 1500,
-    categoryId: 1,
-    instructorName: "Aly Zakaria",
-    thumbnailUrl: "https://placehold.co/600x400",
-  },
-  {
-    id: 3,
-    title: "SQL Server essentials",
-    description: "Relational modelling, queries and indexing fundamentals.",
-    price: 900,
-    categoryId: 2,
-    instructorName: "Aly Zakaria",
-    thumbnailUrl: "https://placehold.co/600x400",
-  },
-];
+import { getCourses } from "../services/courseService";
+import CourseCard from "./CourseCard";
 
 function FeaturedCoursesSection() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getCourses({ isFeatured: true, pageSize: 3 })
+      .then((page) => setCourses(page.items))
+      .catch(() => setError("Could not load courses. Please try again later."))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <Box sx={{ py: 8, px: 4 }}>
       <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
         Featured courses
       </Typography>
 
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 3,
-          justifyContent: "center",
-        }}
-      >
-        {featuredCourses.map((course) => (
-          <Card key={course.id} sx={{ width: 300 }}>
-            <CardMedia
-              component="img"
-              height="160"
-              image={course.thumbnailUrl}
-              alt={course.title}
-            />
-            <CardContent>
-              <Typography variant="h6">{course.title}</Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "text.secondary", mb: 1 }}
-              >
-                {course.description}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                {course.instructorName}
-              </Typography>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                {course.price} EGP
-              </Typography>
-              <Button variant="contained" fullWidth>
-                View course
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+          {error}
+        </Alert>
+      )}
+
+      {!loading && !error && courses.length === 0 && (
+        <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
+          No featured courses yet.
+        </Typography>
+      )}
+
+      {!loading && !error && courses.length > 0 && (
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 3,
+            justifyContent: "center",
+          }}
+        >
+          {courses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }
