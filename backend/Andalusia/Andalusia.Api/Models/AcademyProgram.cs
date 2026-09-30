@@ -4,7 +4,7 @@ using Andalusia.Api.Enums;
 
 namespace Andalusia.Api.Models
 {
-    public class Course
+    public class AcademyProgram
     {
         public int Id { get; set; }
 
@@ -15,17 +15,20 @@ namespace Andalusia.Api.Models
         [MaxLength(500)]
         public string? ShortDescription { get; set; }
 
-        public string? FullDescription { get; set; }
+        public string? Overview { get; set; }
 
-        public string? Objectives { get; set; }
+        public string? Requirements { get; set; }
 
         [MaxLength(300)]
         public string? ImageUrl { get; set; }
 
-        public int DurationHours { get; set; }
+        public int DurationWeeks { get; set; }
 
         [Precision(10, 2)]
         public decimal Price { get; set; }
+
+        [MaxLength(500)]
+        public string? PaymentInfo { get; set; }
 
         [MaxLength(200)]
         public string? Location { get; set; }
@@ -38,20 +41,17 @@ namespace Andalusia.Api.Models
 
         public int Capacity { get; set; }
 
-        public CourseType Type { get; set; } = CourseType.Offline;
         public CatalogStatus Status { get; set; } = CatalogStatus.Draft;
 
         public bool IsFeatured { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-       
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
 
-        public int? InstructorId { get; set; }
-        public User? Instructor { get; set; }
         public ICollection<ProgramCourse> ProgramCourses { get; set; } = new List<ProgramCourse>();
+        public ICollection<CareerPathProgram> CareerPathPrograms { get; set; } = new List<CareerPathProgram>();
         public ICollection<Application> Applications { get; set; } = new List<Application>();
     }
 }
