@@ -1,6 +1,8 @@
 export type CareerPath = {
   id: number;
   title: string;
-  description: string;
-  courseCount: number;
+  shortDescription: string;
+  imageUrl: string;
+  isFeatured: boolean;
+  programCount: number;
 };

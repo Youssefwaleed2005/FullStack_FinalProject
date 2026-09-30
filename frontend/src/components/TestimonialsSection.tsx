@@ -1,39 +1,57 @@
-import { Box, Typography, Card, CardContent, Avatar } from "@mui/material";
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Avatar,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import { getTestimonials } from "../services/testimonialService";
 import type { Testimonial } from "../types/Testimonial";
 
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    authorName: "Nour Hassan",
-    authorTitle: "Front-end developer",
-    content:
-      "The full stack track took me from writing my first component to shipping a real project in a few months.",
-    photoUrl: "https://placehold.co/80x80",
-  },
-  {
-    id: 2,
-    authorName: "Omar Fathy",
-    authorTitle: "Data analyst",
-    content:
-      "Clear explanations and real projects. I was applying what I learned at work the same week.",
-    photoUrl: "https://placehold.co/80x80",
-  },
-  {
-    id: 3,
-    authorName: "Salma Adel",
-    authorTitle: "Software engineering student",
-    content:
-      "The instructors actually answer questions. That made the difference for me.",
-    photoUrl: "https://placehold.co/80x80",
-  },
-];
-
 function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadTestimonials() {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await getTestimonials();
+        setTestimonials(data);
+      } catch {
+        setError("Could not load testimonials.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTestimonials();
+  }, []);
+
   return (
     <Box sx={{ py: 8, px: 4 }}>
       <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
         What our students say
       </Typography>
+
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && <Alert severity="error">{error}</Alert>}
+
+      {!loading && !error && testimonials.length === 0 && (
+        <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
+          No testimonials yet.
+        </Typography>
+      )}
 
       <Box
         sx={{
