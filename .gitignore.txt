@@ -5,6 +5,9 @@
 # User-specific VS files
 *.user
 .vs/
+.vs/
+**/obj/
+**/bin/
 
 # Environment-specific config (secrets)
 **/appsettings.Development.json
