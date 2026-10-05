@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { getCareerPaths } from "../services/CareerPathService";
 import type { CareerPath } from "../types/CareerPath";
+import { Link } from "react-router-dom";
 
 function CareerPathsSection() {
   const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
@@ -73,7 +74,9 @@ function CareerPathsSection() {
             <CardMedia
               component="img"
               height="160"
-              image={path.imageUrl}
+              image={
+                path.imageUrl ?? "https://placehold.co/600x400?text=Career+Path"
+              }
               alt={path.title}
             />
             <CardContent>
@@ -87,7 +90,12 @@ function CareerPathsSection() {
               <Typography variant="body2" sx={{ mb: 2 }}>
                 {path.programCount} programs
               </Typography>
-              <Button variant="outlined" fullWidth>
+              <Button
+                variant="outlined"
+                fullWidth
+                component={Link}
+                to={`/career-paths/${path.id}`}
+              >
                 View path
               </Button>
             </CardContent>

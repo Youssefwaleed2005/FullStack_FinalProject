@@ -5,56 +5,52 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import type { Course } from "../types/Course";
 import { Link } from "react-router-dom";
+import type { Program } from "../types/Program";
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=Course";
+const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=Program";
 
-type CourseCardProps = {
-  course: Course;
+type ProgramCardProps = {
+  program: Program;
 };
 
-function CourseCard({ course }: CourseCardProps) {
+function ProgramCard({ program }: ProgramCardProps) {
   return (
     <Card sx={{ width: 300 }}>
       <CardMedia
         component="img"
         height="160"
-        image={course.imageUrl ?? PLACEHOLDER_IMAGE}
-        alt={course.title}
+        image={program.imageUrl ?? PLACEHOLDER_IMAGE}
+        alt={program.title}
       />
       <CardContent>
         <Typography variant="caption" sx={{ color: "text.secondary" }}>
-          {course.categoryName}
+          {program.categoryName}
         </Typography>
-        <Typography variant="h6">{course.title}</Typography>
-        {course.shortDescription && (
+        <Typography variant="h6">{program.title}</Typography>
+        {program.shortDescription && (
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
-            {course.shortDescription}
-          </Typography>
-        )}
-        {course.instructorName && (
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {course.instructorName}
+            {program.shortDescription}
           </Typography>
         )}
         <Typography variant="body2" sx={{ mb: 1 }}>
-          {course.durationHours} hours
+          {program.durationWeeks} weeks · {program.courseCount}{" "}
+          {program.courseCount === 1 ? "course" : "courses"}
         </Typography>
         <Typography variant="h6" sx={{ mb: 2 }}>
-          {course.price} EGP
+          {program.price} EGP
         </Typography>
         <Button
           variant="contained"
           fullWidth
           component={Link}
-          to={`/courses/${course.id}`}
+          to={`/programs/${program.id}`}
         >
-          View course
+          View program
         </Button>
       </CardContent>
     </Card>
   );
 }
 
-export default CourseCard;
+export default ProgramCard;
