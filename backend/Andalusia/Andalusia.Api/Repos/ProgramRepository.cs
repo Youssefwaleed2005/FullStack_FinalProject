@@ -135,5 +135,19 @@ namespace Andalusia.Api.Repos
                 }
             }
         }
+        public async Task<IEnumerable<AcademyProgram>> GetRelatedAsync(int programId, int categoryId, int take)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.ProgramCourses)
+                .Where(p => p.CategoryId == categoryId
+                         && p.Id != programId
+                         && p.Status != CatalogStatus.Draft)
+                .OrderByDescending(p => p.IsFeatured)
+                .ThenByDescending(p => p.CreatedAt)
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }

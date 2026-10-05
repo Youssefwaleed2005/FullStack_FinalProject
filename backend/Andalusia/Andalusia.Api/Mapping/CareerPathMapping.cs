@@ -2,6 +2,7 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Models;
 
+
 namespace Andalusia.Api.Mapping
 {
     public static class CareerPathMapping
@@ -21,6 +22,11 @@ namespace Andalusia.Api.Mapping
 
         public static CareerPathDetailsResponseDto ToDetailsResponseDto(this CareerPath cp)
         {
+            var orderedPrograms = cp.CareerPathPrograms
+                .OrderBy(cpp => cpp.SortOrder)
+                .Select(cpp => cpp.Program)
+                .ToList();
+
             return new CareerPathDetailsResponseDto
             {
                 Id = cp.Id,
@@ -31,10 +37,18 @@ namespace Andalusia.Api.Mapping
                 ProgramCount = cp.CareerPathPrograms.Count,
                 Overview = cp.Overview,
                 RecommendedSkills = cp.RecommendedSkills,
-                Programs = cp.CareerPathPrograms
-    .OrderBy(cpp => cpp.SortOrder)
-    .Select(cpp => cpp.Program.ToResponseDto())
-    .ToList()
+
+                Programs = orderedPrograms
+                    .Select(p => p.ToResponseDto())
+                    .ToList(),
+
+                // All courses from the recommended programs, in learning order, without duplicates
+                RecommendedCourses = orderedPrograms
+                    .SelectMany(p => p.ProgramCourses.OrderBy(pc => pc.SortOrder))
+                    .Select(pc => pc.Course)
+                    .DistinctBy(c => c.Id)
+                    .Select(c => c.ToResponseDto())
+                    .ToList()
             };
         }
 

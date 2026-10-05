@@ -11,5 +11,6 @@ namespace Andalusia.Api.Repos.Interfaces
         Task<bool> CategoryExistsAsync(int categoryId);
         Task<List<int>> GetExistingCourseIdsAsync(List<int> courseIds);
         Task ReplaceProgramCoursesAsync(int programId, List<int> courseIds);
+        Task<IEnumerable<AcademyProgram>> GetRelatedAsync(int programId, int categoryId, int take);
     }
 }

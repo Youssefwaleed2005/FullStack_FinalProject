@@ -104,5 +104,19 @@ namespace Andalusia.Api.Repos
             return await _context.UserRoles.AnyAsync(ur =>
                 ur.UserId == userId && ur.Role.Name == "Instructor");
         }
+        public async Task<IEnumerable<Course>> GetRelatedAsync(int courseId, int categoryId, int take)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(c => c.Category)
+                .Include(c => c.Instructor)
+                .Where(c => c.CategoryId == categoryId
+                         && c.Id != courseId
+                         && c.Status != CatalogStatus.Draft)
+                .OrderByDescending(c => c.IsFeatured)
+                .ThenByDescending(c => c.CreatedAt)
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }

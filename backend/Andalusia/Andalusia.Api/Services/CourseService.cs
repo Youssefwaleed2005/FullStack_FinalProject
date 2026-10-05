@@ -97,5 +97,18 @@ namespace Andalusia.Api.Services
             if (dto.StartDate.HasValue && dto.EndDate.HasValue && dto.EndDate < dto.StartDate)
                 throw new BadRequestException("End date cannot be before start date.");
         }
+        public async Task<IEnumerable<CourseResponseDto>> GetRelatedAsync(int id, int take)
+        {
+            var course = await _courseRepository.GetByIdAsync(id);
+
+            if (course == null)
+                throw new NotFoundException($"Course with id {id} was not found.");
+
+            take = Math.Clamp(take, 1, 12);
+
+            var related = await _courseRepository.GetRelatedAsync(id, course.CategoryId, take);
+
+            return related.Select(c => c.ToResponseDto());
+        }
     }
 }

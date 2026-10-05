@@ -10,5 +10,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<ProgramDetailsResponseDto> CreateAsync(ProgramRequestDto dto);
         Task<ProgramDetailsResponseDto> UpdateAsync(int id, ProgramRequestDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ProgramResponseDto>> GetRelatedAsync(int id, int take);
     }
 }

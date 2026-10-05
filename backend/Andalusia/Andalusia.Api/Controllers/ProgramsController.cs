@@ -55,5 +55,12 @@ namespace Andalusia.Api.Controllers
             await _programService.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpGet("{id:int}/related")]
+        public async Task<ActionResult<IEnumerable<ProgramResponseDto>>> GetRelated(int id, [FromQuery] int take = 3)
+        {
+            var related = await _programService.GetRelatedAsync(id, take);
+            return Ok(related);
+        }
     }
 }

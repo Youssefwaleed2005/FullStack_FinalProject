@@ -10,5 +10,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<CourseDetailsResponseDto> CreateAsync(CourseRequestDto dto);
         Task<CourseDetailsResponseDto> UpdateAsync(int id, CourseRequestDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<CourseResponseDto>> GetRelatedAsync(int id, int take);
     }
 }

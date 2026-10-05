@@ -122,5 +122,19 @@ namespace Andalusia.Api.Services
             if (dto.StartDate.HasValue && dto.EndDate.HasValue && dto.EndDate < dto.StartDate)
                 throw new BadRequestException("End date cannot be before start date.");
         }
+
+        public async Task<IEnumerable<ProgramResponseDto>> GetRelatedAsync(int id, int take)
+        {
+            var program = await _programRepository.GetByIdAsync(id);
+
+            if (program == null)
+                throw new NotFoundException($"Program with id {id} was not found.");
+
+            take = Math.Clamp(take, 1, 12);
+
+            var related = await _programRepository.GetRelatedAsync(id, program.CategoryId, take);
+
+            return related.Select(p => p.ToResponseDto());
+        }
     }
 }

@@ -33,8 +33,23 @@ namespace Andalusia.Api.Repos
         {
             return await _dbSet
                 .AsNoTracking()
+                .AsSplitQuery()
+                // each program's category
                 .Include(cp => cp.CareerPathPrograms)
                     .ThenInclude(cpp => cpp.Program)
+                        .ThenInclude(p => p.Category)
+                // each program's courses, with their category
+                .Include(cp => cp.CareerPathPrograms)
+                    .ThenInclude(cpp => cpp.Program)
+                        .ThenInclude(p => p.ProgramCourses)
+                            .ThenInclude(pc => pc.Course)
+                                .ThenInclude(c => c.Category)
+                // each course's instructor
+                .Include(cp => cp.CareerPathPrograms)
+                    .ThenInclude(cpp => cpp.Program)
+                        .ThenInclude(p => p.ProgramCourses)
+                            .ThenInclude(pc => pc.Course)
+                                .ThenInclude(c => c.Instructor)
                 .FirstOrDefaultAsync(cp => cp.Id == id);
         }
 
