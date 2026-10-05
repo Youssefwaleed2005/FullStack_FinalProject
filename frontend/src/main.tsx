@@ -5,10 +5,13 @@ import App from "./App";
 
 const theme = createTheme({
   palette: {
-    primary: { main: "#e9b682", contrastText: "#0e0b0b" },
-    secondary: { main: "#422e1b", contrastText: "#FFFFFF" },
+    primary: { main: "#cee1ed", contrastText: "#0e0b0b" },
+    secondary: { main: "#113348", contrastText: "#FFFFFF" },
     background: { default: "#FAF1EA", paper: "#FFFFFF" },
     text: { primary: "#211E1C", secondary: "#6B615C" },
+  },
+  shape: {
+    borderRadius: 8,
   },
 });
 

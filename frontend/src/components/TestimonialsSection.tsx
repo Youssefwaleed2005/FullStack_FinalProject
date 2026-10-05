@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
-=======
 import { useState, useEffect } from "react";
->>>>>>> origin/dev/calling-endpoints
 import {
   Box,
   Typography,
@@ -12,28 +8,12 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-<<<<<<< HEAD
-import type { Testimonial } from "../types/Testimonial";
-import { getTestimonials } from "../services/testimonialService";
-=======
 import { getTestimonials } from "../services/testimonialService";
 import type { Testimonial } from "../types/Testimonial";
->>>>>>> origin/dev/calling-endpoints
 
 function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    getTestimonials(3)
-      .then((data) => setTestimonials(data))
-      .catch(() =>
-        setError("Could not load testimonials. Please try again later."),
-      )
-      .finally(() => setLoading(false));
-=======
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -51,7 +31,6 @@ function TestimonialsSection() {
     }
 
     loadTestimonials();
->>>>>>> origin/dev/calling-endpoints
   }, []);
 
   return (
@@ -65,29 +44,6 @@ function TestimonialsSection() {
           <CircularProgress />
         </Box>
       )}
-
-      {error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && testimonials.length === 0 && (
-        <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
-          No testimonials yet.
-        </Typography>
-      )}
-
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 3,
-          justifyContent: "center",
-        }}
-      >
-        {testimonials.map((testimonial) => (
-          <Card key={testimonial.id} sx={{ width: 300 }}>
-            <CardContent>
-              <Typography variant="body1" sx={{ mb: 3 }}>
-                {testimonial.content}
-              </Typography>
 
       {error && (
         <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>

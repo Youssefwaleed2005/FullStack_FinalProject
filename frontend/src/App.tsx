@@ -10,7 +10,7 @@ import { Box } from "@mui/material";
 function App() {
   return (
     <BrowserRouter>
-      <Box sx={{ bgcolor: "#e9b682", minHeight: "100vh" }}>
+      <Box sx={{ bgcolor: "#cee1ed", minHeight: "100vh" }}>
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
