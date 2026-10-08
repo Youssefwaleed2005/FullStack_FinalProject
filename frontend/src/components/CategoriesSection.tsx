@@ -27,7 +27,7 @@ function CategoriesSection() {
   }, []);
 
   return (
-    <Box sx={{ py: 8, px: 4 }}>
+    <Box sx={{ py: 8, px: { xs: 2, md: 4 } }}>
       <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
         Popular categories
       </Typography>
@@ -60,7 +60,7 @@ function CategoriesSection() {
           }}
         >
           {categories.map((category) => (
-            <Card key={category.id} sx={{ width: 240 }}>
+            <Card key={category.id} sx={{ width: { xs: "100%", sm: 240 } }}>
               <CardContent>
                 <Typography variant="h6">{category.name}</Typography>
                 {category.description && (

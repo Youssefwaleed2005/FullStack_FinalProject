@@ -8,7 +8,7 @@ function CtaSection() {
         bgcolor: "primary.main",
         color: "primary.contrastText",
         py: 8,
-        px: 4,
+        px: { xs: 2, md: 4 },
         textAlign: "center",
       }}
     >

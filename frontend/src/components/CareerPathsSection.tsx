@@ -36,7 +36,7 @@ function CareerPathsSection() {
   }, []);
 
   return (
-    <Box sx={{ py: 8, px: 4 }}>
+    <Box sx={{ py: 8, px: { xs: 2, md: 4 } }}>
       <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
         Discover your career path
       </Typography>
@@ -70,7 +70,7 @@ function CareerPathsSection() {
         }}
       >
         {careerPaths.map((path) => (
-          <Card key={path.id} sx={{ width: 300 }}>
+          <Card key={path.id} sx={{ width: { xs: "100%", sm: 300 } }}>
             <CardMedia
               component="img"
               height="160"

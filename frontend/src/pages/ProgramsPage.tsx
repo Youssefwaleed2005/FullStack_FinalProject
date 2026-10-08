@@ -99,7 +99,7 @@ function ProgramsPage() {
   }
 
   return (
-    <Box sx={{ py: 8, px: 4 }}>
+    <Box sx={{ py: 8, px: { xs: 2, md: 4 } }}>
       <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
         Programs
       </Typography>
@@ -121,7 +121,7 @@ function ProgramsPage() {
         <Box
           component="form"
           onSubmit={handleSearchSubmit}
-          sx={{ display: "flex", gap: 1 }}
+          sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}
         >
           <TextField
             size="small"
@@ -129,7 +129,11 @@ function ProgramsPage() {
             color="secondary"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
-            sx={{ ...fieldStyle, width: 240 }}
+            sx={{
+              ...fieldStyle,
+              width: { xs: "auto", sm: 240 },
+              flexGrow: { xs: 1, sm: 0 },
+            }}
           />
           <Button type="submit" variant="contained" color="secondary">
             Search
@@ -143,7 +147,7 @@ function ProgramsPage() {
           color="secondary"
           value={categoryId}
           onChange={(event) => handleCategoryChange(event.target.value)}
-          sx={{ ...fieldStyle, width: 200 }}
+          sx={{ ...fieldStyle, width: { xs: "100%", sm: 200 } }}
         >
           <MenuItem value="">All categories</MenuItem>
           {categories.map((category) => (

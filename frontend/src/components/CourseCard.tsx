@@ -16,7 +16,7 @@ type CourseCardProps = {
 
 function CourseCard({ course }: CourseCardProps) {
   return (
-    <Card sx={{ width: 300 }}>
+    <Card sx={{ width: { xs: "100%", sm: 300 } }}>
       <CardMedia
         component="img"
         height="160"

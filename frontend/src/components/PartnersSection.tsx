@@ -26,7 +26,7 @@ function PartnersSection() {
   }, []);
 
   return (
-    <Box sx={{ py: 8, px: 4 }}>
+    <Box sx={{ py: 8, px: { xs: 2, md: 4 } }}>
       <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
         Our partners
       </Typography>

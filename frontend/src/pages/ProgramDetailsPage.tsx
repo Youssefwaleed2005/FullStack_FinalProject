@@ -61,7 +61,7 @@ function ProgramDetailsContent({ programId }: ProgramDetailsContentProps) {
 
   if (error || !program) {
     return (
-      <Box sx={{ py: 8, px: 4, textAlign: "center" }}>
+      <Box sx={{ py: 8, px: { xs: 2, md: 4 }, textAlign: "center" }}>
         <Alert severity="error" sx={{ maxWidth: 600, mx: "auto", mb: 3 }}>
           {error}
         </Alert>

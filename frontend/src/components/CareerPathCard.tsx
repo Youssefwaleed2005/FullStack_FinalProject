@@ -8,7 +8,7 @@ type CareerPathCardProps = {
 
 function CareerPathCard({ careerPath }: CareerPathCardProps) {
   return (
-    <Card sx={{ width: 300, display: "flex", flexDirection: "column" }}>
+    <Card sx={{ width: { xs: "100%", sm: 300 }, display: "flex", flexDirection: "column" }}>
       <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Typography variant="h6">{careerPath.title}</Typography>
         {careerPath.shortDescription && (

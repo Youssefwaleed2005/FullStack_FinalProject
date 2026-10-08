@@ -34,7 +34,7 @@ function TestimonialsSection() {
   }, []);
 
   return (
-    <Box sx={{ py: 8, px: 4 }}>
+    <Box sx={{ py: 8, px: { xs: 2, md: 4 } }}>
       <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
         What our students say
       </Typography>
@@ -67,7 +67,7 @@ function TestimonialsSection() {
           }}
         >
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} sx={{ width: 300 }}>
+            <Card key={testimonial.id} sx={{ width: { xs: "100%", sm: 300 } }}>
               <CardContent>
                 <Typography variant="body1" sx={{ mb: 3 }}>
                   {testimonial.content}
