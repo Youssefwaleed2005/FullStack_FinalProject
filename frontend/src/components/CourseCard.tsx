@@ -1,12 +1,15 @@
 import {
+  Box,
   Card,
   CardContent,
   CardMedia,
+  Chip,
   Typography,
   Button,
 } from "@mui/material";
 import type { Course } from "../types/Course";
 import { Link } from "react-router-dom";
+import { STATUS_COLORS, STATUS_LABELS } from "../utils/statusLabels";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=Course";
 
@@ -24,9 +27,24 @@ function CourseCard({ course }: CourseCardProps) {
         alt={course.title}
       />
       <CardContent>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>
-          {course.categoryName}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 1,
+            mb: 0.5,
+          }}
+        >
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            {course.categoryName}
+          </Typography>
+          <Chip
+            label={STATUS_LABELS[course.status]}
+            color={STATUS_COLORS[course.status]}
+            size="small"
+          />
+        </Box>
         <Typography variant="h6">{course.title}</Typography>
         {course.shortDescription && (
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>

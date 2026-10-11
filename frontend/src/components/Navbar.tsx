@@ -33,6 +33,7 @@ const NAV_LINKS = [
 const ACCOUNT_LINKS = [
   { label: "My learning", to: "/my-enrollments" },
   { label: "My applications", to: "/applications" },
+  { label: "My payments", to: "/my-payments" },
   { label: "My profile", to: "/profile" },
 ];
 

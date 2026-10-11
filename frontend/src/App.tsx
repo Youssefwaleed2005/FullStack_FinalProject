@@ -16,7 +16,10 @@ import CareerPathDetailsPage from "./pages/CareerPathDetailsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
+import MyApplicationsPage from "./pages/MyApplicationsPage";
 import MyEnrollmentsPage from "./pages/MyEnrollmentsPage";
+import PaymentPage from "./pages/PaymentPage";
+import MyPaymentsPage from "./pages/MyPaymentsPage";
 
 function App() {
   return (
@@ -34,7 +37,6 @@ function App() {
             <Route path="/programs" element={<ProgramsPage />} />
             <Route path="/programs/:id" element={<ProgramDetailsPage />} />
             <Route path="/career-paths" element={<CareerPathsPage />} />
-            <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
             <Route
               path="/career-paths/:id"
               element={<CareerPathDetailsPage />}
@@ -47,7 +49,15 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
-            {/* Role-restricted — for demo item 18 */}
+            {/* Learners only */}
+            <Route element={<ProtectedRoute allowedRoles={["Learner"]} />}>
+              <Route path="/applications" element={<MyApplicationsPage />} />
+              <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
+              <Route path="/payment/:applicationId" element={<PaymentPage />} />
+              <Route path="/my-payments" element={<MyPaymentsPage />} />
+            </Route>
+
+            {/* Admin only */}
             <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
               <Route path="/admin" element={<div>Admin area</div>} />
             </Route>

@@ -4,6 +4,7 @@ import type {
   CreateApplicationRequest,
 } from "../types/Application";
 
+// POST /api/applications (Learner only)
 export async function createApplication(
   payload: CreateApplicationRequest,
 ): Promise<Application> {
@@ -11,6 +12,7 @@ export async function createApplication(
   return response.data;
 }
 
+// GET /api/applications/me
 export async function getMyApplications(): Promise<Application[]> {
   const response = await api.get<Application[]>("/applications/me");
   return response.data;

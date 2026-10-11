@@ -120,6 +120,11 @@ namespace Andalusia.Api.Services
                 EnrolledAt = now
             };
 
+            // 4. Close any duplicate pending payments for this application
+            var duplicates = await _paymentRepository.GetOtherPendingAsync(application.Id, payment.Id);
+            foreach (var duplicate in duplicates)
+                duplicate.Status = PaymentStatus.Failed;
+
             // The last place was just taken → mark the course/program as Full
             if (capacity > 0 && activeEnrollments + 1 >= capacity)
             {

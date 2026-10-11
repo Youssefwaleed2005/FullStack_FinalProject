@@ -17,6 +17,7 @@ export type Application = {
   price: number;
 };
 
+// Send courseId OR programId, never both
 export type CreateApplicationRequest = {
   courseId?: number;
   programId?: number;

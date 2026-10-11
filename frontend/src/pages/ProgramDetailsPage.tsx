@@ -12,10 +12,10 @@ import {
 } from "@mui/material";
 import type { Program } from "../types/Program";
 import type { ProgramDetails } from "../types/ProgramDetails";
-import ApplyButton from "../components/ApplyButton";
 import { getProgramById, getRelatedPrograms } from "../services/programService";
 import ProgramCard from "../components/ProgramCard";
 import InfoRow from "../components/InfoRow";
+import ApplyButton from "../components/ApplyButton";
 import { STATUS_LABELS } from "../utils/statusLabels";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/1200x500?text=Program";
@@ -214,11 +214,8 @@ function ProgramDetailsContent({ programId }: ProgramDetailsContentProps) {
           <InfoRow label="Start date" value={program.startDate} />
           <InfoRow label="End date" value={program.endDate} />
           <InfoRow label="Capacity" value={`${program.capacity} students`} />
-          <ApplyButton
-            targetType="Program"
-            targetId={program.id}
-            status={program.status}
-          />
+
+          <ApplyButton programId={program.id} status={program.status} />
         </Paper>
       </Box>
 

@@ -1,147 +1,101 @@
 import { useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Alert, Button, CircularProgress, Typography } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
-import { createApplication } from "../services/applicationService";
 import { getApiErrorMessage } from "../services/api";
+import {
+  createApplication,
+  getMyApplications,
+} from "../services/applicationService";
 import type { Course } from "../types/Course";
-import type { Application } from "../types/Application";
-
-const captionSx = {
-  display: "block",
-  mt: 1,
-  color: "text.secondary",
-} as const;
 
 type ApplyButtonProps = {
-  targetType: "Course" | "Program";
-  targetId: number;
+  courseId?: number;
+  programId?: number;
   status: Course["status"];
 };
 
-function ApplyButton({ targetType, targetId, status }: ApplyButtonProps) {
+function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
   const { isAuthenticated, hasRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [application, setApplication] = useState<Application | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+
+  const isOpen = status === "OpenForEnrollment";
+  const isLearner = hasRole("Learner");
 
   async function handleApply() {
+    // Not logged in → go to login, then come back here
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+
     setError("");
-    setSubmitting(true);
+    setLoading(true);
     try {
-      const created = await createApplication(
-        targetType === "Course"
-          ? { courseId: targetId }
-          : { programId: targetId },
-      );
-      setApplication(created);
+      const application = await createApplication({ courseId, programId });
+      navigate(`/payment/${application.id}`);
     } catch (err) {
+      // 409 = already applied → find that application instead
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        const mine = await getMyApplications();
+        const existing = mine.find(
+          (a) =>
+            (courseId !== undefined && a.courseId === courseId) ||
+            (programId !== undefined && a.programId === programId),
+        );
+        if (existing?.status === "Submitted") {
+          navigate(`/payment/${existing.id}`); // applied but not paid yet
+          return;
+        }
+        if (existing?.status === "Accepted") {
+          setError("You are already enrolled.");
+          return;
+        }
+      }
       setError(getApiErrorMessage(err, "Could not submit your application."));
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   }
 
-  // Submitted just now
-  if (application) {
-    return (
-      <Box sx={{ mt: 2 }}>
-        <Alert severity="success" sx={{ mb: 2 }}>
-          Application submitted for <strong>{application.targetTitle}</strong> —
-          status {application.status}.
-        </Alert>
-        <Button
-          variant="contained"
-          color="secondary"
-          fullWidth
-          onClick={() => navigate("/applications")}
-        >
-          Continue to payment
-        </Button>
-      </Box>
-    );
-  }
+  // Helper text under the button
+  let hint = "";
+  if (!isOpen) hint = "Applications are not open right now.";
+  else if (!isAuthenticated) hint = "You will be asked to log in first.";
+  else if (!isLearner) hint = "Only learners can apply.";
 
-  // Not accepting applications
-  if (status !== "OpenForEnrollment") {
-    return (
-      <Box sx={{ mt: 2 }}>
-        <Button variant="contained" color="secondary" fullWidth disabled>
-          Apply now
-        </Button>
-        <Typography variant="caption" sx={captionSx}>
-          {status === "Full"
-            ? "This is full — applications are closed."
-            : status === "ComingSoon"
-              ? "Coming soon. Applications are not open yet."
-              : "Applications are not open for this."}
-        </Typography>
-      </Box>
-    );
-  }
-
-  // Visitor
-  if (!isAuthenticated) {
-    return (
-      <Box sx={{ mt: 2 }}>
-        <Button
-          variant="contained"
-          color="secondary"
-          fullWidth
-          onClick={() =>
-            navigate("/login", { state: { from: location.pathname } })
-          }
-        >
-          Log in to apply
-        </Button>
-        <Typography variant="caption" sx={captionSx}>
-          You need an account before you can apply.
-        </Typography>
-      </Box>
-    );
-  }
-
-  // Signed in, but not a learner
-  if (!hasRole("Learner")) {
-    return (
-      <Box sx={{ mt: 2 }}>
-        <Button variant="contained" color="secondary" fullWidth disabled>
-          Apply now
-        </Button>
-        <Typography variant="caption" sx={captionSx}>
-          Only learner accounts can apply.
-        </Typography>
-      </Box>
-    );
-  }
-
-  // Ready to apply
   return (
-    <Box sx={{ mt: 2 }}>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+    <>
       <Button
         variant="contained"
         color="secondary"
         fullWidth
+        disabled={!isOpen || (isAuthenticated && !isLearner) || loading}
         onClick={handleApply}
-        disabled={submitting}
+        sx={{ mt: 2 }}
       >
-        {submitting ? <CircularProgress size={24} /> : "Apply now"}
+        {loading ? <CircularProgress size={24} /> : "Apply now"}
       </Button>
-    </Box>
+
+      {hint && (
+        <Typography
+          variant="caption"
+          sx={{ display: "block", mt: 1, color: "text.secondary" }}
+        >
+          {hint}
+        </Typography>
+      )}
+
+      {error && (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+    </>
   );
 }
 
