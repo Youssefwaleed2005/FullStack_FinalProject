@@ -1,6 +1,5 @@
 ﻿using Andalusia.Api.Enums;
 using Andalusia.Api.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Andalusia.Api.Data
@@ -23,7 +22,7 @@ namespace Andalusia.Api.Data
             context.Roles.AddRange(learnerRole, instructorRole, adminRole, contentManagerRole);
 
             // ---------- 2. Instructors ----------
-            var hasher = new PasswordHasher<User>();
+            
 
             var ahmed = new User
             {
@@ -34,8 +33,7 @@ namespace Andalusia.Api.Data
                 Bio = "Senior software engineer with 10 years of experience in .NET and React.",
                 EmailConfirmed = true
             };
-            ahmed.PasswordHash = hasher.HashPassword(ahmed, "Instructor@123");
-
+            ahmed.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Instructor@123");
             var mona = new User
             {
                 FirstName = "Mona",
@@ -45,8 +43,30 @@ namespace Andalusia.Api.Data
                 Bio = "Data analyst and trainer specialised in SQL, Python and Power BI.",
                 EmailConfirmed = true
             };
-            mona.PasswordHash = hasher.HashPassword(mona, "Instructor@123");
+            mona.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Instructor@123");
 
+            var admin = new User
+            {
+                FirstName = "Salma",
+                LastName = "Sherif",
+                Email = "admin@andalusia.edu",
+                EmailConfirmed = true,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123")
+            };
+
+            var learner = new User
+            {
+                FirstName = "Omar",
+                LastName = "Khaled",
+                Email = "learner@andalusia.edu",
+                EmailConfirmed = true,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Learner@123")
+            };
+
+            context.Users.AddRange(admin, learner);
+            context.UserRoles.AddRange(
+                new UserRole { User = admin, Role = adminRole },
+                new UserRole { User = learner, Role = learnerRole });
             context.Users.AddRange(ahmed, mona);
             context.UserRoles.AddRange(
                 new UserRole { User = ahmed, Role = instructorRole },

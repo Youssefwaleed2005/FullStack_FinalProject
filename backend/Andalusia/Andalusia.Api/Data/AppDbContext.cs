@@ -71,7 +71,11 @@ namespace Andalusia.Api.Data
                 .WithMany(u => u.CoursesTaught)
                 .HasForeignKey(c => c.InstructorId);
 
-            
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;

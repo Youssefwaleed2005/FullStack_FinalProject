@@ -46,6 +46,10 @@ namespace Andalusia.Api.Middleware
                     statusCode = StatusCodes.Status400BadRequest;
                     message = exception.Message;
                     break;
+                case UnauthorizedException:
+                    statusCode = StatusCodes.Status401Unauthorized;
+                    message = exception.Message;
+                    break;
 
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
