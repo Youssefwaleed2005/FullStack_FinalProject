@@ -16,6 +16,7 @@ import CareerPathDetailsPage from "./pages/CareerPathDetailsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
+import MyEnrollmentsPage from "./pages/MyEnrollmentsPage";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/programs" element={<ProgramsPage />} />
             <Route path="/programs/:id" element={<ProgramDetailsPage />} />
             <Route path="/career-paths" element={<CareerPathsPage />} />
+            <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
             <Route
               path="/career-paths/:id"
               element={<CareerPathDetailsPage />}

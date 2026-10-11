@@ -30,6 +30,12 @@ const NAV_LINKS = [
   { label: "Contact", to: "/contact" },
 ];
 
+const ACCOUNT_LINKS = [
+  { label: "My learning", to: "/my-enrollments" },
+  { label: "My applications", to: "/applications" },
+  { label: "My profile", to: "/profile" },
+];
+
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -48,9 +54,10 @@ function Navbar() {
     setAnchorEl(null);
   }
 
-  function goToProfile() {
+  function goTo(path: string) {
     closeAccountMenu();
-    navigate("/profile");
+    setMenuOpen(false);
+    navigate(path);
   }
 
   function handleLogout() {
@@ -119,7 +126,12 @@ function Navbar() {
                   </Box>
                 </MenuItem>
                 <Divider />
-                <MenuItem onClick={goToProfile}>My profile</MenuItem>
+                {ACCOUNT_LINKS.map((link) => (
+                  <MenuItem key={link.to} onClick={() => goTo(link.to)}>
+                    {link.label}
+                  </MenuItem>
+                ))}
+                <Divider />
                 <MenuItem onClick={handleLogout}>Log out</MenuItem>
               </Menu>
             </>
@@ -163,16 +175,24 @@ function Navbar() {
 
           {isAuthenticated ? (
             <>
-              <ListItemButton
-                component={Link}
-                to="/profile"
-                onClick={() => setMenuOpen(false)}
-              >
+              <ListItemButton disabled sx={{ opacity: "1 !important" }}>
                 <ListItemText
-                  primary="My profile"
-                  secondary={`${user?.firstName} ${user?.lastName}`}
+                  primary={`${user?.firstName} ${user?.lastName}`}
+                  secondary={user?.roles.join(", ")}
                 />
               </ListItemButton>
+
+              {ACCOUNT_LINKS.map((link) => (
+                <ListItemButton
+                  key={link.to}
+                  component={Link}
+                  to={link.to}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <ListItemText primary={link.label} />
+                </ListItemButton>
+              ))}
+
               <ListItemButton onClick={handleLogout}>
                 <ListItemText primary="Log out" />
               </ListItemButton>

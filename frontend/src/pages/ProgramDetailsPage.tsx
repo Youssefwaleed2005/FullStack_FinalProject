@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import type { Program } from "../types/Program";
 import type { ProgramDetails } from "../types/ProgramDetails";
+import ApplyButton from "../components/ApplyButton";
 import { getProgramById, getRelatedPrograms } from "../services/programService";
 import ProgramCard from "../components/ProgramCard";
 import InfoRow from "../components/InfoRow";
@@ -213,22 +214,11 @@ function ProgramDetailsContent({ programId }: ProgramDetailsContentProps) {
           <InfoRow label="Start date" value={program.startDate} />
           <InfoRow label="End date" value={program.endDate} />
           <InfoRow label="Capacity" value={`${program.capacity} students`} />
-
-          <Button
-            variant="contained"
-            color="secondary"
-            fullWidth
-            disabled
-            sx={{ mt: 2 }}
-          >
-            Apply now
-          </Button>
-          <Typography
-            variant="caption"
-            sx={{ display: "block", mt: 1, color: "text.secondary" }}
-          >
-            Applications open in a later release.
-          </Typography>
+          <ApplyButton
+            targetType="Program"
+            targetId={program.id}
+            status={program.status}
+          />
         </Paper>
       </Box>
 

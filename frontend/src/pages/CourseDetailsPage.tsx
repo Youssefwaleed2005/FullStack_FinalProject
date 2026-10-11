@@ -16,6 +16,7 @@ import type { CourseDetails } from "../types/CourseDetails";
 import { getCourseById, getRelatedCourses } from "../services/courseService";
 import CourseCard from "../components/CourseCard";
 import InfoRow from "../components/InfoRow";
+import ApplyButton from "../components/ApplyButton";
 import { STATUS_LABELS } from "../utils/statusLabels";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/1200x500?text=Course";
@@ -193,22 +194,11 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
           <InfoRow label="Start date" value={course.startDate} />
           <InfoRow label="End date" value={course.endDate} />
           <InfoRow label="Capacity" value={`${course.capacity} students`} />
-
-          <Button
-            variant="contained"
-            color="secondary"
-            fullWidth
-            disabled
-            sx={{ mt: 2 }}
-          >
-            Apply now
-          </Button>
-          <Typography
-            variant="caption"
-            sx={{ display: "block", mt: 1, color: "text.secondary" }}
-          >
-            Applications open in a later release.
-          </Typography>
+          <ApplyButton
+            targetType="Course"
+            targetId={course.id}
+            status={course.status}
+          />
         </Paper>
       </Box>
 
