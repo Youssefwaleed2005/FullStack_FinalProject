@@ -3,6 +3,7 @@ import CourseCard from "@/components/CourseCard";
 import CourseCardSkeleton from "@/components/CourseCardSkeleton";
 import CourseFilterBar from "@/components/CourseFilterBar";
 import CoursePagination from "@/components/CoursePagination";
+import PageHeader from "@/components/PageHeader";
 import SearchInput from "@/components/SearchInput";
 import StateMessage from "@/components/StateMessage";
 import { Button } from "@/components/ui/button";
@@ -44,30 +45,18 @@ function CourseCatalogPage() {
 
   return (
     <>
-      {/* Page header with the search box */}
-      <section className="relative overflow-hidden border-b border-border/70 bg-linear-to-b from-secondary/70 to-background">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 right-0 size-96 rounded-full bg-sand/25 blur-3xl"
+      <PageHeader
+        eyebrow="Course catalog"
+        title="Learn the skills that move your career forward"
+        description="Browse online and on-campus courses taught by working professionals."
+      >
+        <SearchInput
+          value={filters.search}
+          onSearch={(value) => setFilter("search", value)}
+          placeholder="Search courses"
+          className="mt-8 max-w-xl"
         />
-        <div className="relative mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <p className="text-xs font-semibold tracking-[0.2em] text-sand-deep uppercase">
-            Course catalog
-          </p>
-          <h1 className="mt-3 max-w-2xl text-4xl leading-tight font-semibold text-balance sm:text-5xl">
-            Learn the skills that move your career forward
-          </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Browse online and on-campus courses taught by working professionals.
-          </p>
-          <SearchInput
-            value={filters.search}
-            onSearch={(value) => setFilter("search", value)}
-            placeholder="Search courses"
-            className="mt-8 max-w-xl"
-          />
-        </div>
-      </section>
+      </PageHeader>
 
       <section
         aria-label="Courses"

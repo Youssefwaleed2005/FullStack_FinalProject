@@ -4,15 +4,18 @@ type ApiData<T> = {
   data: T | null;
   loading: boolean;
   failed: boolean;
+  // The thrown error when failed, e.g. to tell a 404 from a network problem
+  error: unknown;
 };
 
 // Calls a loader function once and tracks its loading / failed state.
-// Define the loader outside the component so it is the same function on every render.
+// Define the loader outside the component (or wrap it in useCallback) so it is the same function on every render.
 export function useApiData<T>(loader: () => Promise<T>): ApiData<T> {
   const [state, setState] = useState<ApiData<T>>({
     data: null,
     loading: true,
     failed: false,
+    error: null,
   });
 
   useEffect(() => {
@@ -21,10 +24,12 @@ export function useApiData<T>(loader: () => Promise<T>): ApiData<T> {
 
     loader()
       .then((data) => {
-        if (!cancelled) setState({ data, loading: false, failed: false });
+        if (!cancelled)
+          setState({ data, loading: false, failed: false, error: null });
       })
-      .catch(() => {
-        if (!cancelled) setState({ data: null, loading: false, failed: true });
+      .catch((error: unknown) => {
+        if (!cancelled)
+          setState({ data: null, loading: false, failed: true, error });
       });
 
     return () => {

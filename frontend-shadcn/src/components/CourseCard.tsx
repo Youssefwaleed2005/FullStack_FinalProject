@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -8,6 +7,9 @@ import {
   MonitorPlay,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import CoverImage from "@/components/CoverImage";
+import StatusPill from "@/components/StatusPill";
+import { cardImageZoom, cardStyle } from "@/lib/styles";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import type { Course } from "@/types/Course";
 
@@ -16,38 +18,22 @@ type CourseCardProps = {
 };
 
 function CourseCard({ course }: CourseCardProps) {
-  // If the image is missing or fails to load we show a branded placeholder instead
-  const [imageFailed, setImageFailed] = useState(false);
-  const showImage = course.imageUrl !== null && !imageFailed;
-  const status = STATUS_META[course.status];
   const isOnline = course.type === "Online";
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition duration-300 ease-out focus-within:ring-3 focus-within:ring-ring/50 hover:-translate-y-1 hover:border-sand/70 hover:shadow-xl hover:shadow-primary/10 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-      <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
-        {showImage ? (
-          <img
-            src={course.imageUrl ?? undefined}
-            alt=""
-            loading="lazy"
-            onError={() => setImageFailed(true)}
-            className="size-full object-cover transition duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="flex size-full items-center justify-center bg-linear-to-br from-primary via-[#5a3f26] to-[#7a5632]"
-          >
-            <span className="font-heading text-7xl font-semibold text-sand/40">
-              {course.title.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
+    <article className={cardStyle}>
+      <div className="relative">
+        <CoverImage
+          src={course.imageUrl}
+          title={course.title}
+          className="aspect-[16/10]"
+          imageClassName={cardImageZoom}
+        />
 
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur">
-          <span aria-hidden className={`size-1.5 rounded-full ${status.dot}`} />
-          {status.label}
-        </span>
+        <StatusPill
+          status={STATUS_META[course.status]}
+          className="absolute top-3 left-3 bg-white/95 shadow-sm ring-0 backdrop-blur"
+        />
 
         {course.isFeatured && (
           <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">

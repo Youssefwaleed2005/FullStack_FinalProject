@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import CategoryChips from "@/components/CategoryChips";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -71,28 +72,12 @@ function CourseFilterBar({
 
   return (
     <div className="space-y-4">
-      {/* Category chips: scroll sideways on small screens */}
-      {categories.length > 0 && (
-        <div
-          role="group"
-          aria-label="Filter by category"
-          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden"
-        >
-          <CategoryChip
-            label="All courses"
-            selected={filters.categoryId === null}
-            onClick={() => onFilterChange("categoryId", null)}
-          />
-          {categories.map((category) => (
-            <CategoryChip
-              key={category.id}
-              label={category.name}
-              selected={filters.categoryId === category.id}
-              onClick={() => onFilterChange("categoryId", category.id)}
-            />
-          ))}
-        </div>
-      )}
+      <CategoryChips
+        categories={categories}
+        selectedId={filters.categoryId}
+        onSelect={(categoryId) => onFilterChange("categoryId", categoryId)}
+        allLabel="All courses"
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
         <Select
@@ -183,30 +168,6 @@ function CourseFilterBar({
         </div>
       )}
     </div>
-  );
-}
-
-type CategoryChipProps = {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-};
-
-function CategoryChip({ label, selected, onClick }: CategoryChipProps) {
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onClick}
-      className={cn(
-        "shrink-0 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-        selected
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-muted-foreground hover:border-sand hover:text-foreground",
-      )}
-    >
-      {label}
-    </button>
   );
 }
 

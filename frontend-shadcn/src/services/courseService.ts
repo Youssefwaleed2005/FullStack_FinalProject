@@ -1,5 +1,10 @@
 import api from "./api";
-import type { Course, CourseStatus, CourseType } from "@/types/Course";
+import type {
+  Course,
+  CourseDetails,
+  CourseStatus,
+  CourseType,
+} from "@/types/Course";
 import type { PagedResponse } from "@/types/PagedResponse";
 
 export type CourseQueryParams = {
@@ -24,6 +29,21 @@ export async function getCourses(
   const response = await api.get<PagedResponse<Course>>("/courses", {
     params,
     signal,
+  });
+  return response.data;
+}
+
+export async function getCourseById(id: number): Promise<CourseDetails> {
+  const response = await api.get<CourseDetails>(`/courses/${id}`);
+  return response.data;
+}
+
+export async function getRelatedCourses(
+  id: number,
+  take = 3,
+): Promise<Course[]> {
+  const response = await api.get<Course[]>(`/courses/${id}/related`, {
+    params: { take },
   });
   return response.data;
 }

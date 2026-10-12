@@ -14,7 +14,7 @@ function ComingSoonPage({ title }: ComingSoonPageProps) {
       <StateMessage
         icon={Hammer}
         title={title}
-        description="This page is not part of the shadcn experiment yet. The course catalog is ready to explore."
+        description="This page is still being built. In the meantime, the course catalog is ready to explore."
         action={
           <Button asChild size="lg" className="rounded-full px-5">
             <Link to="/courses">Browse courses</Link>
