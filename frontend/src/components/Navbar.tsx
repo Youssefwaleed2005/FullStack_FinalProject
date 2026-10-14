@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import {
   AppBar,
   Toolbar,
@@ -10,9 +11,15 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  Divider,
+  Avatar,
+  Menu,
+  MenuItem,
+  Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
@@ -25,6 +32,33 @@ const NAV_LINKS = [
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : "";
+
+  function openAccountMenu(event: MouseEvent<HTMLElement>) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  function closeAccountMenu() {
+    setAnchorEl(null);
+  }
+
+  function goToProfile() {
+    closeAccountMenu();
+    navigate("/profile");
+  }
+
+  function handleLogout() {
+    closeAccountMenu();
+    setMenuOpen(false);
+    logout();
+    navigate("/");
+  }
 
   return (
     <AppBar color="secondary" position="sticky">
@@ -33,8 +67,8 @@ function Navbar() {
           Andalusia Academy
         </Typography>
 
-        {/* Desktop: buttons in a row */}
-        <Box sx={{ display: { xs: "none", md: "block" } }}>
+        {/* Desktop links */}
+        <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}>
           {NAV_LINKS.map((link) => (
             <Button key={link.to} color="inherit" component={Link} to={link.to}>
               {link.label}
@@ -42,7 +76,66 @@ function Navbar() {
           ))}
         </Box>
 
-        {/* Mobile: menu icon */}
+        {/* Account control — swaps between Log in and the avatar menu */}
+        <Box sx={{ display: { xs: "none", md: "flex" }, ml: 1 }}>
+          {isAuthenticated ? (
+            <>
+              <Tooltip title={`${user?.firstName} ${user?.lastName}`}>
+                <IconButton
+                  onClick={openAccountMenu}
+                  size="small"
+                  aria-label="Account menu"
+                >
+                  <Avatar
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      bgcolor: "primary.main",
+                      color: "secondary.main",
+                      fontSize: 14,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {initials}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={closeAccountMenu}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem disabled sx={{ opacity: "1 !important" }}>
+                  <Box>
+                    <Typography variant="body2" fontWeight={600}>
+                      {user?.firstName} {user?.lastName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {user?.roles.join(", ")}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={goToProfile}>My profile</MenuItem>
+                <MenuItem onClick={handleLogout}>Log out</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              variant="outlined"
+              color="inherit"
+              component={Link}
+              to="/login"
+            >
+              Log in
+            </Button>
+          )}
+        </Box>
+
+        {/* Mobile */}
         <IconButton
           color="inherit"
           aria-label="Open menu"
@@ -65,6 +158,43 @@ function Navbar() {
               <ListItemText primary={link.label} />
             </ListItemButton>
           ))}
+
+          <Divider sx={{ my: 1 }} />
+
+          {isAuthenticated ? (
+            <>
+              <ListItemButton
+                component={Link}
+                to="/profile"
+                onClick={() => setMenuOpen(false)}
+              >
+                <ListItemText
+                  primary="My profile"
+                  secondary={`${user?.firstName} ${user?.lastName}`}
+                />
+              </ListItemButton>
+              <ListItemButton onClick={handleLogout}>
+                <ListItemText primary="Log out" />
+              </ListItemButton>
+            </>
+          ) : (
+            <>
+              <ListItemButton
+                component={Link}
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+              >
+                <ListItemText primary="Log in" />
+              </ListItemButton>
+              <ListItemButton
+                component={Link}
+                to="/register"
+                onClick={() => setMenuOpen(false)}
+              >
+                <ListItemText primary="Register" />
+              </ListItemButton>
+            </>
+          )}
         </List>
       </Drawer>
     </AppBar>
