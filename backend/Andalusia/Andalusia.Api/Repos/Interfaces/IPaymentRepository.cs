@@ -6,6 +6,7 @@ namespace Andalusia.Api.Repos.Interfaces
     public interface IPaymentRepository : IGenericRepository<Payment>
     {
         Task<Payment?> GetPendingForApplicationAsync(int applicationId);
+        Task<List<Payment>> GetOtherPendingAsync(int applicationId, int exceptPaymentId);
         Task<Payment?> GetByIdForConfirmAsync(int id);
         Task<Payment?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<Payment>> GetByUserAsync(int userId);

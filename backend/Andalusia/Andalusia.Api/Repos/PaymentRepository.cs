@@ -21,6 +21,16 @@ namespace Andalusia.Api.Repos
                                        && p.Status == PaymentStatus.Pending);
         }
 
+        // Other pending payments for the same application (tracked, so we can update them)
+        public async Task<List<Payment>> GetOtherPendingAsync(int applicationId, int exceptPaymentId)
+        {
+            return await _dbSet
+                .Where(p => p.ApplicationId == applicationId
+                         && p.Id != exceptPaymentId
+                         && p.Status == PaymentStatus.Pending)
+                .ToListAsync();
+        }
+
         public async Task<Payment?> GetByIdForConfirmAsync(int id)
         {
             // Tracked (no AsNoTracking): confirm changes the payment and its application

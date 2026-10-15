@@ -16,6 +16,8 @@ import CareerPathDetailsPage from "./pages/CareerPathDetailsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
+import PaymentPage from "./pages/PaymentPage";
+import MyPaymentsPage from "./pages/MyPaymentsPage";
 
 function App() {
   return (
@@ -43,6 +45,12 @@ function App() {
             {/* Any signed-in user */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
+            </Route>
+
+            {/* Learners only */}
+            <Route element={<ProtectedRoute allowedRoles={["Learner"]} />}>
+              <Route path="/payment/:applicationId" element={<PaymentPage />} />
+              <Route path="/my-payments" element={<MyPaymentsPage />} />
             </Route>
 
             {/* Role-restricted — for demo item 18 */}

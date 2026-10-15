@@ -8,3 +8,16 @@ export const STATUS_LABELS: Record<Course["status"], string> = {
   InProgress: "In progress",
   Completed: "Completed",
 };
+
+// Chip color for each status (used on the cards and details pages)
+export const STATUS_COLORS: Record<
+  Course["status"],
+  "success" | "info" | "warning" | "error" | "default"
+> = {
+  Draft: "default",
+  ComingSoon: "info",
+  OpenForEnrollment: "success",
+  Full: "error",
+  InProgress: "warning",
+  Completed: "default",
+};

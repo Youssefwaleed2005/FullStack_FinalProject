@@ -33,7 +33,7 @@ const NAV_LINKS = [
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, hasRole } = useAuth();
   const navigate = useNavigate();
 
   const initials = user
@@ -51,6 +51,11 @@ function Navbar() {
   function goToProfile() {
     closeAccountMenu();
     navigate("/profile");
+  }
+
+  function goToMyPayments() {
+    closeAccountMenu();
+    navigate("/my-payments");
   }
 
   function handleLogout() {
@@ -120,6 +125,9 @@ function Navbar() {
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={goToProfile}>My profile</MenuItem>
+                {hasRole("Learner") && (
+                  <MenuItem onClick={goToMyPayments}>My payments</MenuItem>
+                )}
                 <MenuItem onClick={handleLogout}>Log out</MenuItem>
               </Menu>
             </>
@@ -173,6 +181,15 @@ function Navbar() {
                   secondary={`${user?.firstName} ${user?.lastName}`}
                 />
               </ListItemButton>
+              {hasRole("Learner") && (
+                <ListItemButton
+                  component={Link}
+                  to="/my-payments"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <ListItemText primary="My payments" />
+                </ListItemButton>
+              )}
               <ListItemButton onClick={handleLogout}>
                 <ListItemText primary="Log out" />
               </ListItemButton>

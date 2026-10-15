@@ -1,11 +1,14 @@
 import {
+  Box,
   Card,
   CardContent,
   CardMedia,
+  Chip,
   Typography,
   Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import { STATUS_COLORS, STATUS_LABELS } from "../utils/statusLabels";
 import type { Program } from "../types/Program";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=Program";
@@ -24,9 +27,24 @@ function ProgramCard({ program }: ProgramCardProps) {
         alt={program.title}
       />
       <CardContent>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>
-          {program.categoryName}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 1,
+            mb: 0.5,
+          }}
+        >
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            {program.categoryName}
+          </Typography>
+          <Chip
+            label={STATUS_LABELS[program.status]}
+            color={STATUS_COLORS[program.status]}
+            size="small"
+          />
+        </Box>
         <Typography variant="h6">{program.title}</Typography>
         {program.shortDescription && (
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
