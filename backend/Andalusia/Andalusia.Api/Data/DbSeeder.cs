@@ -302,6 +302,179 @@ namespace Andalusia.Api.Data
                 new Testimonial { AuthorName = "Omar Fathy", AuthorTitle = "Data analyst", Content = "Clear explanations and real projects. I used what I learned at work the same week.", Rating = 5, IsPublished = true },
                 new Testimonial { AuthorName = "Salma Adel", AuthorTitle = "Software engineering student", Content = "The instructors actually answer questions. That made the difference for me.", Rating = 4, IsPublished = true });
 
+            // ---------- 9. Demo enrollments (so the LMS has data) ----------
+            var learner2 = new User
+            {
+                FirstName = "Nada",
+                LastName = "Ibrahim",
+                Email = "learner2@andalusia.edu",
+                EmailConfirmed = true,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Learner@123")
+            };
+            context.Users.Add(learner2);
+            context.UserRoles.Add(new UserRole { User = learner2, Role = learnerRole });
+
+            var now = DateTime.UtcNow;
+
+            // Omar and Nada are enrolled in Ahmed's ASP.NET course (applied → paid → enrolled)
+            foreach (var student in new[] { learner, learner2 })
+            {
+                var application = new Application
+                {
+                    User = student,
+                    Course = aspNet,
+                    Status = ApplicationStatus.Accepted,
+                    CreatedAt = now.AddDays(-10),
+                    ReviewedAt = now.AddDays(-10)
+                };
+                application.Payments.Add(new Payment
+                {
+                    Amount = aspNet.Price,
+                    Method = PaymentMethod.Card,
+                    Status = PaymentStatus.Paid,
+                    TransactionId = $"SIM-SEED-{Guid.NewGuid():N}",
+                    CreatedAt = now.AddDays(-10),
+                    PaidAt = now.AddDays(-10)
+                });
+                application.Enrollment = new Enrollment
+                {
+                    Status = EnrollmentStatus.Active,
+                    EnrolledAt = now.AddDays(-10)
+                };
+                context.Applications.Add(application);
+            }
+
+            // ---------- 10. Sessions ----------
+            var session1 = new Session
+            {
+                Course = aspNet,
+                Title = "Introduction to Web APIs",
+                Description = "HTTP, REST and setting up the project.",
+                StartTime = now.Date.AddDays(-7).AddHours(16),
+                EndTime = now.Date.AddDays(-7).AddHours(18),
+                Location = "Room 3"
+            };
+            var session2 = new Session
+            {
+                Course = aspNet,
+                Title = "Controllers and Routing",
+                Description = "Building endpoints and returning the right status codes.",
+                StartTime = now.Date.AddDays(-3).AddHours(16),
+                EndTime = now.Date.AddDays(-3).AddHours(18),
+                Location = "Room 3"
+            };
+            var session3 = new Session
+            {
+                Course = aspNet,
+                Title = "Entity Framework Core",
+                Description = "Models, DbContext and migrations.",
+                StartTime = now.Date.AddDays(4).AddHours(16),
+                EndTime = now.Date.AddDays(4).AddHours(18),
+                Location = "Room 3"
+            };
+            var session4 = new Session
+            {
+                Course = aspNet,
+                Title = "Authentication with JWT",
+                Description = "Login, tokens and protecting endpoints.",
+                StartTime = now.Date.AddDays(11).AddHours(16),
+                EndTime = now.Date.AddDays(11).AddHours(18),
+                Location = "Room 3"
+            };
+            var reactSession = new Session
+            {
+                Course = react,
+                Title = "Components and Props",
+                Description = "Your first React components.",
+                StartTime = now.Date.AddDays(14).AddHours(18),
+                EndTime = now.Date.AddDays(14).AddHours(20),
+                Location = "Room 1"
+            };
+            context.Sessions.AddRange(session1, session2, session3, session4, reactSession);
+
+            // ---------- 11. Attendance (past sessions only) ----------
+            context.Attendances.AddRange(
+                new Attendance { Session = session1, User = learner, Status = AttendanceStatus.Present, MarkedAt = session1.EndTime },
+                new Attendance { Session = session1, User = learner2, Status = AttendanceStatus.Present, MarkedAt = session1.EndTime },
+                new Attendance { Session = session2, User = learner, Status = AttendanceStatus.Present, MarkedAt = session2.EndTime },
+                new Attendance { Session = session2, User = learner2, Status = AttendanceStatus.Absent, MarkedAt = session2.EndTime });
+
+            // ---------- 12. Materials ----------
+            context.Materials.AddRange(
+                new Material
+                {
+                    Course = aspNet,
+                    Title = "Week 1 slides",
+                    Description = "Slides from the introduction session.",
+                    Type = MaterialType.Document,
+                    Url = "https://example.com/aspnet/week1-slides.pdf",
+                    CreatedAt = now.AddDays(-7)
+                },
+                new Material
+                {
+                    Course = aspNet,
+                    Title = "ASP.NET Core documentation",
+                    Description = "Official Microsoft docs for Web APIs.",
+                    Type = MaterialType.Link,
+                    Url = "https://learn.microsoft.com/aspnet/core/web-api",
+                    CreatedAt = now.AddDays(-7)
+                },
+                new Material
+                {
+                    Course = aspNet,
+                    Title = "Routing explained (video)",
+                    Description = "Recording of session 2.",
+                    Type = MaterialType.Video,
+                    Url = "https://example.com/aspnet/routing-video",
+                    CreatedAt = now.AddDays(-3)
+                });
+
+            // ---------- 13. Assignments + submissions ----------
+            var assignment1 = new Assignment
+            {
+                Course = aspNet,
+                Title = "Build your first endpoint",
+                Description = "Create a GET endpoint that returns a list of books.",
+                DueDate = now.Date.AddDays(-1).AddHours(23).AddMinutes(59),
+                MaxScore = 100,
+                CreatedAt = now.AddDays(-7)
+            };
+            var assignment2 = new Assignment
+            {
+                Course = aspNet,
+                Title = "CRUD API with EF Core",
+                Description = "Add create, update and delete endpoints using EF Core.",
+                DueDate = now.Date.AddDays(10).AddHours(23).AddMinutes(59),
+                MaxScore = 100,
+                CreatedAt = now.AddDays(-3)
+            };
+            context.Assignments.AddRange(assignment1, assignment2);
+
+            context.Submissions.AddRange(
+                // Omar: submitted and graded
+                new Submission
+                {
+                    Assignment = assignment1,
+                    User = learner,
+                    Content = "My endpoint is GET /api/books and returns 3 books.",
+                    FileUrl = "https://github.com/omar/books-api",
+                    SubmittedAt = now.AddDays(-2),
+                    Status = SubmissionStatus.Graded,
+                    Score = 85,
+                    Feedback = "Good work. Remember to return 404 when a book is not found.",
+                    GradedAt = now.AddDays(-1)
+                },
+                // Nada: submitted, waiting for the instructor to grade
+                new Submission
+                {
+                    Assignment = assignment1,
+                    User = learner2,
+                    Content = "Done, see my repository.",
+                    FileUrl = "https://github.com/nada/first-endpoint",
+                    SubmittedAt = now.AddDays(-1),
+                    Status = SubmissionStatus.Submitted
+                });
+
             await context.SaveChangesAsync();
         }
     }

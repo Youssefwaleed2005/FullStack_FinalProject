@@ -53,5 +53,9 @@ namespace Andalusia.Api.Models
         public User? Instructor { get; set; }
         public ICollection<ProgramCourse> ProgramCourses { get; set; } = new List<ProgramCourse>();
         public ICollection<Application> Applications { get; set; } = new List<Application>();
+
+        public ICollection<Session> Sessions { get; set; } = new List<Session>();
+        public ICollection<Material> Materials { get; set; } = new List<Material>();
+        public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
     }
 }

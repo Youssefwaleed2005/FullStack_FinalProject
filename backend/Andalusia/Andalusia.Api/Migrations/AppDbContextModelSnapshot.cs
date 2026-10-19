@@ -144,6 +144,73 @@ namespace Andalusia.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MaxScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Assignments");
+                });
+
+            modelBuilder.Entity("Andalusia.Api.Models.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("MarkedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("SessionId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Attendances");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.CareerPath", b =>
                 {
                     b.Property<int>("Id")
@@ -357,6 +424,46 @@ namespace Andalusia.Api.Migrations
                     b.ToTable("Enrollments");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Material", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Materials");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.Partner", b =>
                 {
                     b.Property<int>("Id")
@@ -532,6 +639,95 @@ namespace Andalusia.Api.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Session", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Sessions");
+                });
+
+            modelBuilder.Entity("Andalusia.Api.Models.Submission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FileUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("GradedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("AssignmentId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Submissions");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.Testimonial", b =>
                 {
                     b.Property<int>("Id")
@@ -693,6 +889,36 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Assignment", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Course", "Course")
+                        .WithMany("Assignments")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("Andalusia.Api.Models.Attendance", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Session", "Session")
+                        .WithMany("Attendances")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Andalusia.Api.Models.User", "User")
+                        .WithMany("Attendances")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.CareerPathProgram", b =>
                 {
                     b.HasOne("Andalusia.Api.Models.CareerPath", "CareerPath")
@@ -739,6 +965,17 @@ namespace Andalusia.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Application");
+                });
+
+            modelBuilder.Entity("Andalusia.Api.Models.Material", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Course", "Course")
+                        .WithMany("Materials")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("Andalusia.Api.Models.Payment", b =>
@@ -790,6 +1027,36 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Session", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Course", "Course")
+                        .WithMany("Sessions")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("Andalusia.Api.Models.Submission", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Assignment", "Assignment")
+                        .WithMany("Submissions")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Andalusia.Api.Models.User", "User")
+                        .WithMany("Submissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.UserRole", b =>
                 {
                     b.HasOne("Andalusia.Api.Models.Role", "Role")
@@ -825,6 +1092,11 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Assignment", b =>
+                {
+                    b.Navigation("Submissions");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.CareerPath", b =>
                 {
                     b.Navigation("CareerPathPrograms");
@@ -841,7 +1113,13 @@ namespace Andalusia.Api.Migrations
                 {
                     b.Navigation("Applications");
 
+                    b.Navigation("Assignments");
+
+                    b.Navigation("Materials");
+
                     b.Navigation("ProgramCourses");
+
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Andalusia.Api.Models.Permission", b =>
@@ -856,11 +1134,20 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("UserRoles");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Session", b =>
+                {
+                    b.Navigation("Attendances");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.User", b =>
                 {
                     b.Navigation("Applications");
 
+                    b.Navigation("Attendances");
+
                     b.Navigation("CoursesTaught");
+
+                    b.Navigation("Submissions");
 
                     b.Navigation("UserRoles");
                 });

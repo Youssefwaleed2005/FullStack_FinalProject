@@ -51,5 +51,9 @@ namespace Andalusia.Api.Models
         public ICollection<Course> CoursesTaught { get; set; } = new List<Course>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<Application> Applications { get; set; } = new List<Application>();
+
+        // Learner activity
+        public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+        public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
     }
 }

@@ -26,6 +26,12 @@ namespace Andalusia.Api.Data
         public DbSet<Partner> Partners { get; set; }
         public DbSet<Testimonial> Testimonials { get; set; }
 
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<Material> Materials { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<Submission> Submissions { get; set; }
+
         //save enums as text instead of numbers
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
@@ -36,6 +42,9 @@ namespace Andalusia.Api.Data
             configurationBuilder.Properties<PaymentMethod>().HaveConversion<string>().HaveMaxLength(30);
             configurationBuilder.Properties<EnrollmentStatus>().HaveConversion<string>().HaveMaxLength(30);
             configurationBuilder.Properties<PartnerType>().HaveConversion<string>().HaveMaxLength(30);
+            configurationBuilder.Properties<AttendanceStatus>().HaveConversion<string>().HaveMaxLength(30);
+            configurationBuilder.Properties<MaterialType>().HaveConversion<string>().HaveMaxLength(30);
+            configurationBuilder.Properties<SubmissionStatus>().HaveConversion<string>().HaveMaxLength(30);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -80,6 +89,10 @@ namespace Andalusia.Api.Data
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            // a learner has one attendance row per session, and one submission per assignment
+            modelBuilder.Entity<Attendance>().HasIndex(a => new { a.SessionId, a.UserId }).IsUnique();
+            modelBuilder.Entity<Submission>().HasIndex(s => new { s.AssignmentId, s.UserId }).IsUnique();
         }
     }
 }

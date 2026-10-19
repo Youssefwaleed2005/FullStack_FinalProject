@@ -13,4 +13,10 @@
     public enum EnrollmentStatus { Active, Paused, Completed, Cancelled }
 
     public enum PartnerType { Partner, Accreditation }
+
+    public enum AttendanceStatus { Present, Absent, Late, Excused }
+
+    public enum MaterialType { Link, File, Video, Document }
+
+    public enum SubmissionStatus { Submitted, Graded }
 }
