@@ -90,7 +90,8 @@ builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
-
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
