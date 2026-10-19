@@ -51,6 +51,11 @@ namespace Andalusia.Api.Middleware
                     message = exception.Message;
                     break;
 
+                case ForbiddenException:
+                    statusCode = StatusCodes.Status403Forbidden;
+                    message = exception.Message;
+                    break;
+
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     message = "An unexpected error occurred.";

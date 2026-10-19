@@ -2,6 +2,8 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Andalusia.Api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Andalusia.Api.Controllers
 {
@@ -31,6 +33,7 @@ namespace Andalusia.Api.Controllers
             return Ok(path);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<ActionResult<CareerPathDetailsResponseDto>> Create(CareerPathRequestDto dto)
         {
@@ -38,6 +41,7 @@ namespace Andalusia.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id:int}")]
         public async Task<ActionResult<CareerPathDetailsResponseDto>> Update(int id, CareerPathRequestDto dto)
         {
@@ -45,6 +49,7 @@ namespace Andalusia.Api.Controllers
             return Ok(updated);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

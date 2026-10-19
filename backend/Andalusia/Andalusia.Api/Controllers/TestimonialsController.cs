@@ -2,6 +2,8 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Andalusia.Api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Andalusia.Api.Controllers
 {
@@ -24,6 +26,7 @@ namespace Andalusia.Api.Controllers
         public async Task<ActionResult<TestimonialResponseDto>> GetById(int id)
             => Ok(await _service.GetByIdAsync(id));
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpPost]
         public async Task<ActionResult<TestimonialResponseDto>> Create(TestimonialRequestDto dto)
         {
@@ -31,10 +34,12 @@ namespace Andalusia.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpPut("{id:int}")]
         public async Task<ActionResult<TestimonialResponseDto>> Update(int id, TestimonialRequestDto dto)
             => Ok(await _service.UpdateAsync(id, dto));
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

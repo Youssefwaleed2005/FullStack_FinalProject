@@ -3,6 +3,8 @@ using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Enums;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Andalusia.Api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Andalusia.Api.Controllers
 {
@@ -32,6 +34,7 @@ namespace Andalusia.Api.Controllers
             return Ok(partner);
         }
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpPost]
         public async Task<ActionResult<PartnerResponseDto>> Create(PartnerRequestDto dto)
         {
@@ -39,6 +42,7 @@ namespace Andalusia.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpPut("{id:int}")]
         public async Task<ActionResult<PartnerResponseDto>> Update(int id, PartnerRequestDto dto)
         {
@@ -46,6 +50,7 @@ namespace Andalusia.Api.Controllers
             return Ok(updated);
         }
 
+        [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

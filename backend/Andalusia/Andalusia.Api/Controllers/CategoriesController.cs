@@ -2,6 +2,8 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Andalusia.Api.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Andalusia.Api.Controllers
 {
@@ -33,6 +35,7 @@ namespace Andalusia.Api.Controllers
         }
 
       
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<ActionResult<CategoryResponseDto>> Create(CategoryRequestDto dto)
         {
@@ -41,6 +44,7 @@ namespace Andalusia.Api.Controllers
         }
 
       
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id:int}")]
         public async Task<ActionResult<CategoryResponseDto>> Update(int id, CategoryRequestDto dto)
         {
@@ -49,6 +53,7 @@ namespace Andalusia.Api.Controllers
         }
 
        
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
