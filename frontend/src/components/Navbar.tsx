@@ -118,10 +118,10 @@ function Navbar() {
               >
                 <MenuItem disabled sx={{ opacity: "1 !important" }}>
                   <Box>
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {user?.firstName} {user?.lastName}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
                       {user?.roles.join(", ")}
                     </Typography>
                   </Box>

@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import { getProfile, updateProfile } from "../services/authService";
-import ApplyButton from "../components/ApplyButton";
 import { getApiErrorMessage } from "../services/api";
 import type { UserProfile } from "../types/Auth";
 

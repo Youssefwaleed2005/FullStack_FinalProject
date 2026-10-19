@@ -190,7 +190,7 @@ function RegisterPage() {
             label="I accept the terms and conditions"
           />
           {fieldErrors.acceptedTerms && (
-            <Typography variant="caption" color="error" display="block">
+            <Typography variant="caption" sx={{ color: "error.main", display: "block" }}>
               {fieldErrors.acceptedTerms}
             </Typography>
           )}
