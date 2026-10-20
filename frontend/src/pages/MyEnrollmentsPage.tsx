@@ -141,7 +141,7 @@ function MyEnrollmentsPage() {
                 component={Link}
                 to={
                   enrollment.targetType === "Course"
-                    ? `/courses/${enrollment.courseId}`
+                    ? `/learning/courses/${enrollment.courseId}`
                     : `/programs/${enrollment.programId}`
                 }
                 color="secondary"

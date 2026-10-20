@@ -26,6 +26,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminPaymentsPage from "./pages/admin/AdminPaymentsPage";
 import AdminCoursesPage from "./pages/admin/AdminCoursesPage";
+import LearnerCoursePage from "./pages/learner/LearnerCoursePage";
 
 function App() {
   return (
@@ -35,6 +36,10 @@ function App() {
           <Navbar />
           <Routes>
             {/* Public */}
+            <Route
+              path="/learning/courses/:id"
+              element={<LearnerCoursePage />}
+            />
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
@@ -66,7 +71,10 @@ function App() {
             {/* Instructors only */}
             <Route element={<ProtectedRoute allowedRoles={["Instructor"]} />}>
               <Route path="/instructor" element={<InstructorDashboardPage />} />
-              <Route path="/instructor/courses/:id" element={<InstructorCoursePage />} />
+              <Route
+                path="/instructor/courses/:id"
+                element={<InstructorCoursePage />}
+              />
             </Route>
 
             {/* Admin only */}
