@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type ApiData<T> = {
   data: T | null;
@@ -6,17 +6,22 @@ type ApiData<T> = {
   failed: boolean;
   // The thrown error when failed, e.g. to tell a 404 from a network problem
   error: unknown;
+  // Loads again, e.g. after saving; the old data stays on screen until the new data arrives
+  reload: () => void;
 };
+
+type ApiState<T> = Omit<ApiData<T>, "reload">;
 
 // Calls a loader function once and tracks its loading / failed state.
 // Define the loader outside the component (or wrap it in useCallback) so it is the same function on every render.
 export function useApiData<T>(loader: () => Promise<T>): ApiData<T> {
-  const [state, setState] = useState<ApiData<T>>({
+  const [state, setState] = useState<ApiState<T>>({
     data: null,
     loading: true,
     failed: false,
     error: null,
   });
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     // Ignore the answer if the component was removed before it arrived
@@ -35,7 +40,9 @@ export function useApiData<T>(loader: () => Promise<T>): ApiData<T> {
     return () => {
       cancelled = true;
     };
-  }, [loader]);
+  }, [loader, reloadCount]);
 
-  return state;
+  const reload = useCallback(() => setReloadCount((count) => count + 1), []);
+
+  return { ...state, reload };
 }

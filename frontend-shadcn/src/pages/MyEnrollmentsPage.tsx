@@ -70,7 +70,7 @@ type EnrollmentItemProps = {
 function EnrollmentItem({ enrollment }: EnrollmentItemProps) {
   const targetLink =
     enrollment.targetType === "Course"
-      ? `/courses/${enrollment.courseId}`
+      ? `/learning/courses/${enrollment.courseId}`
       : `/programs/${enrollment.programId}`;
 
   return (

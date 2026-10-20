@@ -1,5 +1,6 @@
 import type { ApplicationStatus } from "@/types/Application";
 import type { EnrollmentStatus } from "@/types/Enrollment";
+import type { AttendanceStatus } from "@/types/Lms";
 import type { PaymentStatus } from "@/types/Payment";
 
 // Label and dot color for each status, shown with <StatusPill />
@@ -17,6 +18,13 @@ export const ENROLLMENT_STATUS_META: Record<EnrollmentStatus, StatusMeta> = {
   Paused: { label: "Paused", dot: "bg-amber-500" },
   Completed: { label: "Completed", dot: "bg-sky-500" },
   Cancelled: { label: "Cancelled", dot: "bg-stone-400" },
+};
+
+export const ATTENDANCE_STATUS_META: Record<AttendanceStatus, StatusMeta> = {
+  Present: { label: "Present", dot: "bg-emerald-500" },
+  Late: { label: "Late", dot: "bg-amber-500" },
+  Absent: { label: "Absent", dot: "bg-rose-500" },
+  Excused: { label: "Excused", dot: "bg-stone-400" },
 };
 
 export const PAYMENT_STATUS_META: Record<PaymentStatus, StatusMeta> = {

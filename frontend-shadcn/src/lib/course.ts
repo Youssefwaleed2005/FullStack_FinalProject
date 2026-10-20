@@ -62,8 +62,17 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
 });
 
+// The API stores times in UTC but sends them without a "Z".
+// Add the "Z" so the browser converts them to local time correctly.
+function toDate(isoDate: string): Date {
+  const hasZone = /[zZ]|[+-]\d\d:\d\d$/.test(isoDate);
+  return new Date(
+    isoDate.includes("T") && !hasZone ? `${isoDate}Z` : isoDate,
+  );
+}
+
 export function formatDate(isoDate: string): string {
-  return dateFormatter.format(new Date(isoDate));
+  return dateFormatter.format(toDate(isoDate));
 }
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -75,7 +84,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 export function formatDateTime(isoDate: string): string {
-  return dateTimeFormatter.format(new Date(isoDate));
+  return dateTimeFormatter.format(toDate(isoDate));
 }
 
 // For amounts that come with their own currency, e.g. payments

@@ -8,6 +8,7 @@ import ComingSoonPage from "@/pages/ComingSoonPage";
 import CourseCatalogPage from "@/pages/CourseCatalogPage";
 import CourseDetailsPage from "@/pages/CourseDetailsPage";
 import HomePage from "@/pages/HomePage";
+import LearnerCoursePage from "@/pages/LearnerCoursePage";
 import LoginPage from "@/pages/LoginPage";
 import MyApplicationsPage from "@/pages/MyApplicationsPage";
 import MyEnrollmentsPage from "@/pages/MyEnrollmentsPage";
@@ -52,6 +53,10 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["Learner"]} />}>
               <Route path="/applications" element={<MyApplicationsPage />} />
               <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
+              <Route
+                path="/learning/courses/:id"
+                element={<LearnerCoursePage />}
+              />
               <Route path="/payment/:applicationId" element={<PaymentPage />} />
               <Route path="/my-payments" element={<MyPaymentsPage />} />
             </Route>
