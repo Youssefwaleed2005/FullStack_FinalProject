@@ -1,23 +1,31 @@
 ﻿using Andalusia.Api.DTOs.Responses;
-using Andalusia.Api.Mapping;
 using Andalusia.Api.Repos.Interfaces;
 using Andalusia.Api.Services.Interfaces;
+using Andalusia.Api.Mapping;
 
-namespace Andalusia.Api.Services
+public class EnrollmentService : IEnrollmentService
 {
-    public class EnrollmentService : IEnrollmentService
+    private readonly IEnrollmentRepository _enrollmentRepository;
+    private readonly ILearnerService _learnerService;
+
+    public EnrollmentService(IEnrollmentRepository enrollmentRepository, ILearnerService learnerService)
     {
-        private readonly IEnrollmentRepository _enrollmentRepository;
+        _enrollmentRepository = enrollmentRepository;
+        _learnerService = learnerService;
+    }
 
-        public EnrollmentService(IEnrollmentRepository enrollmentRepository)
-        {
-            _enrollmentRepository = enrollmentRepository;
-        }
+    public async Task<IEnumerable<EnrollmentResponseDto>> GetMyEnrollmentsAsync(int userId)
+    {
+        var enrollments = await _enrollmentRepository.GetByUserAsync(userId);
+        var progress = await _learnerService.GetEnrollmentProgressAsync(userId);
 
-        public async Task<IEnumerable<EnrollmentResponseDto>> GetMyEnrollmentsAsync(int userId)
+        // Progress is calculated live from attendance + submissions, not the stored column
+        return enrollments.Select(e =>
         {
-            var enrollments = await _enrollmentRepository.GetByUserAsync(userId);
-            return enrollments.Select(e => e.ToResponseDto());
-        }
+            var dto = e.ToResponseDto();
+            if (progress.TryGetValue(e.Id, out var percent))
+                dto.ProgressPercent = percent;
+            return dto;
+        }).ToList();
     }
 }
