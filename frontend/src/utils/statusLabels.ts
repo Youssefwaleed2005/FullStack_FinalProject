@@ -1,4 +1,5 @@
 import type { Course } from "../types/Course";
+import type { PaymentStatus } from "../types/Payment";
 
 export const STATUS_LABELS: Record<Course["status"], string> = {
   Draft: "Draft",
@@ -20,4 +21,12 @@ export const STATUS_COLORS: Record<
   Full: "error",
   InProgress: "warning",
   Completed: "default",
+};
+
+// Chip color for each payment status (admin pages)
+export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, "success" | "warning" | "error" | "default"> = {
+  Paid: "success",
+  Pending: "warning",
+  Failed: "error",
+  Refunded: "default",
 };

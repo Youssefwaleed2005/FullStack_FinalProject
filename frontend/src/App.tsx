@@ -22,6 +22,10 @@ import PaymentPage from "./pages/PaymentPage";
 import MyPaymentsPage from "./pages/MyPaymentsPage";
 import InstructorDashboardPage from "./pages/instructor/InstructorDashboardPage";
 import InstructorCoursePage from "./pages/instructor/InstructorCoursePage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminPaymentsPage from "./pages/admin/AdminPaymentsPage";
+import AdminCoursesPage from "./pages/admin/AdminCoursesPage";
 
 function App() {
   return (
@@ -67,7 +71,10 @@ function App() {
 
             {/* Admin only */}
             <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-              <Route path="/admin" element={<div>Admin area</div>} />
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+              <Route path="/admin/courses" element={<AdminCoursesPage />} />
             </Route>
           </Routes>
           <Footer />
