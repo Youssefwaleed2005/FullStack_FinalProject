@@ -20,6 +20,8 @@ import MyApplicationsPage from "./pages/MyApplicationsPage";
 import MyEnrollmentsPage from "./pages/MyEnrollmentsPage";
 import PaymentPage from "./pages/PaymentPage";
 import MyPaymentsPage from "./pages/MyPaymentsPage";
+import InstructorDashboardPage from "./pages/instructor/InstructorDashboardPage";
+import InstructorCoursePage from "./pages/instructor/InstructorCoursePage";
 
 function App() {
   return (
@@ -55,6 +57,12 @@ function App() {
               <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
               <Route path="/payment/:applicationId" element={<PaymentPage />} />
               <Route path="/my-payments" element={<MyPaymentsPage />} />
+            </Route>
+
+            {/* Instructors only */}
+            <Route element={<ProtectedRoute allowedRoles={["Instructor"]} />}>
+              <Route path="/instructor" element={<InstructorDashboardPage />} />
+              <Route path="/instructor/courses/:id" element={<InstructorCoursePage />} />
             </Route>
 
             {/* Admin only */}

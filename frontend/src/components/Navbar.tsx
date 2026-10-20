@@ -30,17 +30,24 @@ const NAV_LINKS = [
   { label: "Contact", to: "/contact" },
 ];
 
-const ACCOUNT_LINKS = [
-  { label: "My learning", to: "/my-enrollments" },
-  { label: "My applications", to: "/applications" },
-  { label: "My payments", to: "/my-payments" },
+// Account menu links — each one is shown only to the roles listed
+const ACCOUNT_LINKS: { label: string; to: string; roles?: string[] }[] = [
+  { label: "Instructor dashboard", to: "/instructor", roles: ["Instructor"] },
+  { label: "Admin dashboard", to: "/admin", roles: ["Admin"] },
+  { label: "Manage users", to: "/admin/users", roles: ["Admin"] },
+  { label: "Payments", to: "/admin/payments", roles: ["Admin"] },
+  { label: "Manage courses", to: "/admin/courses", roles: ["Admin"] },
+  { label: "My learning", to: "/my-enrollments", roles: ["Learner"] },
+  { label: "My applications", to: "/applications", roles: ["Learner"] },
+  { label: "My payments", to: "/my-payments", roles: ["Learner"] },
   { label: "My profile", to: "/profile" },
 ];
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, hasRole } = useAuth();
+  const accountLinks = ACCOUNT_LINKS.filter((l) => !l.roles || hasRole(...l.roles));
   const navigate = useNavigate();
 
   const initials = user
@@ -127,7 +134,7 @@ function Navbar() {
                   </Box>
                 </MenuItem>
                 <Divider />
-                {ACCOUNT_LINKS.map((link) => (
+                {accountLinks.map((link) => (
                   <MenuItem key={link.to} onClick={() => goTo(link.to)}>
                     {link.label}
                   </MenuItem>
@@ -183,7 +190,7 @@ function Navbar() {
                 />
               </ListItemButton>
 
-              {ACCOUNT_LINKS.map((link) => (
+              {accountLinks.map((link) => (
                 <ListItemButton
                   key={link.to}
                   component={Link}
