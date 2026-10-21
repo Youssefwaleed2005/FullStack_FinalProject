@@ -18,5 +18,14 @@ namespace Andalusia.Api.Repos
                 .OrderByDescending(m => m.CreatedAt)
                 .ToListAsync();
         }
+
+        // Learners' "done" marks must go before the material itself (FKs are Restrict)
+        public async Task RemoveCompletionsAsync(int materialId)
+        {
+            var completions = await _context.MaterialCompletions
+                .Where(c => c.MaterialId == materialId)
+                .ToListAsync();
+            _context.MaterialCompletions.RemoveRange(completions);
+        }
     }
 }

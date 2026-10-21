@@ -9,5 +9,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<MaterialResponseDto> CreateAsync(int instructorId, int courseId, MaterialRequestDto dto);
         Task<MaterialResponseDto> UpdateAsync(int instructorId, int materialId, MaterialRequestDto dto);
         Task DeleteAsync(int instructorId, int materialId);
+        Task<MaterialResponseDto> UploadAsync(int instructorId, int courseId, UploadMaterialRequestDto dto);
     }
 }

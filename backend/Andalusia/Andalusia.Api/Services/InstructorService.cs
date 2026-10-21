@@ -74,6 +74,7 @@ namespace Andalusia.Api.Services
 
             var pastSessions = course.Sessions.Where(s => s.StartTime <= now).ToList();
             var totalAssignments = course.Assignments.Count;
+            var totalMaterials = course.Materials.Count;
 
             var result = new List<CourseStudentDto>();
             foreach (var enrollment in enrollments)
@@ -91,6 +92,8 @@ namespace Andalusia.Api.Services
 
                 var graded = submissions.Where(x => x.Submission.Score.HasValue).ToList();
 
+                var completedMaterials = course.Materials.Count(m => m.Completions.Any(c => c.UserId == user.Id));
+
                 result.Add(new CourseStudentDto
                 {
                     UserId = user.Id,
@@ -101,11 +104,14 @@ namespace Andalusia.Api.Services
                     PastSessions = pastSessions.Count,
                     SubmittedAssignments = submissions.Count,
                     TotalAssignments = totalAssignments,
+                    CompletedMaterials = completedMaterials,
+                    TotalMaterials = totalMaterials,
                     AverageScore = graded.Count == 0
                         ? null
                         : Math.Round(graded.Average(x => x.Submission.Score!.Value * 100.0 / x.MaxScore), 1),
                     ProgressPercent = ProgressCalculator.Calculate(
-                        attended, pastSessions.Count, submissions.Count, totalAssignments)
+                        attended, pastSessions.Count, submissions.Count, totalAssignments,
+                        completedMaterials, totalMaterials)
                 });
             }
             return result;

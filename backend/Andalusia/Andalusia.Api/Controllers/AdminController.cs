@@ -72,5 +72,12 @@ namespace Andalusia.Api.Controllers
             await _adminService.AssignInstructorAsync(courseId, dto.InstructorId);
             return NoContent();
         }
+
+        // GET /api/admin/courses   (all courses, drafts included)
+        [HttpGet("courses")]
+        public async Task<ActionResult<List<CourseResponseDto>>> GetCourses()
+        {
+            return Ok(await _adminService.GetAllCoursesAsync());
+        }
     }
 }

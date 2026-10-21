@@ -25,5 +25,7 @@ namespace Andalusia.Api.Models
 
         public int CourseId { get; set; }
         public Course Course { get; set; } = null!;
+
+        public ICollection<MaterialCompletion> Completions { get; set; } = new List<MaterialCompletion>();
     }
 }

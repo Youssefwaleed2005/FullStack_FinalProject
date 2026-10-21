@@ -124,5 +124,11 @@ namespace Andalusia.Api.Services
             course.InstructorId = instructorId;
             await _adminRepository.SaveChangesAsync();
         }
+
+        public async Task<List<CourseResponseDto>> GetAllCoursesAsync()
+        {
+            var courses = await _adminRepository.GetAllCoursesAsync();
+            return courses.Select(c => c.ToResponseDto()).ToList();
+        }
     }
 }

@@ -1,11 +1,12 @@
 import api from "./api";
-import type { Material } from "../types/Lms";
 import type {
   LearnerAssignment,
   LearnerCourse,
   LearnerCourseDetail,
   LearnerDashboard,
+  LearnerMaterial,
   LearnerSession,
+  MaterialCompletionResult,
   MySubmission,
   SubmitAssignmentRequest,
 } from "../types/Learner";
@@ -35,9 +36,23 @@ export async function getLearnerSessions(
 
 export async function getLearnerMaterials(
   courseId: number,
-): Promise<Material[]> {
-  return (await api.get<Material[]>(`/learner/courses/${courseId}/materials`))
-    .data;
+): Promise<LearnerMaterial[]> {
+  return (
+    await api.get<LearnerMaterial[]>(`/learner/courses/${courseId}/materials`)
+  ).data;
+}
+
+// Mark a material as done / not done → returns the new course progress
+export async function setMaterialCompletion(
+  materialId: number,
+  completed: boolean,
+): Promise<MaterialCompletionResult> {
+  return (
+    await api.put<MaterialCompletionResult>(
+      `/learner/materials/${materialId}/completion`,
+      { completed },
+    )
+  ).data;
 }
 
 export async function getLearnerAssignments(

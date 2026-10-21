@@ -15,8 +15,8 @@ namespace Andalusia.Api.DTOs.Requests
 
         public MaterialType Type { get; set; } = MaterialType.Link;
 
+        // A full http(s) link, or a file on this server ("/files/..." or "/uploads/...")
         [Required]
-        [Url]
         [MaxLength(500)]
         public string Url { get; set; } = string.Empty;
     }

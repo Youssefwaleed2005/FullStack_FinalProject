@@ -59,6 +59,7 @@ function StudentsTab({ courseId }: { courseId: number }) {
             <TableCell>Enrolled</TableCell>
             <TableCell align="center">Attendance</TableCell>
             <TableCell align="center">Assignments</TableCell>
+            <TableCell align="center">Materials</TableCell>
             <TableCell align="center">Average</TableCell>
             <TableCell sx={{ minWidth: 160 }}>Progress</TableCell>
           </TableRow>
@@ -80,6 +81,9 @@ function StudentsTab({ courseId }: { courseId: number }) {
               </TableCell>
               <TableCell align="center">
                 {s.submittedAssignments} / {s.totalAssignments}
+              </TableCell>
+              <TableCell align="center">
+                {s.completedMaterials} / {s.totalMaterials}
               </TableCell>
               <TableCell align="center">
                 {s.averageScore !== null ? `${s.averageScore}%` : "-"}

@@ -46,6 +46,8 @@ export type CourseStudent = {
   pastSessions: number;
   submittedAssignments: number;
   totalAssignments: number;
+  completedMaterials: number;
+  totalMaterials: number;
   averageScore: number | null;
   progressPercent: number;
 };

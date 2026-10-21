@@ -44,7 +44,7 @@ namespace Andalusia.Api.Controllers
         }
 
         [HttpGet("courses/{courseId:int}/materials")]
-        public async Task<ActionResult<List<MaterialResponseDto>>> GetMaterials(int courseId)
+        public async Task<ActionResult<List<LearnerMaterialDto>>> GetMaterials(int courseId)
         {
             return Ok(await _learnerService.GetMaterialsAsync(User.GetUserId(), courseId));
         }
@@ -60,6 +60,14 @@ namespace Andalusia.Api.Controllers
         public async Task<ActionResult<MySubmissionDto>> Submit(int assignmentId, SubmitAssignmentRequestDto dto)
         {
             return Ok(await _learnerService.SubmitAsync(User.GetUserId(), assignmentId, dto));
+        }
+
+        // PUT /api/learner/materials/5/completion   { "completed": true }
+        [HttpPut("materials/{materialId:int}/completion")]
+        public async Task<ActionResult<MaterialCompletionResultDto>> SetMaterialCompletion(
+            int materialId, MaterialCompletionRequestDto dto)
+        {
+            return Ok(await _learnerService.SetMaterialCompletionAsync(User.GetUserId(), materialId, dto.Completed));
         }
     }
 }

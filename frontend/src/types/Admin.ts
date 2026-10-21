@@ -1,3 +1,4 @@
+import type { Course } from "./Course";
 import type { PaymentMethod, PaymentStatus } from "./Payment";
 
 export type AdminPayment = {
@@ -53,4 +54,25 @@ export type CreateInstructorRequest = {
   phoneNumber?: string;
   specialization?: string;
   bio?: string;
+};
+
+// Body for POST /api/courses and PUT /api/courses/{id} (admin only)
+export type CourseRequest = {
+  title: string;
+  shortDescription?: string;
+  fullDescription?: string;
+  objectives?: string;
+  imageUrl?: string;
+  durationHours: number;
+  price: number;
+  location?: string;
+  schedule?: string;
+  startDate?: string; // "2026-11-01"
+  endDate?: string;
+  capacity: number;
+  type: Course["type"];
+  status: Course["status"];
+  isFeatured: boolean;
+  categoryId: number;
+  instructorId?: number;
 };

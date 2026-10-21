@@ -464,6 +464,33 @@ namespace Andalusia.Api.Migrations
                     b.ToTable("Materials");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.MaterialCompletion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("MaterialId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("MaterialCompletions");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.Partner", b =>
                 {
                     b.Property<int>("Id")
@@ -978,6 +1005,25 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.MaterialCompletion", b =>
+                {
+                    b.HasOne("Andalusia.Api.Models.Material", "Material")
+                        .WithMany("Completions")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Andalusia.Api.Models.User", "User")
+                        .WithMany("MaterialCompletions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.Payment", b =>
                 {
                     b.HasOne("Andalusia.Api.Models.Application", "Application")
@@ -1122,6 +1168,11 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("Sessions");
                 });
 
+            modelBuilder.Entity("Andalusia.Api.Models.Material", b =>
+                {
+                    b.Navigation("Completions");
+                });
+
             modelBuilder.Entity("Andalusia.Api.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -1146,6 +1197,8 @@ namespace Andalusia.Api.Migrations
                     b.Navigation("Attendances");
 
                     b.Navigation("CoursesTaught");
+
+                    b.Navigation("MaterialCompletions");
 
                     b.Navigation("Submissions");
 

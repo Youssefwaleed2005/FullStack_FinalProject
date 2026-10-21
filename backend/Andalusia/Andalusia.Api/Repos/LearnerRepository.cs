@@ -70,6 +70,30 @@ namespace Andalusia.Api.Repos
             await _context.Submissions.AddAsync(submission);
         }
 
+        public async Task<Material?> GetMaterialAsync(int materialId)
+        {
+            return await _context.Materials
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == materialId);
+        }
+
+        // Tracked: used to remove a completion
+        public async Task<MaterialCompletion?> GetMyCompletionAsync(int materialId, int userId)
+        {
+            return await _context.MaterialCompletions
+                .FirstOrDefaultAsync(mc => mc.MaterialId == materialId && mc.UserId == userId);
+        }
+
+        public async Task AddCompletionAsync(MaterialCompletion completion)
+        {
+            await _context.MaterialCompletions.AddAsync(completion);
+        }
+
+        public void RemoveCompletion(MaterialCompletion completion)
+        {
+            _context.MaterialCompletions.Remove(completion);
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
@@ -87,7 +111,9 @@ namespace Andalusia.Api.Repos
                 .Include(c => c.Sessions)
                     .ThenInclude(s => s.Attendances.Where(a => a.UserId == userId))
                 .Include(c => c.Assignments)
-                    .ThenInclude(a => a.Submissions.Where(s => s.UserId == userId));
+                    .ThenInclude(a => a.Submissions.Where(s => s.UserId == userId))
+                .Include(c => c.Materials)
+                    .ThenInclude(m => m.Completions.Where(mc => mc.UserId == userId));
         }
     }
 }

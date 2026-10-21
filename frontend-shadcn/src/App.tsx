@@ -9,6 +9,7 @@ import CourseCatalogPage from "@/pages/CourseCatalogPage";
 import CourseDetailsPage from "@/pages/CourseDetailsPage";
 import HomePage from "@/pages/HomePage";
 import LearnerCoursePage from "@/pages/LearnerCoursePage";
+import LearnerDashboardPage from "@/pages/LearnerDashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import MyApplicationsPage from "@/pages/MyApplicationsPage";
 import MyEnrollmentsPage from "@/pages/MyEnrollmentsPage";
@@ -52,6 +53,7 @@ function App() {
             {/* Learners only */}
             <Route element={<ProtectedRoute allowedRoles={["Learner"]} />}>
               <Route path="/applications" element={<MyApplicationsPage />} />
+              <Route path="/learning" element={<LearnerDashboardPage />} />
               <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
               <Route
                 path="/learning/courses/:id"

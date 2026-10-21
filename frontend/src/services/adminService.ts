@@ -3,8 +3,11 @@ import type {
   AdminDashboard,
   AdminPayment,
   AdminUser,
+  CourseRequest,
   CreateInstructorRequest,
 } from "../types/Admin";
+import type { Course } from "../types/Course";
+import type { CourseDetails } from "../types/CourseDetails";
 import type { PaymentStatus } from "../types/Payment";
 
 export async function getAdminDashboard(): Promise<AdminDashboard> {
@@ -45,4 +48,17 @@ export async function assignInstructor(
   instructorId: number,
 ): Promise<void> {
   await api.put(`/admin/courses/${courseId}/instructor`, { instructorId });
+}
+
+// All courses, drafts included
+export async function getAdminCourses(): Promise<Course[]> {
+  return (await api.get<Course[]>("/admin/courses")).data;
+}
+
+export async function createCourse(payload: CourseRequest): Promise<CourseDetails> {
+  return (await api.post<CourseDetails>("/courses", payload)).data;
+}
+
+export async function updateCourse(id: number, payload: CourseRequest): Promise<CourseDetails> {
+  return (await api.put<CourseDetails>(`/courses/${id}`, payload)).data;
 }

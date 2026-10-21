@@ -67,8 +67,10 @@ namespace Andalusia.Api.Repos
         {
             return await _context.Courses
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(c => c.Sessions).ThenInclude(s => s.Attendances)
                 .Include(c => c.Assignments).ThenInclude(a => a.Submissions)
+                .Include(c => c.Materials).ThenInclude(m => m.Completions)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
         }
     }

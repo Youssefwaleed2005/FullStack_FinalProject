@@ -31,6 +31,7 @@ namespace Andalusia.Api.Data
         public DbSet<Material> Materials { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<Submission> Submissions { get; set; }
+        public DbSet<MaterialCompletion> MaterialCompletions { get; set; }
 
         //save enums as text instead of numbers
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -93,6 +94,7 @@ namespace Andalusia.Api.Data
             // a learner has one attendance row per session, and one submission per assignment
             modelBuilder.Entity<Attendance>().HasIndex(a => new { a.SessionId, a.UserId }).IsUnique();
             modelBuilder.Entity<Submission>().HasIndex(s => new { s.AssignmentId, s.UserId }).IsUnique();
+            modelBuilder.Entity<MaterialCompletion>().HasIndex(m => new { m.MaterialId, m.UserId }).IsUnique();
         }
     }
 }

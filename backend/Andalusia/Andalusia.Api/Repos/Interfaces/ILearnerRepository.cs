@@ -11,6 +11,11 @@ namespace Andalusia.Api.Repos.Interfaces
         Task<Assignment?> GetAssignmentAsync(int assignmentId);
         Task<Submission?> GetMySubmissionAsync(int assignmentId, int userId);
         Task AddSubmissionAsync(Submission submission);
+
+        Task<Material?> GetMaterialAsync(int materialId);
+        Task<MaterialCompletion?> GetMyCompletionAsync(int materialId, int userId);
+        Task AddCompletionAsync(MaterialCompletion completion);
+        void RemoveCompletion(MaterialCompletion completion);
         Task SaveChangesAsync();
 
         Task<bool> CourseExistsAsync(int courseId);

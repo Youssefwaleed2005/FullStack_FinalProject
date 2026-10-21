@@ -11,12 +11,15 @@ import {
   Typography,
 } from "@mui/material";
 import MaterialFormDialog from "./MaterialFormDialog";
+import MaterialViewerDialog from "../MaterialViewerDialog";
+import { canPreview, resolveMaterialUrl } from "../../utils/materialLinks";
 import { getApiErrorMessage } from "../../services/api";
 import {
   createMaterial,
   deleteMaterial,
   getCourseMaterials,
   updateMaterial,
+  uploadMaterial,
 } from "../../services/instructorService";
 import type { Material, MaterialRequest } from "../../types/Lms";
 import { formatDate } from "../../utils/formatDate";
@@ -29,6 +32,7 @@ function MaterialsTab({ courseId }: { courseId: number }) {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Material | null>(null);
   const [formKey, setFormKey] = useState(0);
+  const [viewing, setViewing] = useState<Material | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -49,6 +53,12 @@ function MaterialsTab({ courseId }: { courseId: number }) {
     setEditing(material);
     setFormKey((k) => k + 1);
     setFormOpen(true);
+  }
+
+  async function handleUpload(file: File, title: string, description?: string) {
+    await uploadMaterial(courseId, file, title, description);
+    setFormOpen(false);
+    await load();
   }
 
   async function handleSave(payload: MaterialRequest) {
@@ -119,10 +129,15 @@ function MaterialsTab({ courseId }: { courseId: number }) {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Chip size="small" label={m.type} variant="outlined" />
                     <MuiLink
-                      href={m.url}
-                      target="_blank"
-                      rel="noopener"
+                      component="button"
+                      type="button"
                       color="secondary"
+                      onClick={() =>
+                        canPreview(m.url)
+                          ? setViewing(m)
+                          : window.open(resolveMaterialUrl(m.url), "_blank", "noopener")
+                      }
+                      sx={{ textAlign: "left" }}
                     >
                       {m.title}
                     </MuiLink>
@@ -170,7 +185,10 @@ function MaterialsTab({ courseId }: { courseId: number }) {
         material={editing}
         onClose={() => setFormOpen(false)}
         onSave={handleSave}
+        onUpload={handleUpload}
       />
+
+      {viewing && <MaterialViewerDialog material={viewing} onClose={() => setViewing(null)} />}
     </>
   );
 }

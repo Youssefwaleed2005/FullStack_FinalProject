@@ -135,7 +135,8 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
           <p className="mt-3 text-sm text-muted-foreground">
             Attended {progress.attendedSessions}/{progress.pastSessions}{" "}
             sessions · Submitted {progress.submittedAssignments}/
-            {progress.totalAssignments} assignments
+            {progress.totalAssignments} assignments · Completed{" "}
+            {progress.completedMaterials}/{progress.totalMaterials} materials
             {progress.averageScore !== null
               ? ` · Average score ${progress.averageScore}%`
               : ""}
@@ -180,7 +181,11 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
             <LearnerSessionsTab courseId={courseId} />
           </TabsContent>
           <TabsContent value="materials">
-            <LearnerMaterialsTab courseId={courseId} />
+            <LearnerMaterialsTab
+              courseId={courseId}
+              canComplete={course.canSubmit}
+              onProgressChanged={reload}
+            />
           </TabsContent>
           <TabsContent value="assignments">
             <LearnerAssignmentsTab

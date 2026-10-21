@@ -37,6 +37,7 @@ const ACCOUNT_LINKS: { label: string; to: string; roles?: string[] }[] = [
   { label: "Manage users", to: "/admin/users", roles: ["Admin"] },
   { label: "Payments", to: "/admin/payments", roles: ["Admin"] },
   { label: "Manage courses", to: "/admin/courses", roles: ["Admin"] },
+  { label: "Learning dashboard", to: "/learning", roles: ["Learner"] },
   { label: "My learning", to: "/my-enrollments", roles: ["Learner"] },
   { label: "My applications", to: "/applications", roles: ["Learner"] },
   { label: "My payments", to: "/my-payments", roles: ["Learner"] },

@@ -17,6 +17,7 @@ namespace Andalusia.Api.Repos.Interfaces
         Task<List<User>> GetUsersAsync(string? role, string? search, bool? isActive);
         Task<User?> GetUserAsync(int id);              // tracked (for updates)
         Task<Course?> GetCourseForUpdateAsync(int courseId);
+        Task<List<Course>> GetAllCoursesAsync();
         Task SaveChangesAsync();
     }
 }

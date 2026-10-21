@@ -128,7 +128,8 @@ function LearnerCoursePage() {
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             Attended {progress.attendedSessions}/{progress.pastSessions}{" "}
             sessions · Submitted {progress.submittedAssignments}/
-            {progress.totalAssignments} assignments
+            {progress.totalAssignments} assignments · Completed{" "}
+            {progress.completedMaterials}/{progress.totalMaterials} materials
             {progress.averageScore !== null
               ? ` · Average score ${progress.averageScore}%`
               : ""}
@@ -161,7 +162,15 @@ function LearnerCoursePage() {
 
       {tab === 0 && <LearnerOverviewTab course={course} />}
       {tab === 1 && <LearnerSessionsTab courseId={courseId} />}
-      {tab === 2 && <LearnerMaterialsTab courseId={courseId} />}
+      {tab === 2 && (
+        <LearnerMaterialsTab
+          courseId={courseId}
+          canComplete={course.canSubmit}
+          onProgressChange={(p) =>
+            setCourse((prev) => (prev ? { ...prev, progress: p } : prev))
+          }
+        />
+      )}
       {tab === 3 && (
         <LearnerAssignmentsTab
           courseId={courseId}

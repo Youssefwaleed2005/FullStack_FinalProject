@@ -123,6 +123,17 @@ namespace Andalusia.Api.Repos
             await _context.SaveChangesAsync();
         }
 
+        // Every course, drafts included (the public list hides drafts)
+        public async Task<List<Course>> GetAllCoursesAsync()
+        {
+            return await _context.Courses
+                .AsNoTracking()
+                .Include(c => c.Category)
+                .Include(c => c.Instructor)
+                .OrderBy(c => c.Title)
+                .ToListAsync();
+        }
+
         // Users + everything AdminUserDto needs
         private IQueryable<User> UsersWithDetails()
         {

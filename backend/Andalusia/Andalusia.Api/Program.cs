@@ -1,4 +1,4 @@
-using Andalusia.Api.Data;
+﻿using Andalusia.Api.Data;
 using Andalusia.Api.Helpers;
 using Andalusia.Api.Middleware;
 using Andalusia.Api.Repos;
@@ -128,6 +128,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Serves wwwroot: demo PDFs in /files and instructor uploads in /uploads
+app.UseStaticFiles();
 
 app.UseCors("AllowAll");
 

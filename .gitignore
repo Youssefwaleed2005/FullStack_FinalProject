@@ -21,3 +21,6 @@
 .idea/
 
 CLAUDE.MD
+# Instructor uploads (keep the folder, not the files)
+**/wwwroot/uploads/materials/*
+!**/wwwroot/uploads/materials/.gitkeep

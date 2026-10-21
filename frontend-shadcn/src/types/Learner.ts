@@ -1,6 +1,6 @@
 import type { CourseStatus } from "@/types/Course";
 import type { EnrollmentStatus } from "@/types/Enrollment";
-import type { AttendanceStatus, SubmissionStatus } from "@/types/Lms";
+import type { AttendanceStatus, Material, SubmissionStatus } from "@/types/Lms";
 
 export type LearnerCourse = {
   id: number;
@@ -33,6 +33,8 @@ export type LearnerProgress = {
   pastSessions: number;
   submittedAssignments: number;
   totalAssignments: number;
+  completedMaterials: number;
+  totalMaterials: number;
   averageScore: number | null;
   progressPercent: number;
 };
@@ -115,4 +117,16 @@ export type LearnerDashboard = {
   averageProgress: number;
   upcomingSessions: UpcomingSession[];
   courses: LearnerCourse[];
+};
+
+// A material + "did I finish it?"
+export type LearnerMaterial = Material & {
+  isCompleted: boolean;
+  completedAt: string | null;
+};
+
+export type MaterialCompletionResult = {
+  materialId: number;
+  isCompleted: boolean;
+  progress: LearnerProgress;
 };

@@ -13,12 +13,10 @@ namespace Andalusia.Api.Services
     public class LearnerService : ILearnerService
     {
         private readonly ILearnerRepository _learnerRepository;
-        private readonly IMaterialRepository _materialRepository;
 
-        public LearnerService(ILearnerRepository learnerRepository, IMaterialRepository materialRepository)
+        public LearnerService(ILearnerRepository learnerRepository)
         {
             _learnerRepository = learnerRepository;
-            _materialRepository = materialRepository;
         }
 
         // How a learner reaches a course: enrollment status + the program it came through (null = direct)
@@ -85,12 +83,54 @@ namespace Andalusia.Api.Services
                 .ToList();
         }
 
-        public async Task<List<MaterialResponseDto>> GetMaterialsAsync(int userId, int courseId)
+        // Oldest first (week 1 at the top), each with "did I finish it?"
+        public async Task<List<LearnerMaterialDto>> GetMaterialsAsync(int userId, int courseId)
         {
             await EnsureCanAccessCourseAsync(userId, courseId);
+            var course = (await _learnerRepository.GetCourseWithMyActivityAsync(courseId, userId))!;
 
-            var materials = await _materialRepository.GetByCourseAsync(courseId);
-            return materials.Select(m => m.ToResponseDto()).ToList();
+            return course.Materials
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => m.ToLearnerMaterialDto())
+                .ToList();
+        }
+
+        // ---------- Mark a material done / not done ----------
+
+        public async Task<MaterialCompletionResultDto> SetMaterialCompletionAsync(int userId, int materialId, bool completed)
+        {
+            var material = await _learnerRepository.GetMaterialAsync(materialId)
+                ?? throw new NotFoundException($"Material with id {materialId} was not found.");
+
+            var access = await EnsureCanAccessCourseAsync(userId, material.CourseId);
+            if (access.Status != EnrollmentStatus.Active)
+                throw new ForbiddenException("Your enrollment in this course is not active.");
+
+            var existing = await _learnerRepository.GetMyCompletionAsync(materialId, userId);
+
+            if (completed && existing == null)
+            {
+                await _learnerRepository.AddCompletionAsync(new MaterialCompletion
+                {
+                    MaterialId = materialId,
+                    UserId = userId
+                });
+                await _learnerRepository.SaveChangesAsync();
+            }
+            else if (!completed && existing != null)
+            {
+                _learnerRepository.RemoveCompletion(existing);
+                await _learnerRepository.SaveChangesAsync();
+            }
+
+            // Fresh progress so the page can move the bar straight away
+            var course = (await _learnerRepository.GetCourseWithMyActivityAsync(material.CourseId, userId))!;
+            return new MaterialCompletionResultDto
+            {
+                MaterialId = materialId,
+                IsCompleted = completed,
+                Progress = CalculateProgress(course, DateTime.UtcNow)
+            };
         }
 
         public async Task<List<LearnerAssignmentDto>> GetAssignmentsAsync(int userId, int courseId)
@@ -257,6 +297,7 @@ namespace Andalusia.Api.Services
                 a.Status == AttendanceStatus.Present || a.Status == AttendanceStatus.Late));
 
             var submitted = course.Assignments.Count(a => a.Submissions.Any());
+            var completedMaterials = course.Materials.Count(m => m.Completions.Any());
 
             var gradedPercents = course.Assignments
                 .SelectMany(a => a.Submissions
@@ -270,9 +311,12 @@ namespace Andalusia.Api.Services
                 PastSessions = pastSessions.Count,
                 SubmittedAssignments = submitted,
                 TotalAssignments = course.Assignments.Count,
+                CompletedMaterials = completedMaterials,
+                TotalMaterials = course.Materials.Count,
                 AverageScore = gradedPercents.Count == 0 ? null : Math.Round(gradedPercents.Average(), 1),
                 ProgressPercent = ProgressCalculator.Calculate(
-                    attended, pastSessions.Count, submitted, course.Assignments.Count)
+                    attended, pastSessions.Count, submitted, course.Assignments.Count,
+                    completedMaterials, course.Materials.Count)
             };
         }
     }

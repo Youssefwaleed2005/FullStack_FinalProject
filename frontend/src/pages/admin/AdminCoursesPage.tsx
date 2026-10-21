@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Alert,
+  Box,
   Button,
   Chip,
   CircularProgress,
@@ -18,8 +19,8 @@ import {
   Typography,
 } from "@mui/material";
 import { getApiErrorMessage } from "../../services/api";
-import { assignInstructor, getAdminUsers } from "../../services/adminService";
-import { getCourses } from "../../services/courseService";
+import CourseEditorDialog from "../../components/admin/CourseEditorDialog";
+import { assignInstructor, getAdminCourses, getAdminUsers } from "../../services/adminService";
 import type { AdminUser } from "../../types/Admin";
 import type { Course } from "../../types/Course";
 import { STATUS_COLORS, STATUS_LABELS } from "../../utils/statusLabels";
@@ -33,29 +34,28 @@ function AdminCoursesPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
+  // undefined = closed, null = new course, number = edit that course
+  const [editingId, setEditingId] = useState<number | null | undefined>(undefined);
+
+  const load = useCallback(async () => {
+    try {
+      const [list, people] = await Promise.all([
+        getAdminCourses(),
+        getAdminUsers({ role: "Instructor", isActive: true }),
+      ]);
+      setCourses(list);
+      setInstructors(people);
+      setSelected(Object.fromEntries(list.map((c) => [c.id, c.instructorId ?? ""])));
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Could not load courses."));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let active = true;
-    Promise.all([
-      getCourses({ pageSize: 50, sortBy: "title" }),
-      getAdminUsers({ role: "Instructor", isActive: true }),
-    ])
-      .then(([page, people]) => {
-        if (!active) return;
-        setCourses(page.items);
-        setInstructors(people);
-        setSelected(Object.fromEntries(page.items.map((c) => [c.id, c.instructorId ?? ""])));
-      })
-      .catch((err) => {
-        if (active) setError(getApiErrorMessage(err, "Could not load courses."));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+    load();
+  }, [load]);
 
   async function handleAssign(course: Course) {
     const instructorId = selected[course.id];
@@ -90,9 +90,21 @@ function AdminCoursesPage() {
 
   return (
     <Container sx={{ py: { xs: 4, md: 6 } }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Manage courses
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4">Manage courses</Typography>
+        <Button variant="contained" color="secondary" onClick={() => setEditingId(null)}>
+          New course
+        </Button>
+      </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -111,7 +123,7 @@ function AdminCoursesPage() {
             <TableRow>
               <TableCell>Course</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Dates</TableCell>
+              <TableCell>Starts</TableCell>
               <TableCell sx={{ minWidth: 220 }}>Instructor</TableCell>
               <TableCell align="right">Action</TableCell>
             </TableRow>
@@ -159,7 +171,7 @@ function AdminCoursesPage() {
                       ))}
                     </TextField>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                     <Button
                       size="small"
                       variant="contained"
@@ -169,6 +181,9 @@ function AdminCoursesPage() {
                     >
                       Assign
                     </Button>
+                    <Button size="small" color="secondary" onClick={() => setEditingId(c.id)} sx={{ ml: 1 }}>
+                      Edit
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
@@ -176,6 +191,19 @@ function AdminCoursesPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {editingId !== undefined && (
+        <CourseEditorDialog
+          courseId={editingId}
+          instructors={instructors}
+          onClose={() => setEditingId(undefined)}
+          onSaved={() => {
+            setEditingId(undefined);
+            setMessage("Course saved.");
+            load();
+          }}
+        />
+      )}
     </Container>
   );
 }

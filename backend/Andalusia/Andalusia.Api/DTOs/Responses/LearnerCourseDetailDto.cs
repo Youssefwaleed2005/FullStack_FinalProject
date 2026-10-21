@@ -46,6 +46,8 @@ namespace Andalusia.Api.DTOs.Responses
         public int PastSessions { get; set; }
         public int SubmittedAssignments { get; set; }
         public int TotalAssignments { get; set; }
+        public int CompletedMaterials { get; set; }
+        public int TotalMaterials { get; set; }
         public double? AverageScore { get; set; }      // % across graded work
         public int ProgressPercent { get; set; }
     }

@@ -44,5 +44,15 @@ namespace Andalusia.Api.Controllers
             await _materialService.DeleteAsync(User.GetUserId(), id);
             return NoContent();
         }
+
+        // POST /api/instructor/courses/5/materials/upload   (multipart/form-data: file, title, description)
+        [HttpPost("courses/{courseId:int}/materials/upload")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(30 * 1024 * 1024)]
+        public async Task<ActionResult<MaterialResponseDto>> Upload(int courseId, [FromForm] UploadMaterialRequestDto dto)
+        {
+            var created = await _materialService.UploadAsync(User.GetUserId(), courseId, dto);
+            return StatusCode(StatusCodes.Status201Created, created);
+        }
     }
 }

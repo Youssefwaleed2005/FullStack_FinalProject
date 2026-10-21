@@ -142,5 +142,23 @@ namespace Andalusia.Api.Mapping
                 Location = session.Location
             };
         }
+
+        // Material (with MY completion only) → LearnerMaterialDto
+        public static LearnerMaterialDto ToLearnerMaterialDto(this Material material)
+        {
+            var completion = material.Completions.FirstOrDefault();
+            return new LearnerMaterialDto
+            {
+                Id = material.Id,
+                CourseId = material.CourseId,
+                Title = material.Title,
+                Description = material.Description,
+                Type = material.Type,
+                Url = material.Url,
+                CreatedAt = material.CreatedAt,
+                IsCompleted = completion != null,
+                CompletedAt = completion?.CompletedAt
+            };
+        }
     }
 }

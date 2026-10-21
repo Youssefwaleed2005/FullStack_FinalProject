@@ -1,8 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   CirclePlay,
   CloudOff,
-  ExternalLink,
   File,
   FileText,
   FolderOpen,
@@ -11,12 +10,18 @@ import {
 } from "lucide-react";
 import LoadingState from "@/components/LoadingState";
 import StateMessage from "@/components/StateMessage";
+import MaterialViewerDialog from "@/components/learner/MaterialViewerDialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { useApiData } from "@/hooks/useApiData";
 import { formatDate } from "@/lib/course";
+import { canPreview, resolveMaterialUrl } from "@/lib/materialLinks";
 import { panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
-import { getLearnerMaterials } from "@/services/learnerService";
+import { getLearnerMaterials, setMaterialCompletion } from "@/services/learnerService";
+import type { LearnerMaterial } from "@/types/Learner";
 import type { MaterialType } from "@/types/Lms";
 
 const MATERIAL_ICONS: Record<MaterialType, LucideIcon> = {
@@ -26,21 +31,66 @@ const MATERIAL_ICONS: Record<MaterialType, LucideIcon> = {
   Document: FileText,
 };
 
-type LearnerMaterialsTabProps = {
-  courseId: number;
+const MATERIAL_LABELS: Record<MaterialType, string> = {
+  Link: "Link",
+  File: "File",
+  Video: "Video",
+  Document: "PDF / document",
 };
 
-// Links, files and videos the instructor shared with the course
-function LearnerMaterialsTab({ courseId }: LearnerMaterialsTabProps) {
-  const loadMaterials = useCallback(
-    () => getLearnerMaterials(courseId),
-    [courseId],
-  );
-  const { data: materials, loading, failed, error } = useApiData(loadMaterials);
+type LearnerMaterialsTabProps = {
+  courseId: number;
+  canComplete: boolean; // false when the enrollment is read-only
+  onProgressChanged: () => void; // reloads the course header progress bar
+};
+
+// Links, PDFs and videos the instructor shared — tick them off to move your progress
+function LearnerMaterialsTab({
+  courseId,
+  canComplete,
+  onProgressChanged,
+}: LearnerMaterialsTabProps) {
+  const loadMaterials = useCallback(() => getLearnerMaterials(courseId), [courseId]);
+  const { data, loading, failed, error } = useApiData(loadMaterials);
+
+  // Ticks changed on this page (shown instantly, on top of the loaded data)
+  const [changes, setChanges] = useState<
+    Record<number, Pick<LearnerMaterial, "isCompleted" | "completedAt">>
+  >({});
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState("");
+
+  const materials: LearnerMaterial[] = (data ?? []).map((m) => ({ ...m, ...changes[m.id] }));
+
+  async function toggle(material: LearnerMaterial) {
+    setBusyId(material.id);
+    setSaveError("");
+    try {
+      const result = await setMaterialCompletion(material.id, !material.isCompleted);
+      setChanges((prev) => ({
+        ...prev,
+        [material.id]: {
+          isCompleted: result.isCompleted,
+          completedAt: result.isCompleted ? new Date().toISOString() : null,
+        },
+      }));
+      onProgressChanged();
+    } catch (err) {
+      setSaveError(getApiErrorMessage(err, "Could not update this material."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function open(material: LearnerMaterial) {
+    if (canPreview(material.url)) setViewingId(material.id);
+    else window.open(resolveMaterialUrl(material.url), "_blank", "noopener");
+  }
 
   if (loading) return <LoadingState label="Loading materials…" />;
 
-  if (failed || !materials) {
+  if (failed || !data) {
     return (
       <StateMessage
         icon={CloudOff}
@@ -60,45 +110,80 @@ function LearnerMaterialsTab({ courseId }: LearnerMaterialsTabProps) {
     );
   }
 
+  const done = materials.filter((m) => m.isCompleted).length;
+  const viewing = materials.find((m) => m.id === viewingId) ?? null;
+
   return (
     <section>
-      <h2 className="text-xl font-semibold">Materials</h2>
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-xl font-semibold">Materials</h2>
+        <span className="text-sm font-semibold">
+          {done} / {materials.length} done
+        </span>
+      </div>
+      <Progress
+        value={Math.round((done * 100) / materials.length)}
+        aria-label="Materials completed"
+        className="mt-3"
+      />
+
+      {saveError && <p className="mt-3 text-sm text-destructive">{saveError}</p>}
 
       <ul className={cn(panelStyle, "mt-5 divide-y")}>
         {materials.map((material) => {
           const Icon = MATERIAL_ICONS[material.type];
 
           return (
-            <li key={material.id} className="flex gap-4 p-5">
+            <li
+              key={material.id}
+              className={cn("flex items-center gap-4 p-5", material.isCompleted && "opacity-75")}
+            >
+              <Checkbox
+                checked={material.isCompleted}
+                onCheckedChange={() => toggle(material)}
+                disabled={!canComplete || busyId === material.id}
+                aria-label={`Mark ${material.title} as done`}
+                className="size-5"
+              />
               <span
                 aria-hidden
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-sand-deep"
+                className="hidden size-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-sand-deep sm:flex"
               >
                 <Icon className="size-5" strokeWidth={1.75} />
               </span>
-              <div className="min-w-0">
-                <a
-                  href={material.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-semibold break-words underline-offset-4 hover:text-sand-deep hover:underline"
-                >
+              <div className="min-w-0 flex-1">
+                <p className={cn("font-semibold break-words", material.isCompleted && "line-through")}>
                   {material.title}
-                  <ExternalLink aria-hidden className="size-3.5 shrink-0" />
-                </a>
+                </p>
                 {material.description && (
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                     {material.description}
                   </p>
                 )}
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  {material.type} · Added {formatDate(material.createdAt)}
+                  {MATERIAL_LABELS[material.type]} · Added {formatDate(material.createdAt)}
+                  {material.isCompleted && material.completedAt
+                    ? ` · Done ${formatDate(material.completedAt)}`
+                    : ""}
                 </p>
               </div>
+              <Button variant="outline" size="sm" onClick={() => open(material)}>
+                {material.type === "Video" ? "Watch" : "Open"}
+              </Button>
             </li>
           );
         })}
       </ul>
+
+      {viewing && (
+        <MaterialViewerDialog
+          material={viewing}
+          onClose={() => setViewingId(null)}
+          canComplete={canComplete}
+          busy={busyId === viewing.id}
+          onToggleComplete={() => toggle(viewing)}
+        />
+      )}
     </section>
   );
 }

@@ -14,5 +14,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<AdminUserDto> SetUserStatusAsync(int adminId, int userId, bool isActive);
         Task<AdminUserDto> CreateInstructorAsync(CreateInstructorRequestDto dto);
         Task AssignInstructorAsync(int courseId, int instructorId);
+        Task<List<CourseResponseDto>> GetAllCoursesAsync();
     }
 }

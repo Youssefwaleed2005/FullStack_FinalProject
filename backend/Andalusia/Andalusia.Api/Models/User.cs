@@ -55,5 +55,6 @@ namespace Andalusia.Api.Models
         // Learner activity
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
         public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
+        public ICollection<MaterialCompletion> MaterialCompletions { get; set; } = new List<MaterialCompletion>();
     }
 }

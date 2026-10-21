@@ -111,6 +111,20 @@ export async function updateMaterial(
   return (await api.put<Material>(`/instructor/materials/${id}`, payload)).data;
 }
 
+// Upload a PDF / slides / file (multipart form)
+export async function uploadMaterial(
+  courseId: number,
+  file: File,
+  title: string,
+  description?: string,
+): Promise<Material> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("title", title);
+  if (description) form.append("description", description);
+  return (await api.post<Material>(`/instructor/courses/${courseId}/materials/upload`, form)).data;
+}
+
 export async function deleteMaterial(id: number): Promise<void> {
   await api.delete(`/instructor/materials/${id}`);
 }

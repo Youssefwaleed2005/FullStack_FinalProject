@@ -26,9 +26,9 @@ namespace Andalusia.Api.Data
 
             var ahmed = new User
             {
-                FirstName = "Ahmed",
-                LastName = "Hassan",
-                Email = "ahmed.hassan@andalusia.edu",
+                FirstName = "Demo",
+                LastName = "Instructor",
+                Email = "instructor@andalusia.edu",
                 Specialization = "Full-Stack Development",
                 Bio = "Senior software engineer with 10 years of experience in .NET and React.",
                 EmailConfirmed = true
@@ -56,8 +56,8 @@ namespace Andalusia.Api.Data
 
             var learner = new User
             {
-                FirstName = "Omar",
-                LastName = "Khaled",
+                FirstName = "Youssef",
+                LastName = "Waleed",
                 Email = "learner@andalusia.edu",
                 EmailConfirmed = true,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Learner@123")
@@ -316,7 +316,7 @@ namespace Andalusia.Api.Data
 
             var now = DateTime.UtcNow;
 
-            // Omar and Nada are enrolled in Ahmed's ASP.NET course (applied → paid → enrolled)
+            // Youssef and Nada are enrolled in the demo instructor's ASP.NET course (applied → paid → enrolled)
             foreach (var student in new[] { learner, learner2 })
             {
                 var application = new Application
@@ -399,35 +399,103 @@ namespace Andalusia.Api.Data
                 new Attendance { Session = session2, User = learner, Status = AttendanceStatus.Present, MarkedAt = session2.EndTime },
                 new Attendance { Session = session2, User = learner2, Status = AttendanceStatus.Absent, MarkedAt = session2.EndTime });
 
-            // ---------- 12. Materials ----------
+            // ---------- 12. Materials (real PDFs served by the API + real Microsoft Learn / React links) ----------
+            // PDFs live in wwwroot/files/materials and are served at /files/materials/...
+            var aspWeek1Notes = new Material
+            {
+                Course = aspNet,
+                Title = "Week 1 lecture notes: Introduction to Web APIs",
+                Description = "HTTP basics, REST, and how an ASP.NET Core project is organised.",
+                Type = MaterialType.Document,
+                Url = "/files/materials/aspnet-week1-introduction-to-web-apis.pdf",
+                CreatedAt = now.AddDays(-7)
+            };
+            var aspWebApiVideo = new Material
+            {
+                Course = aspNet,
+                Title = "Video: Implementing a Web API in .NET",
+                Description = "Microsoft Learn — Back-end web development with .NET for beginners.",
+                Type = MaterialType.Video,
+                Url = "https://learn.microsoft.com/en-us/shows/back-end-web-development-with-dotnet-for-beginners/implementing-a-web-api-in-dotnet-backend-web-development-with-dotnet-for-beginners",
+                CreatedAt = now.AddDays(-7).AddMinutes(1)
+            };
+            var aspTutorial = new Material
+            {
+                Course = aspNet,
+                Title = "Tutorial: Create a controller-based web API",
+                Description = "Official step-by-step tutorial from Microsoft.",
+                Type = MaterialType.Link,
+                Url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api",
+                CreatedAt = now.AddDays(-6)
+            };
+            var aspWeek2Notes = new Material
+            {
+                Course = aspNet,
+                Title = "Week 2 lecture notes: Controllers and routing",
+                Description = "Attribute routing, action results and status codes.",
+                Type = MaterialType.Document,
+                Url = "/files/materials/aspnet-week2-controllers-and-routing.pdf",
+                CreatedAt = now.AddDays(-3)
+            };
+            var aspStatusCodes = new Material
+            {
+                Course = aspNet,
+                Title = "Cheat sheet: HTTP status codes",
+                Description = "Which status code to return, and when.",
+                Type = MaterialType.Document,
+                Url = "/files/materials/http-status-codes-cheat-sheet.pdf",
+                CreatedAt = now.AddDays(-3).AddMinutes(1)
+            };
+            var aspEfVideo = new Material
+            {
+                Course = aspNet,
+                Title = "Video series: Entity Framework Core for Beginners",
+                Description = "Microsoft Learn — get ready for next week's session.",
+                Type = MaterialType.Video,
+                Url = "https://learn.microsoft.com/en-us/shows/entity-framework-core-for-beginners",
+                CreatedAt = now.AddDays(-2)
+            };
+
+            var reactNotes = new Material
+            {
+                Course = react,
+                Title = "Week 1 lecture notes: Components, props and state",
+                Description = "Read before the first session.",
+                Type = MaterialType.Document,
+                Url = "/files/materials/react-week1-components-props-state.pdf",
+                CreatedAt = now.AddDays(-1)
+            };
+            var reactLearn = new Material
+            {
+                Course = react,
+                Title = "React official guide: Quick Start",
+                Description = "The official React documentation.",
+                Type = MaterialType.Link,
+                Url = "https://react.dev/learn",
+                CreatedAt = now.AddDays(-1).AddMinutes(1)
+            };
+
+            var sqlNotes = new Material
+            {
+                Course = sql,
+                Title = "Week 1 lecture notes: SELECT, WHERE and JOIN",
+                Description = "Core T-SQL queries with examples.",
+                Type = MaterialType.Document,
+                Url = "/files/materials/sql-week1-select-where-join.pdf",
+                CreatedAt = now.AddDays(-1)
+            };
+
             context.Materials.AddRange(
-                new Material
-                {
-                    Course = aspNet,
-                    Title = "Week 1 slides",
-                    Description = "Slides from the introduction session.",
-                    Type = MaterialType.Document,
-                    Url = "https://example.com/aspnet/week1-slides.pdf",
-                    CreatedAt = now.AddDays(-7)
-                },
-                new Material
-                {
-                    Course = aspNet,
-                    Title = "ASP.NET Core documentation",
-                    Description = "Official Microsoft docs for Web APIs.",
-                    Type = MaterialType.Link,
-                    Url = "https://learn.microsoft.com/aspnet/core/web-api",
-                    CreatedAt = now.AddDays(-7)
-                },
-                new Material
-                {
-                    Course = aspNet,
-                    Title = "Routing explained (video)",
-                    Description = "Recording of session 2.",
-                    Type = MaterialType.Video,
-                    Url = "https://example.com/aspnet/routing-video",
-                    CreatedAt = now.AddDays(-3)
-                });
+                aspWeek1Notes, aspWebApiVideo, aspTutorial, aspWeek2Notes, aspStatusCodes, aspEfVideo,
+                reactNotes, reactLearn, sqlNotes);
+
+            // Learners marked some materials as done (counts in progress)
+            context.MaterialCompletions.AddRange(
+                new MaterialCompletion { Material = aspWeek1Notes, User = learner, CompletedAt = now.AddDays(-6) },
+                new MaterialCompletion { Material = aspWebApiVideo, User = learner, CompletedAt = now.AddDays(-6) },
+                new MaterialCompletion { Material = aspTutorial, User = learner, CompletedAt = now.AddDays(-5) },
+                new MaterialCompletion { Material = aspWeek2Notes, User = learner, CompletedAt = now.AddDays(-2) },
+                new MaterialCompletion { Material = aspWeek1Notes, User = learner2, CompletedAt = now.AddDays(-5) });
 
             // ---------- 13. Assignments + submissions ----------
             var assignment1 = new Assignment
@@ -451,13 +519,13 @@ namespace Andalusia.Api.Data
             context.Assignments.AddRange(assignment1, assignment2);
 
             context.Submissions.AddRange(
-                // Omar: submitted and graded
+                // Youssef: submitted and graded
                 new Submission
                 {
                     Assignment = assignment1,
                     User = learner,
                     Content = "My endpoint is GET /api/books and returns 3 books.",
-                    FileUrl = "https://github.com/omar/books-api",
+                    FileUrl = "https://github.com/youssef/books-api",
                     SubmittedAt = now.AddDays(-2),
                     Status = SubmissionStatus.Graded,
                     Score = 85,
