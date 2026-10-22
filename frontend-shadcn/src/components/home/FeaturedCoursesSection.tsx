@@ -52,8 +52,12 @@ function FeaturedCoursesSection() {
               </li>
             ))}
 
-          {courses.map((course) => (
-            <li key={course.id}>
+          {courses.map((course, index) => (
+            <li
+              key={course.id}
+              className="animate-in fade-in slide-in-from-bottom-6 fill-mode-both duration-700"
+              style={{ animationDelay: `${index * 120}ms` }}
+            >
               <CourseCard course={course} />
             </li>
           ))}

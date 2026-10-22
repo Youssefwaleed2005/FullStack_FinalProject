@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveMaterialUrl } from "@/lib/materialLinks";
 import type { Partner } from "@/types/Partner";
 
 type PartnerLogoProps = {
@@ -12,11 +13,11 @@ function PartnerLogo({ partner }: PartnerLogoProps) {
   const content =
     partner.logoUrl && !logoFailed ? (
       <img
-        src={partner.logoUrl}
+        src={resolveMaterialUrl(partner.logoUrl)}
         alt={partner.name}
         loading="lazy"
         onError={() => setLogoFailed(true)}
-        className="max-h-10 w-auto max-w-36 object-contain"
+        className="h-10 w-auto max-w-40 object-contain"
       />
     ) : (
       <span className="font-heading text-lg font-semibold">{partner.name}</span>

@@ -1,4 +1,12 @@
-import { BookOpen, CreditCard, FileText, LayoutDashboard, UserRound } from "lucide-react";
+import {
+  BookOpen,
+  CreditCard,
+  FileText,
+  LayoutDashboard,
+  Presentation,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 
 // Shared by the navbar and the footer
 export const NAV_LINKS = [
@@ -11,11 +19,21 @@ export const NAV_LINKS = [
 ] as const;
 
 // Pages of the signed-in user's account (navbar menu and account tabs).
-// learnerOnly pages are hidden from other roles, e.g. admins.
+// A link with a role is only shown to users who have that role.
 export const ACCOUNT_LINKS = [
-  { label: "Dashboard", to: "/learning", icon: LayoutDashboard, learnerOnly: true },
-  { label: "My learning", to: "/my-enrollments", icon: BookOpen, learnerOnly: true },
-  { label: "My applications", to: "/applications", icon: FileText, learnerOnly: true },
-  { label: "My payments", to: "/my-payments", icon: CreditCard, learnerOnly: true },
-  { label: "My profile", to: "/profile", icon: UserRound, learnerOnly: false },
+  { label: "Dashboard", to: "/learning", icon: LayoutDashboard, role: "Learner" },
+  { label: "My learning", to: "/my-enrollments", icon: BookOpen, role: "Learner" },
+  { label: "My applications", to: "/applications", icon: FileText, role: "Learner" },
+  { label: "My payments", to: "/my-payments", icon: CreditCard, role: "Learner" },
+  { label: "Instructor dashboard", to: "/instructor", icon: Presentation, role: "Instructor" },
+  { label: "Admin dashboard", to: "/admin", icon: ShieldCheck, role: "Admin" },
+  { label: "My profile", to: "/profile", icon: UserRound, role: null },
 ] as const;
+
+// Where each role lands after signing in
+export function homeForRoles(roles: string[]): string {
+  if (roles.includes("Admin")) return "/admin";
+  if (roles.includes("Instructor")) return "/instructor";
+  if (roles.includes("Learner")) return "/learning";
+  return "/profile";
+}

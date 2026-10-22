@@ -291,10 +291,11 @@ namespace Andalusia.Api.Data
 
             // ---------- 7. Partners ----------
             context.Partners.AddRange(
-                new Partner { Name = "Microsoft", WebsiteUrl = "https://microsoft.com", Type = PartnerType.Partner, DisplayOrder = 1 },
-                new Partner { Name = "Oracle", WebsiteUrl = "https://oracle.com", Type = PartnerType.Partner, DisplayOrder = 2 },
-                new Partner { Name = "Cisco", WebsiteUrl = "https://cisco.com", Type = PartnerType.Accreditation, DisplayOrder = 3 },
-                new Partner { Name = "IBM", WebsiteUrl = "https://ibm.com", Type = PartnerType.Accreditation, DisplayOrder = 4 });
+                // Logos are the official files hosted on Wikimedia Commons (the site shows the name if one fails to load)
+                new Partner { Name = "Microsoft", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg", WebsiteUrl = "https://microsoft.com", Type = PartnerType.Partner, DisplayOrder = 1 },
+                new Partner { Name = "Oracle", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg", WebsiteUrl = "https://oracle.com", Type = PartnerType.Partner, DisplayOrder = 2 },
+                new Partner { Name = "Cisco", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/0/08/Cisco_logo_blue_2016.svg", WebsiteUrl = "https://cisco.com", Type = PartnerType.Accreditation, DisplayOrder = 3 },
+                new Partner { Name = "IBM", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg", WebsiteUrl = "https://ibm.com", Type = PartnerType.Accreditation, DisplayOrder = 4 });
 
             // ---------- 8. Testimonials ----------
             context.Testimonials.AddRange(

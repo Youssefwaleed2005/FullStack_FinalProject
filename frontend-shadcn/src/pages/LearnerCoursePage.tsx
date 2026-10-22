@@ -1,8 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Info, Lock } from "lucide-react";
 import DetailsHeader from "@/components/DetailsHeader";
 import DetailsLoadError from "@/components/DetailsLoadError";
+import BadgeShelf from "@/components/fun/BadgeShelf";
+import CountUp from "@/components/fun/CountUp";
 import LoadingState from "@/components/LoadingState";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
@@ -15,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiData } from "@/hooks/useApiData";
+import { useCelebrate } from "@/hooks/useCelebrate";
+import { getCourseBadges } from "@/lib/badges";
 import { STATUS_META, formatDate } from "@/lib/course";
 import { pageContainer, panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -46,6 +50,23 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
   // reload() runs after a submission, so the progress bar updates
   const { data: course, loading, failed, error, reload } =
     useApiData(loadCourse);
+
+  // Big party the moment progress reaches 100% (not when the page opens already at 100%)
+  const { celebrate } = useCelebrate();
+  const percent = course?.progress.progressPercent;
+  const previousPercent = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (percent === undefined) return;
+    if (previousPercent.current !== undefined && previousPercent.current < 100 && percent >= 100) {
+      celebrate({
+        big: true,
+        emoji: "🏆",
+        title: "Course complete!",
+        message: "You reached 100%. Amazing work!",
+      });
+    }
+    previousPercent.current = percent;
+  }, [percent, celebrate]);
 
   if (loading) return <LoadingState label="Loading course…" />;
 
@@ -124,7 +145,7 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-lg font-semibold">Your progress</h2>
             <span className="font-heading text-3xl font-semibold">
-              {progress.progressPercent}%
+              <CountUp value={progress.progressPercent} suffix="%" />
             </span>
           </div>
           <Progress
@@ -146,6 +167,10 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
               {when.join(" · ")}
             </p>
           )}
+
+          <div className="mt-6 border-t border-border/70 pt-5">
+            <BadgeShelf badges={getCourseBadges(progress)} title="Course achievements" />
+          </div>
 
           {!course.canSubmit && (
             <Alert className="mt-4">

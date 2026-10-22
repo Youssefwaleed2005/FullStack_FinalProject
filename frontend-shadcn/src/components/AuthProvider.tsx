@@ -27,6 +27,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(TOKEN_KEY, result.token);
     localStorage.setItem(USER_KEY, JSON.stringify(result.user));
     setUser(result.user);
+    return result.user;
   }, []);
 
   const login = useCallback(

@@ -6,6 +6,7 @@ import StatusPill from "@/components/StatusPill";
 import SubmitAssignmentDialog from "@/components/learner/SubmitAssignmentDialog";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
+import { useCelebrate } from "@/hooks/useCelebrate";
 import { formatDateTime } from "@/lib/course";
 import type { StatusMeta } from "@/lib/status";
 import { panelStyle } from "@/lib/styles";
@@ -59,11 +60,17 @@ function LearnerAssignmentsTab({
     reload,
   } = useApiData(loadAssignments);
   const [submitting, setSubmitting] = useState<LearnerAssignment | null>(null);
+  const { celebrate } = useCelebrate();
 
   // Errors are thrown back to the dialog, which shows them
   async function handleSubmit(payload: SubmitAssignmentRequest) {
     if (!submitting) return;
     await submitAssignment(submitting.id, payload);
+    celebrate({
+      emoji: "📬",
+      title: submitting.mySubmission ? "Submission updated!" : "Assignment submitted!",
+      message: `"${submitting.title}" is with your instructor now.`,
+    });
     setSubmitting(null);
     reload();
     onSubmitted();

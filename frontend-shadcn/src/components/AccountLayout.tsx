@@ -15,7 +15,7 @@ type AccountLayoutProps = {
 function AccountLayout({ title, description, children }: AccountLayoutProps) {
   const { hasRole } = useAuth();
   const links = ACCOUNT_LINKS.filter(
-    (link) => !link.learnerOnly || hasRole("Learner"),
+    (link) => link.role === null || hasRole(link.role),
   );
 
   return (

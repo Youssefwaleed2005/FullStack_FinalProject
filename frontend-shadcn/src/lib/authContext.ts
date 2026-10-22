@@ -4,8 +4,9 @@ import type { LoginRequest, RegisterRequest, UserSummary } from "@/types/Auth";
 export type AuthContextValue = {
   user: UserSummary | null;
   isAuthenticated: boolean;
-  login: (payload: LoginRequest) => Promise<void>;
-  register: (payload: RegisterRequest) => Promise<void>;
+  // Resolves with the signed-in user, e.g. to send them to their dashboard
+  login: (payload: LoginRequest) => Promise<UserSummary>;
+  register: (payload: RegisterRequest) => Promise<UserSummary>;
   logout: () => void;
   hasRole: (...roles: string[]) => boolean;
 };

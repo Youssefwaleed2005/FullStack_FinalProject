@@ -15,6 +15,7 @@ import LoadingState from "@/components/LoadingState";
 import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { useCelebrate } from "@/hooks/useCelebrate";
 import { formatAmount, formatDateTime } from "@/lib/course";
 import { panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -54,6 +55,7 @@ type PaymentContentProps = {
 
 function PaymentContent({ id }: PaymentContentProps) {
   // Loading the pending payment
+  const { celebrate } = useCelebrate();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -129,6 +131,13 @@ function PaymentContent({ id }: PaymentContentProps) {
       });
       // The status is now "Paid" or "Failed"
       setPayment(result);
+      if (result.status === "Paid") {
+        celebrate({
+          big: true,
+          title: "You're enrolled!",
+          message: "Payment successful. Welcome to the course!",
+        });
+      }
     } catch (error) {
       setFormError(getApiErrorMessage(error, "Payment could not be completed."));
     } finally {

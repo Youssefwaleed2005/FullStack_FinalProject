@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { getPartners } from "../services/partnerService";
 import type { Partner } from "../types/Partner";
+import { resolveMaterialUrl } from "../utils/materialLinks";
 
 function PartnersSection() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -66,7 +67,7 @@ function PartnersSection() {
             const logo = (
               <Box
                 component="img"
-                src={partner.logoUrl!}
+                src={resolveMaterialUrl(partner.logoUrl!)}
                 alt={partner.name}
                 sx={{ height: 60 }}
               />

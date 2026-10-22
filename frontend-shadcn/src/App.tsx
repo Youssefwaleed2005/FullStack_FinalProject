@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthProvider from "@/components/AuthProvider";
+import CelebrationProvider from "@/components/fun/CelebrationProvider";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import CareerPathDetailsPage from "@/pages/CareerPathDetailsPage";
@@ -7,7 +8,13 @@ import CareerPathsPage from "@/pages/CareerPathsPage";
 import ComingSoonPage from "@/pages/ComingSoonPage";
 import CourseCatalogPage from "@/pages/CourseCatalogPage";
 import CourseDetailsPage from "@/pages/CourseDetailsPage";
+import AdminCoursesPage from "@/pages/admin/AdminCoursesPage";
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
+import AdminPaymentsPage from "@/pages/admin/AdminPaymentsPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import HomePage from "@/pages/HomePage";
+import InstructorCoursePage from "@/pages/InstructorCoursePage";
+import InstructorDashboardPage from "@/pages/InstructorDashboardPage";
 import LearnerCoursePage from "@/pages/LearnerCoursePage";
 import LearnerDashboardPage from "@/pages/LearnerDashboardPage";
 import LoginPage from "@/pages/LoginPage";
@@ -25,6 +32,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CelebrationProvider>
         <Routes>
           <Route element={<Layout />}>
             {/* Public */}
@@ -63,17 +71,27 @@ function App() {
               <Route path="/my-payments" element={<MyPaymentsPage />} />
             </Route>
 
+            {/* Instructors only */}
+            <Route element={<ProtectedRoute allowedRoles={["Instructor"]} />}>
+              <Route path="/instructor" element={<InstructorDashboardPage />} />
+              <Route
+                path="/instructor/courses/:id"
+                element={<InstructorCoursePage />}
+              />
+            </Route>
+
             {/* Admin only */}
             <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-              <Route
-                path="/admin"
-                element={<ComingSoonPage title="Admin area" />}
-              />
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/payments" element={<AdminPaymentsPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
+        </CelebrationProvider>
       </AuthProvider>
     </BrowserRouter>
   );

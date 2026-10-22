@@ -34,7 +34,7 @@ function Navbar() {
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
   const accountLinks = ACCOUNT_LINKS.filter(
-    (link) => !link.learnerOnly || hasRole("Learner"),
+    (link) => link.role === null || hasRole(link.role),
   );
 
   function handleLogout() {

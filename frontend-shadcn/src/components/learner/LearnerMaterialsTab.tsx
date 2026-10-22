@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useApiData } from "@/hooks/useApiData";
+import { useCelebrate } from "@/hooks/useCelebrate";
 import { formatDate } from "@/lib/course";
 import { canPreview, resolveMaterialUrl } from "@/lib/materialLinks";
 import { panelStyle } from "@/lib/styles";
@@ -58,6 +59,7 @@ function LearnerMaterialsTab({
     Record<number, Pick<LearnerMaterial, "isCompleted" | "completedAt">>
   >({});
   const [busyId, setBusyId] = useState<number | null>(null);
+  const { celebrate } = useCelebrate();
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [saveError, setSaveError] = useState("");
 
@@ -75,6 +77,13 @@ function LearnerMaterialsTab({
           completedAt: result.isCompleted ? new Date().toISOString() : null,
         },
       }));
+      if (result.isCompleted) {
+        celebrate({
+          emoji: "✅",
+          title: "Nice work!",
+          message: `"${material.title}" is done. Your progress is now ${result.progress.progressPercent}%.`,
+        });
+      }
       onProgressChanged();
     } catch (err) {
       setSaveError(getApiErrorMessage(err, "Could not update this material."));

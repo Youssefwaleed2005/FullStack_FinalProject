@@ -9,11 +9,28 @@ function CtaSection() {
       <div className="relative overflow-hidden rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground sm:px-12 sm:py-20">
         <div
           aria-hidden
+          className="bg-andalusia-pattern pointer-events-none absolute inset-0 opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+        />
+        <div
+          aria-hidden
           className="pointer-events-none absolute -top-24 left-1/2 size-96 -translate-x-1/2 rounded-full bg-sand/25 blur-3xl"
+        />
+        {/* Floating decorative shapes */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-10 left-[8%] hidden size-14 animate-float rounded-2xl border border-sand/40 bg-sand/10 rotate-12 sm:block"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-[10%] bottom-12 hidden size-10 animate-float-slow rounded-full border border-sand/40 bg-sand/15 sm:block"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-16 right-[18%] hidden size-3 animate-float rounded-full bg-sand sm:block"
         />
         <div className="relative mx-auto max-w-2xl">
           <h2 className="text-4xl leading-tight font-semibold text-balance sm:text-5xl">
-            Ready to start learning?
+            Ready to start <span className="text-gradient-sand">learning</span>?
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-primary-foreground/75">
             Browse our catalog and enrol in a course today.
@@ -22,7 +39,7 @@ function CtaSection() {
             <Button
               asChild
               size="lg"
-              className="h-12 rounded-full bg-sand px-6 text-base text-primary hover:bg-sand/85"
+              className="h-12 rounded-full bg-sand px-6 text-base text-primary shadow-lg shadow-sand/20 transition hover:-translate-y-0.5 hover:bg-sand/85 motion-reduce:hover:translate-y-0"
             >
               <Link to="/courses">
                 Browse courses

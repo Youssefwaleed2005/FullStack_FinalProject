@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { homeForRoles } from "@/lib/navigation";
 import { getApiErrorMessage } from "@/services/api";
 
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
@@ -20,7 +21,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   // Where the user was heading before being sent to log in
-  const from = (location.state as { from?: string } | null)?.from ?? "/profile";
+  // (no "from" = they opened the login page directly; they go to their own dashboard)
+  const from = (location.state as { from?: string } | null)?.from;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,8 +47,8 @@ function LoginPage() {
 
     setSubmitting(true);
     try {
-      await login({ email, password, rememberMe });
-      navigate(from, { replace: true });
+      const signedIn = await login({ email, password, rememberMe });
+      navigate(from ?? homeForRoles(signedIn.roles), { replace: true });
     } catch (loginError) {
       setError(getApiErrorMessage(loginError, "Could not sign you in."));
     } finally {
