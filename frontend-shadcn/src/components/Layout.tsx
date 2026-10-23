@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Footer from "@/components/Footer";
+import ChatWidget from "@/components/chat/ChatWidget";
 import BackToTop from "@/components/fun/BackToTop";
 import ScrollProgress from "@/components/fun/ScrollProgress";
 import Navbar from "@/components/Navbar";
@@ -30,6 +31,7 @@ function Layout() {
       </main>
       <Footer />
       <BackToTop />
+      <ChatWidget />
     </div>
   );
 }

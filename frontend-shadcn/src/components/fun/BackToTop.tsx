@@ -22,7 +22,7 @@ function BackToTop() {
         window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" })
       }
       className={cn(
-        "fixed right-5 bottom-5 z-40 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition duration-300 outline-none hover:-translate-y-1 hover:bg-primary/90 focus-visible:ring-3 focus-visible:ring-ring/50",
+        "fixed right-5 bottom-24 z-40 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition duration-300 outline-none hover:-translate-y-1 hover:bg-primary/90 focus-visible:ring-3 focus-visible:ring-ring/50",
         show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0",
       )}
     >

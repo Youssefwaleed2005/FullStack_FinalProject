@@ -94,6 +94,17 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ILearnerRepository, LearnerRepository>();
 builder.Services.AddScoped<ILearnerService, LearnerService>();
+
+// Chatbot: local Ollama model (free) + the live catalog from our database
+builder.Services.Configure<ChatSettings>(builder.Configuration.GetSection("Chat"));
+var chatSettings = builder.Configuration.GetSection("Chat").Get<ChatSettings>() ?? new ChatSettings();
+builder.Services.AddHttpClient(ChatService.HttpClientName, client =>
+{
+    client.BaseAddress = new Uri(chatSettings.OllamaUrl);
+    client.Timeout = TimeSpan.FromSeconds(chatSettings.TimeoutSeconds);
+});
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

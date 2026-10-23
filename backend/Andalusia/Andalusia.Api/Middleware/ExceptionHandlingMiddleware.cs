@@ -56,6 +56,11 @@ namespace Andalusia.Api.Middleware
                     message = exception.Message;
                     break;
 
+                case ServiceUnavailableException:
+                    statusCode = StatusCodes.Status503ServiceUnavailable;
+                    message = exception.Message;
+                    break;
+
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     message = "An unexpected error occurred.";
