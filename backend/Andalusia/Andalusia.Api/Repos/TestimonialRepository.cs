@@ -21,5 +21,13 @@ namespace Andalusia.Api.Repos
 
             return await testimonials.ToListAsync();
         }
+
+        public async Task<IEnumerable<Testimonial>> GetAllForAdminAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

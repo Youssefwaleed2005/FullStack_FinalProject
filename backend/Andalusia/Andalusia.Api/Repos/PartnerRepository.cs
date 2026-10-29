@@ -28,5 +28,14 @@ namespace Andalusia.Api.Repos
 
             return await partners.ToListAsync();
         }
+
+        public async Task<IEnumerable<Partner>> GetAllForAdminAsync()
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .OrderBy(p => p.DisplayOrder)
+                .ThenBy(p => p.Name)
+                .ToListAsync();
+        }
     }
 }

@@ -40,5 +40,20 @@ namespace Andalusia.Api.Mapping
             partner.IsActive = dto.IsActive;
             partner.DisplayOrder = dto.DisplayOrder;
         }
+
+        public static PartnerAdminResponseDto ToAdminResponseDto(this Partner partner)
+        {
+            return new PartnerAdminResponseDto
+            {
+                Id = partner.Id,
+                Name = partner.Name,
+                LogoUrl = partner.LogoUrl,
+                WebsiteUrl = partner.WebsiteUrl,
+                Type = partner.Type,
+                IsActive = partner.IsActive,
+                DisplayOrder = partner.DisplayOrder
+            };
+        }
     }
+
 }

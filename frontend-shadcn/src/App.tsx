@@ -3,11 +3,13 @@ import AuthProvider from "@/components/AuthProvider";
 import CelebrationProvider from "@/components/fun/CelebrationProvider";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AboutPage from "@/pages/AboutPage";
 import CareerPathDetailsPage from "@/pages/CareerPathDetailsPage";
 import CareerPathsPage from "@/pages/CareerPathsPage";
-import ComingSoonPage from "@/pages/ComingSoonPage";
+import ContactPage from "@/pages/ContactPage";
 import CourseCatalogPage from "@/pages/CourseCatalogPage";
 import CourseDetailsPage from "@/pages/CourseDetailsPage";
+import AdminContentPage from "@/pages/admin/AdminContentPage";
 import AdminCoursesPage from "@/pages/admin/AdminCoursesPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 import AdminPaymentsPage from "@/pages/admin/AdminPaymentsPage";
@@ -50,8 +52,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
 
             {/* Not built yet (also placeholders in the MUI version) */}
-            <Route path="/about" element={<ComingSoonPage title="About" />} />
-            <Route path="/contact" element={<ComingSoonPage title="Contact" />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
 
             {/* Any signed-in user */}
             <Route element={<ProtectedRoute />}>
@@ -85,6 +87,7 @@ function App() {
               <Route path="/admin" element={<AdminDashboardPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/content" element={<AdminContentPage />} />
               <Route path="/admin/payments" element={<AdminPaymentsPage />} />
             </Route>
 

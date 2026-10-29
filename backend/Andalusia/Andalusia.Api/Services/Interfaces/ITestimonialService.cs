@@ -10,5 +10,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<TestimonialResponseDto> CreateAsync(TestimonialRequestDto dto);
         Task<TestimonialResponseDto> UpdateAsync(int id, TestimonialRequestDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<TestimonialAdminResponseDto>> GetAllForAdminAsync();
     }
 }

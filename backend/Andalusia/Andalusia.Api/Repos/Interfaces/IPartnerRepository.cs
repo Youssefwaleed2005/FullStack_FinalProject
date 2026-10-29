@@ -6,5 +6,8 @@ namespace Andalusia.Api.Repos.Interfaces
     public interface IPartnerRepository : IGenericRepository<Partner>
     {
         Task<IEnumerable<Partner>> GetActiveAsync(PartnerType? type, int? take);
+
+        Task<IEnumerable<Partner>> GetAllForAdminAsync();
+
     }
 }

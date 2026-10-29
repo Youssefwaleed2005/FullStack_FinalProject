@@ -40,5 +40,20 @@ namespace Andalusia.Api.Mapping
             testimonial.Rating = dto.Rating;
             testimonial.IsPublished = dto.IsPublished;
         }
+
+        public static TestimonialAdminResponseDto ToAdminResponseDto(this Testimonial testimonial)
+        {
+            return new TestimonialAdminResponseDto
+            {
+                Id = testimonial.Id,
+                AuthorName = testimonial.AuthorName,
+                AuthorTitle = testimonial.AuthorTitle,
+                PhotoUrl = testimonial.PhotoUrl,
+                Content = testimonial.Content,
+                Rating = testimonial.Rating,
+                IsPublished = testimonial.IsPublished,
+                CreatedAt = testimonial.CreatedAt
+            };
+        }
     }
 }

@@ -13,23 +13,26 @@ import { cn } from "@/lib/utils";
 type TextareaFieldProps = ComponentProps<typeof Textarea> & {
   label: string;
   hint?: string;
+  error?: string;
 };
 
-// A labelled multi-line text box
-export function TextareaField({ label, hint, className, ...props }: TextareaFieldProps) {
+// A labelled multi-line text box, with its validation message (or hint) underneath
+export function TextareaField({ label, hint, error, className, ...props }: TextareaFieldProps) {
   const id = useId();
+  const message = error ?? hint;
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <Label htmlFor={id}>{label}</Label>
       <Textarea
         id={id}
-        aria-describedby={hint ? `${id}-hint` : undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={message ? `${id}-hint` : undefined}
         className="bg-card px-3"
         {...props}
       />
-      {hint && (
-        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
-          {hint}
+      {message && (
+        <p id={`${id}-hint`} className={cn("text-xs", error ? "text-destructive" : "text-muted-foreground")}>
+          {message}
         </p>
       )}
     </div>

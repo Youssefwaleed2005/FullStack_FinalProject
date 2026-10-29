@@ -53,5 +53,11 @@ namespace Andalusia.Api.Services
             _repo.Delete(testimonial);
             await _repo.SaveChangesAsync();
         }
+        public async Task<IEnumerable<TestimonialAdminResponseDto>> GetAllForAdminAsync()
+        {
+            var items = await _repo.GetAllForAdminAsync();
+            return items.Select(t => t.ToAdminResponseDto());
+        }
+
     }
 }

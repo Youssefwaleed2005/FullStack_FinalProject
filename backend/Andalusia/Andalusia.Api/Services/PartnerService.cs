@@ -54,5 +54,11 @@ namespace Andalusia.Api.Services
             _repo.Delete(partner);
             await _repo.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<PartnerAdminResponseDto>> GetAllForAdminAsync()
+        {
+            var partners = await _repo.GetAllForAdminAsync();
+            return partners.Select(p => p.ToAdminResponseDto());
+        }
     }
 }

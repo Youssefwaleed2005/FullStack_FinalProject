@@ -57,5 +57,12 @@ namespace Andalusia.Api.Controllers
             await _partnerService.DeleteAsync(id);
             return NoContent();
         }
+
+        [Authorize(Roles = Roles.AdminOrContentManager)]
+        [HttpGet("manage")]
+        public async Task<ActionResult<IEnumerable<PartnerAdminResponseDto>>> GetAllForAdmin()
+        {
+            return Ok(await _partnerService.GetAllForAdminAsync());
+        }
     }
 }

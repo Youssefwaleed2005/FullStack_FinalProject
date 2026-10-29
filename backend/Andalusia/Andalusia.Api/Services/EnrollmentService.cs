@@ -2,7 +2,6 @@
 using Andalusia.Api.Repos.Interfaces;
 using Andalusia.Api.Services.Interfaces;
 using Andalusia.Api.Mapping;
-
 public class EnrollmentService : IEnrollmentService
 {
     private readonly IEnrollmentRepository _enrollmentRepository;

@@ -11,5 +11,6 @@ namespace Andalusia.Api.Services.Interfaces
         Task<PartnerResponseDto> CreateAsync(PartnerRequestDto dto);
         Task<PartnerResponseDto> UpdateAsync(int id, PartnerRequestDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<PartnerAdminResponseDto>> GetAllForAdminAsync();
     }
 }

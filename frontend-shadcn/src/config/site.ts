@@ -13,6 +13,14 @@ export const site = {
   // Optional version for dark backgrounds (footer). Falls back to logoUrl.
   logoLightUrl: null as string | null,
 
+  // Shown on the About page
+  about: {
+    mission:
+      "We help people learn the skills employers are actually hiring for. Every course is hands-on and taught by professionals who do the work every day, so what you practise in class is what you use on the job.",
+    story:
+      "Andalusia Academy started in Alexandria with a simple idea: the best way to learn a profession is from the people already working in it. What began as a handful of evening courses has grown into structured programs and guided career paths for learners at every stage.",
+  },
+
   contact: {
     email: "info@andalusia-academy.example",
     phone: "+20 100 000 0000",
