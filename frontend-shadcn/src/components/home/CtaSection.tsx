@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { site } from "@/config/site";
+import { useSite } from "@/hooks/useSite";
 
 function CtaSection() {
+  const { email } = useSite().contact;
+
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <div className="relative overflow-hidden rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground sm:px-12 sm:py-20">
@@ -55,15 +57,17 @@ function CtaSection() {
               <Link to="/contact">Talk to us</Link>
             </Button>
           </div>
-          <p className="mt-7 text-sm text-primary-foreground/60">
-            Questions? Write to{" "}
-            <a
-              href={`mailto:${site.contact.email}`}
-              className="rounded-sm font-medium text-sand underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-sand/60"
-            >
-              {site.contact.email}
-            </a>
-          </p>
+          {email && (
+            <p className="mt-7 text-sm text-primary-foreground/60">
+              Questions? Write to{" "}
+              <a
+                href={`mailto:${email}`}
+                className="rounded-sm font-medium text-sand underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-sand/60"
+              >
+                {email}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </section>

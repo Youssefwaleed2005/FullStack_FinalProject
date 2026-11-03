@@ -7,14 +7,9 @@ import PartnersSection from "@/components/home/PartnersSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
-import { site } from "@/config/site";
+import { useSite } from "@/hooks/useSite";
 import { cardStyle, pageContainer, panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
-
-const STORY = [
-  { title: "Our mission", text: site.about.mission, icon: Target },
-  { title: "Our story", text: site.about.story, icon: History },
-];
 
 const OFFERS = [
   {
@@ -38,21 +33,36 @@ const OFFERS = [
 ];
 
 function AboutPage() {
+  const site = useSite();
+  // Mission / story cleared in the CMS are left out; with both cleared the section is hidden
+  const story = [
+    { title: "Our mission", text: site.about.mission, icon: Target },
+    { title: "Our story", text: site.about.story, icon: History },
+  ].filter((item) => item.text);
+
   return (
     <>
       <PageHeader eyebrow="About us" title={`About ${site.name} ${site.suffix}`} description={site.description} />
 
-      <section aria-label="Mission and story" className={cn(pageContainer, "grid gap-6 py-14 md:grid-cols-2")}>
-        {STORY.map((item) => (
-          <article key={item.title} className={cn(panelStyle, "p-7 sm:p-8")}>
-            <span className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-sand-deep">
-              <item.icon aria-hidden className="size-6" strokeWidth={1.5} />
-            </span>
-            <h2 className="mt-5 text-2xl font-semibold">{item.title}</h2>
-            <p className="mt-3 leading-relaxed text-muted-foreground">{item.text}</p>
-          </article>
-        ))}
-      </section>
+      {story.length > 0 ? (
+        <section
+          aria-label="Mission and story"
+          className={cn(pageContainer, "grid gap-6 py-14", story.length > 1 && "md:grid-cols-2")}
+        >
+          {story.map((item) => (
+            <article key={item.title} className={cn(panelStyle, "p-7 sm:p-8")}>
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-sand-deep">
+                <item.icon aria-hidden className="size-6" strokeWidth={1.5} />
+              </span>
+              <h2 className="mt-5 text-2xl font-semibold">{item.title}</h2>
+              <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">{item.text}</p>
+            </article>
+          ))}
+        </section>
+      ) : (
+        // Keeps the gap above "What we offer" that the section used to give
+        <div aria-hidden className="pt-14" />
+      )}
 
       <Reveal>
         <section className={cn(pageContainer, "pb-16 sm:pb-20")}>

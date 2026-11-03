@@ -3,6 +3,7 @@ import AuthProvider from "@/components/AuthProvider";
 import CelebrationProvider from "@/components/fun/CelebrationProvider";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import SiteSettingsProvider from "@/components/SiteSettingsProvider";
 import AboutPage from "@/pages/AboutPage";
 import CareerPathDetailsPage from "@/pages/CareerPathDetailsPage";
 import CareerPathsPage from "@/pages/CareerPathsPage";
@@ -34,6 +35,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <SiteSettingsProvider>
         <CelebrationProvider>
         <Routes>
           <Route element={<Layout />}>
@@ -95,6 +97,7 @@ function App() {
           </Route>
         </Routes>
         </CelebrationProvider>
+        </SiteSettingsProvider>
       </AuthProvider>
     </BrowserRouter>
   );

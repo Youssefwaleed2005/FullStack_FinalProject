@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { CircleCheck, Handshake, MessageSquareQuote, Plus } from "lucide-react";
+import { CircleCheck, Handshake, Info, MessageSquareQuote, Plus } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import PartnerEditorDialog from "@/components/admin/PartnerEditorDialog";
 import PartnersTable from "@/components/admin/PartnersTable";
+import SiteInfoForm from "@/components/admin/SiteInfoForm";
 import TestimonialEditorDialog from "@/components/admin/TestimonialEditorDialog";
 import TestimonialsTable from "@/components/admin/TestimonialsTable";
 import LoadingState from "@/components/LoadingState";
@@ -23,9 +24,10 @@ import { deleteTestimonial, getManageTestimonials, updateTestimonial } from "@/s
 import type { PartnerAdmin } from "@/types/Partner";
 import type { TestimonialAdmin } from "@/types/Testimonial";
 
-type Tab = "partners" | "testimonials";
+type Tab = "partners" | "testimonials" | "site";
 
-// Partners and testimonials shown on the public homepage: add, edit, hide / show, delete
+// Partners and testimonials shown on the public homepage: add, edit, hide / show, delete.
+// The "Site info" tab edits the footer, Contact and About details.
 function AdminContentPage() {
   const partnerData = useApiData(getManagePartners);
   const testimonialData = useApiData(getManageTestimonials);
@@ -41,6 +43,7 @@ function AdminContentPage() {
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialAdmin | null | undefined>(undefined);
 
   const isPartners = tab === "partners";
+  const isSite = tab === "site";
   const current = isPartners ? partnerData : testimonialData;
 
   async function run(action: () => Promise<unknown>, success: string, failure: string, reload: () => void) {
@@ -119,15 +122,17 @@ function AdminContentPage() {
       <ManageHeader
         eyebrow="Admin"
         title="Manage content"
-        description="Edit the partners and testimonials shown on the public website."
+        description="Edit the partners, testimonials and site info shown on the public website."
         links={ADMIN_LINKS}
         actions={
-          <Button
-            className="h-10 rounded-full bg-sand px-5 text-primary hover:bg-sand/85"
-            onClick={() => (isPartners ? setEditingPartner(null) : setEditingTestimonial(null))}
-          >
-            <Plus aria-hidden /> {isPartners ? "Add partner" : "Add testimonial"}
-          </Button>
+          !isSite && (
+            <Button
+              className="h-10 rounded-full bg-sand px-5 text-primary hover:bg-sand/85"
+              onClick={() => (isPartners ? setEditingPartner(null) : setEditingTestimonial(null))}
+            >
+              <Plus aria-hidden /> {isPartners ? "Add partner" : "Add testimonial"}
+            </Button>
+          )
         }
       />
 
@@ -138,6 +143,8 @@ function AdminContentPage() {
             onValueChange={(value) => {
               setTab(value as Tab);
               setSearch("");
+              setError("");
+              setMessage("");
             }}
           >
             <TabsList className="h-10! rounded-full bg-secondary p-1">
@@ -147,14 +154,19 @@ function AdminContentPage() {
               <TabsTrigger value="testimonials" className="gap-2 rounded-full px-4">
                 <MessageSquareQuote aria-hidden /> Testimonials
               </TabsTrigger>
+              <TabsTrigger value="site" className="gap-2 rounded-full px-4">
+                <Info aria-hidden /> Site info
+              </TabsTrigger>
             </TabsList>
           </Tabs>
-          <SearchInput
-            value={search}
-            onSearch={setSearch}
-            placeholder={isPartners ? "Search partner name" : "Search author or text"}
-            className="w-full sm:w-80"
-          />
+          {!isSite && (
+            <SearchInput
+              value={search}
+              onSearch={setSearch}
+              placeholder={isPartners ? "Search partner name" : "Search author or text"}
+              className="w-full sm:w-80"
+            />
+          )}
         </div>
 
         {error && (
@@ -169,7 +181,9 @@ function AdminContentPage() {
           </Alert>
         )}
 
-        {current.loading && !current.data ? (
+        {isSite ? (
+          <SiteInfoForm />
+        ) : current.loading && !current.data ? (
           <LoadingState label={isPartners ? "Loading partners…" : "Loading testimonials…"} />
         ) : current.failed || !current.data ? (
           <Alert variant="destructive">

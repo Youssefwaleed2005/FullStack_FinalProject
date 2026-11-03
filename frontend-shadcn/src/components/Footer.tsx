@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Mail, MapPin, Phone } from "lucide-react";
 import Logo from "@/components/Logo";
-import { site } from "@/config/site";
+import { useSite } from "@/hooks/useSite";
 import { NAV_LINKS } from "@/lib/navigation";
 
 const linkStyle =
@@ -10,18 +10,22 @@ const linkStyle =
 const headingStyle =
   "font-sans text-xs font-semibold tracking-[0.18em] text-sand uppercase";
 
-// Only the social links that are filled in inside config/site.ts
-const socialLinks = Object.entries(site.social).filter(([, url]) => url);
-
 function Footer() {
+  const site = useSite();
+  const { address, email, phone } = site.contact;
+  // Only the social links that are filled in ("" = hidden in the CMS)
+  const socialLinks = Object.entries(site.social).filter(([, url]) => url);
+
   return (
     <footer className="mt-auto bg-primary text-primary-foreground">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div className="max-w-sm">
           <Logo tone="light" />
-          <p className="mt-5 text-sm leading-relaxed text-primary-foreground/70">
-            {site.description}
-          </p>
+          {site.description && (
+            <p className="mt-5 text-sm leading-relaxed text-primary-foreground/70">
+              {site.description}
+            </p>
+          )}
           {socialLinks.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
               {socialLinks.map(([name, url]) => (
@@ -53,30 +57,35 @@ function Footer() {
           </ul>
         </nav>
 
-        <div>
-          <h2 className={headingStyle}>Contact</h2>
-          <ul className="mt-4 space-y-3 text-sm text-primary-foreground/70">
-            <li className="flex items-center gap-2.5">
-              <MapPin aria-hidden className="size-4 shrink-0 text-sand" />
-              {site.contact.address}
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Mail aria-hidden className="size-4 shrink-0 text-sand" />
-              <a href={`mailto:${site.contact.email}`} className={linkStyle}>
-                {site.contact.email}
-              </a>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Phone aria-hidden className="size-4 shrink-0 text-sand" />
-              <a
-                href={`tel:${site.contact.phone.replaceAll(" ", "")}`}
-                className={linkStyle}
-              >
-                {site.contact.phone}
-              </a>
-            </li>
-          </ul>
-        </div>
+        {(address || email || phone) && (
+          <div>
+            <h2 className={headingStyle}>Contact</h2>
+            <ul className="mt-4 space-y-3 text-sm text-primary-foreground/70">
+              {address && (
+                <li className="flex items-center gap-2.5">
+                  <MapPin aria-hidden className="size-4 shrink-0 text-sand" />
+                  {address}
+                </li>
+              )}
+              {email && (
+                <li className="flex items-center gap-2.5">
+                  <Mail aria-hidden className="size-4 shrink-0 text-sand" />
+                  <a href={`mailto:${email}`} className={linkStyle}>
+                    {email}
+                  </a>
+                </li>
+              )}
+              {phone && (
+                <li className="flex items-center gap-2.5">
+                  <Phone aria-hidden className="size-4 shrink-0 text-sand" />
+                  <a href={`tel:${phone.replaceAll(" ", "")}`} className={linkStyle}>
+                    {phone}
+                  </a>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-primary-foreground/10">

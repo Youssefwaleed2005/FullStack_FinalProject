@@ -1,6 +1,9 @@
 // "" → null: the API's URL / regex validators reject empty strings
 export const orNull = (value: string) => value.trim() || null;
 
+// Simple "something@domain.tld" check
+export const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
+
 // Absolute http(s) link, as the API's [Url] check expects
 export function isHttpUrl(value: string): boolean {
   try {
