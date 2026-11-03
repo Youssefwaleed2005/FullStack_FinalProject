@@ -32,6 +32,7 @@ namespace Andalusia.Api.Data
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<Submission> Submissions { get; set; }
         public DbSet<MaterialCompletion> MaterialCompletions { get; set; }
+        public DbSet<SiteSetting> SiteSettings { get; set; }
 
         //save enums as text instead of numbers
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -63,6 +64,7 @@ namespace Andalusia.Api.Data
             modelBuilder.Entity<Role>().HasIndex(r => r.Name).IsUnique();
             modelBuilder.Entity<Category>().HasIndex(c => c.Name).IsUnique();
             modelBuilder.Entity<Permission>().HasIndex(p => new { p.Name, p.Action }).IsUnique();
+            modelBuilder.Entity<SiteSetting>().HasIndex(s => s.Key).IsUnique();
 
             // one Application results in one Enrollment
             modelBuilder.Entity<Enrollment>()

@@ -69,6 +69,8 @@ builder.Services.AddScoped<ITestimonialRepository, TestimonialRepository>();
 builder.Services.AddScoped<ITestimonialService, TestimonialService>();
 builder.Services.AddScoped<IPartnerRepository, PartnerRepository>();
 builder.Services.AddScoped<IPartnerService, PartnerService>();
+builder.Services.AddScoped<ISiteSettingRepository, SiteSettingRepository>();
+builder.Services.AddScoped<ISiteSettingService, SiteSettingService>();
 builder.Services.AddScoped<ICareerPathRepository, CareerPathRepository>();
 builder.Services.AddScoped<ICareerPathService, CareerPathService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
