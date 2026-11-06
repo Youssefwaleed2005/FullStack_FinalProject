@@ -32,7 +32,7 @@ function CourseCard({ course }: CourseCardProps) {
 
         <StatusPill
           status={STATUS_META[course.status]}
-          className="absolute top-3 left-3 bg-white/95 shadow-sm ring-0 backdrop-blur"
+          className="absolute top-3 left-3 bg-card/95 shadow-sm ring-0 backdrop-blur"
         />
 
         {course.isFeatured && (

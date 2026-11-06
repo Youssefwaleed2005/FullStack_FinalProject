@@ -23,7 +23,7 @@ function ProgramCard({ program }: ProgramCardProps) {
 
         <StatusPill
           status={STATUS_META[program.status]}
-          className="absolute top-3 left-3 bg-white/95 shadow-sm ring-0 backdrop-blur"
+          className="absolute top-3 left-3 bg-card/95 shadow-sm ring-0 backdrop-blur"
         />
 
         {program.isFeatured && (

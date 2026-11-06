@@ -24,7 +24,7 @@ function PartnerLogo({ partner }: PartnerLogoProps) {
     );
 
   const style =
-    "flex h-20 items-center justify-center rounded-2xl border border-border/80 bg-card px-6 text-muted-foreground opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0";
+    "flex h-20 items-center justify-center rounded-2xl border border-border/80 bg-card px-6 text-muted-foreground opacity-80 grayscale dark:border-transparent dark:bg-foreground/90 dark:text-background transition duration-300 hover:opacity-100 hover:grayscale-0";
 
   if (!partner.websiteUrl) return <div className={style}>{content}</div>;
 

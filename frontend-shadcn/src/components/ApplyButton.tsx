@@ -4,6 +4,7 @@ import { ArrowRight, Info, LoaderCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import { getApiErrorMessage, hasStatus } from "@/services/api";
 import {
   createApplication,
@@ -21,10 +22,10 @@ type ApplyButtonProps = {
 // Creates an application for the course/program and sends the learner on to pay for it
 function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
   const { isAuthenticated, hasRole } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [alreadyEnrolled, setAlreadyEnrolled] = useState(false);
 
   const isOpen = status === "OpenForEnrollment";
@@ -37,10 +38,10 @@ function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
       return;
     }
 
-    setError("");
     setLoading(true);
     try {
       const application = await createApplication({ courseId, programId });
+      toast.success("Application submitted", "Complete the payment to secure your place.");
       navigate(`/payment/${application.id}`);
     } catch (applyError) {
       // 409 means they already applied, so look up that application instead
@@ -54,6 +55,7 @@ function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
           );
           // Applied but not paid yet: continue to the payment
           if (existing?.status === "Submitted") {
+            toast.info("You already applied", "Complete the payment to secure your place.");
             navigate(`/payment/${existing.id}`);
             return;
           }
@@ -65,8 +67,9 @@ function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
           // Fall through to the generic message below
         }
       }
-      setError(
-        getApiErrorMessage(applyError, "Could not submit your application."),
+      toast.error(
+        "Could not submit your application",
+        getApiErrorMessage(applyError, "Please try again."),
       );
     } finally {
       setLoading(false);
@@ -81,9 +84,9 @@ function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
 
   if (alreadyEnrolled) {
     return (
-      <Alert className="mt-5 border-emerald-200 bg-emerald-50 text-emerald-900">
+      <Alert className="mt-5 border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100">
         <Info />
-        <AlertDescription className="text-emerald-900/80">
+        <AlertDescription className="text-emerald-900/80 dark:text-emerald-100/80">
           You are already enrolled.{" "}
           <Link to="/my-enrollments" className="font-medium">
             Go to my learning
@@ -116,13 +119,6 @@ function ApplyButton({ courseId, programId, status }: ApplyButtonProps) {
 
       {hint && (
         <p className="mt-2 text-center text-xs text-muted-foreground">{hint}</p>
-      )}
-
-      {error && (
-        <Alert variant="destructive" className="mt-4">
-          <Info />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
       )}
     </div>
   );

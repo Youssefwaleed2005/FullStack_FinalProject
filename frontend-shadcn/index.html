@@ -9,6 +9,17 @@
       content="Andalusia Academy — professional courses, programs and career paths."
     />
     <title>Andalusia Academy</title>
+    <script>
+      // Apply the saved theme (or the system setting) before the first paint, so dark mode
+      // does not flash white. ThemeProvider takes over from here; same key as THEME_KEY.
+      try {
+        var theme = localStorage.getItem("andalusia.theme");
+        if (theme === "dark" || (!theme && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

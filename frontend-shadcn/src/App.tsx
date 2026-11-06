@@ -4,6 +4,8 @@ import CelebrationProvider from "@/components/fun/CelebrationProvider";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import SiteSettingsProvider from "@/components/SiteSettingsProvider";
+import ThemeProvider from "@/components/ThemeProvider";
+import ToastProvider from "@/components/ToastProvider";
 import AboutPage from "@/pages/AboutPage";
 import CareerPathDetailsPage from "@/pages/CareerPathDetailsPage";
 import CareerPathsPage from "@/pages/CareerPathsPage";
@@ -19,6 +21,7 @@ import HomePage from "@/pages/HomePage";
 import InstructorCoursePage from "@/pages/InstructorCoursePage";
 import InstructorDashboardPage from "@/pages/InstructorDashboardPage";
 import LearnerCoursePage from "@/pages/LearnerCoursePage";
+import LearnerCalendarPage from "@/pages/LearnerCalendarPage";
 import LearnerDashboardPage from "@/pages/LearnerDashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import MyApplicationsPage from "@/pages/MyApplicationsPage";
@@ -34,6 +37,8 @@ import RegisterPage from "@/pages/RegisterPage";
 function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
+      <ToastProvider>
       <AuthProvider>
         <SiteSettingsProvider>
         <CelebrationProvider>
@@ -66,6 +71,7 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={["Learner"]} />}>
               <Route path="/applications" element={<MyApplicationsPage />} />
               <Route path="/learning" element={<LearnerDashboardPage />} />
+              <Route path="/calendar" element={<LearnerCalendarPage />} />
               <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
               <Route
                 path="/learning/courses/:id"
@@ -99,6 +105,8 @@ function App() {
         </CelebrationProvider>
         </SiteSettingsProvider>
       </AuthProvider>
+      </ToastProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

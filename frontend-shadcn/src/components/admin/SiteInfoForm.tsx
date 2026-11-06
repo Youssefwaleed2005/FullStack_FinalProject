@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { CircleCheck, LoaderCircle, RotateCcw, Save } from "lucide-react";
+import { LoaderCircle, RotateCcw, Save } from "lucide-react";
 import FormField from "@/components/FormField";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import { TextareaField } from "@/components/manage/fields";
@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { site as defaultSite } from "@/config/site";
 import { useSite } from "@/hooks/useSite";
+import { useToast } from "@/hooks/useToast";
 import { EMAIL_PATTERN, isHttpUrl } from "@/lib/forms";
 import { SITE_SETTING_LIMITS, toSiteSettings } from "@/lib/siteSettings";
 import { getApiErrorMessage } from "@/services/api";
@@ -80,6 +81,7 @@ function validate(values: Values): FieldErrors {
 // Footer, Contact and About info: edit the values saved over config/site.ts
 function SiteInfoForm() {
   const site = useSite();
+  const toast = useToast();
   const saved = toSiteSettings(site);
   // Only the fields being edited. The rest show the live values, so they refresh after a save
   // or when the settings arrive after the page opened.
@@ -87,7 +89,6 @@ function SiteInfoForm() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
 
   const values: Values = { ...saved, ...draft };
@@ -99,13 +100,12 @@ function SiteInfoForm() {
 
   async function save(payload: SiteSettingsUpdate, success: string, failure: string) {
     setError("");
-    setMessage("");
     setSaving(true);
     try {
       site.replace(await updateSiteSettings(payload));
       setDraft({});
       setFieldErrors({});
-      setMessage(success);
+      toast.success(success);
     } catch (err) {
       setError(getApiErrorMessage(err, failure));
     } finally {
@@ -118,7 +118,6 @@ function SiteInfoForm() {
     const errors = validate(values);
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
-      setMessage("");
       setError("Some fields need fixing before saving.");
       return;
     }
@@ -148,12 +147,6 @@ function SiteInfoForm() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {message && (
-          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800">
-            <CircleCheck />
-            <AlertDescription className="text-emerald-800">{message}</AlertDescription>
           </Alert>
         )}
 

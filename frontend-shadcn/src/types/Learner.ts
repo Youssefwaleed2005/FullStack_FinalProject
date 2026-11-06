@@ -119,6 +119,17 @@ export type LearnerDashboard = {
   courses: LearnerCourse[];
 };
 
+// One entry on the learner calendar: a class session or an assignment deadline
+export type CalendarEvent =
+  | { kind: "session"; key: string; courseId: number; courseTitle: string; session: LearnerSession }
+  | { kind: "deadline"; key: string; courseId: number; courseTitle: string; assignment: LearnerAssignment };
+
+export type LearnerCalendar = {
+  // Courses the learner can open; 0 means "not enrolled anywhere yet"
+  courseCount: number;
+  events: CalendarEvent[];
+};
+
 // A material + "did I finish it?"
 export type LearnerMaterial = Material & {
   isCompleted: boolean;

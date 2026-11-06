@@ -147,7 +147,7 @@ function InstructorDashboardPage() {
                       <article className={cn(panelStyle, "group flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 motion-reduce:hover:translate-y-0")}>
                         <div className="relative">
                           <CoverImage src={course.imageUrl} title={course.title} className="aspect-[16/7]" imageClassName="transition duration-500 group-hover:scale-105" />
-                          <StatusPill status={STATUS_META[course.status]} className="absolute top-3 left-3 bg-white/95 shadow-sm ring-0" />
+                          <StatusPill status={STATUS_META[course.status]} className="absolute top-3 left-3 bg-card/95 shadow-sm ring-0" />
                           {course.pendingSubmissions > 0 && (
                             <Chip tone="warning" className="absolute top-3 right-3 shadow-sm">
                               {course.pendingSubmissions} to grade

@@ -102,11 +102,11 @@ function CourseTile({ course }: { course: LearnerCourse }) {
         <div className="mt-auto pt-4">
           <div className="flex flex-wrap gap-2 text-xs">
             {course.pendingAssignments > 0 ? (
-              <span className="rounded-full bg-amber-100 px-2.5 py-1 font-medium text-amber-800">
+              <span className="rounded-full bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 font-medium text-amber-800 dark:text-amber-200">
                 {course.pendingAssignments} to submit
               </span>
             ) : (
-              <span className="rounded-full bg-emerald-100 px-2.5 py-1 font-medium text-emerald-800">
+              <span className="rounded-full bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-1 font-medium text-emerald-800 dark:text-emerald-200">
                 All caught up ✓
               </span>
             )}

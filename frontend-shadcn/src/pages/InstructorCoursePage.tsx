@@ -68,7 +68,7 @@ function InstructorCourseContent({ courseId }: { courseId: number }) {
     <>
       <ManageHeader eyebrow="Manage course" title={course.title} description={when.join(" · ")}>
         <div className="mt-4 flex flex-wrap gap-2">
-          <StatusPill status={STATUS_META[course.status]} className="bg-white/95 ring-0" />
+          <StatusPill status={STATUS_META[course.status]} className="bg-card/95 ring-0" />
           <Chip className="bg-primary-foreground/10 text-primary-foreground">
             {course.studentCount}/{course.capacity} students
           </Chip>

@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/useToast";
 import { formatDateTime } from "@/lib/course";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
@@ -38,7 +39,7 @@ function AttendanceDialog({ sessionId, onClose, onSaved }: AttendanceDialogProps
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     let active = true;
@@ -60,13 +61,11 @@ function AttendanceDialog({ sessionId, onClose, onSaved }: AttendanceDialogProps
   }, [sessionId]);
 
   function setStatus(userId: number, status: AttendanceStatus) {
-    setSaved(false);
     setStatuses((prev) => ({ ...prev, [userId]: prev[userId] === status ? null : status }));
   }
 
   function markAllPresent() {
     if (!roster) return;
-    setSaved(false);
     setStatuses(Object.fromEntries(roster.students.map((s) => [s.userId, "Present" as const])));
   }
 
@@ -80,7 +79,7 @@ function AttendanceDialog({ sessionId, onClose, onSaved }: AttendanceDialogProps
     setSaving(true);
     try {
       setRoster(await markAttendance(sessionId, { records }));
-      setSaved(true);
+      toast.success("Attendance saved.", `${records.length} of ${total} students marked.`);
       onSaved();
     } catch (err) {
       setError(getApiErrorMessage(err, "Could not save attendance."));
@@ -112,12 +111,6 @@ function AttendanceDialog({ sessionId, onClose, onSaved }: AttendanceDialogProps
             <Alert variant="destructive">
               <CircleAlert />
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          {saved && (
-            <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800">
-              <CircleCheck />
-              <AlertDescription className="text-emerald-800">Attendance saved.</AlertDescription>
             </Alert>
           )}
           {roster && total === 0 && <p className="text-sm text-muted-foreground">No students enrolled.</p>}

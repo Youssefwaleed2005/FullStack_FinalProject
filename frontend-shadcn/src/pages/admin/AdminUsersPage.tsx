@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { CircleCheck, GraduationCap, Presentation, UserPlus, Users } from "lucide-react";
+import { GraduationCap, Presentation, UserPlus, Users } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import CreateInstructorDialog from "@/components/admin/CreateInstructorDialog";
 import LoadingState from "@/components/LoadingState";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDate } from "@/lib/course";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -38,8 +39,7 @@ function AdminUsersPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const toast = useToast();
 
   const load = useCallback(() => getAdminUsers({ role, search: search || undefined }), [role, search]);
   const { data: users, loading, failed, error: loadError, reload } = useApiData(load);
@@ -56,11 +56,10 @@ function AdminUsersPage() {
       onConfirm: async () => {
         try {
           await setUserStatus(user.id, activate);
-          setError("");
-          setMessage(`${user.fullName} is now ${activate ? "active" : "deactivated"}.`);
+          toast.success(`${user.fullName} is now ${activate ? "active" : "deactivated"}.`);
           reload();
         } catch (err) {
-          setError(getApiErrorMessage(err, "Could not change this user's status."));
+          toast.error("Could not change this user's status.", getApiErrorMessage(err, "Please try again."));
         }
       },
     });
@@ -100,18 +99,6 @@ function AdminUsersPage() {
           </Tabs>
           <SearchInput value={search} onSearch={setSearch} placeholder="Search name or email" className="w-full sm:w-80" />
         </div>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {message && (
-          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800">
-            <CircleCheck />
-            <AlertDescription className="text-emerald-800">{message}</AlertDescription>
-          </Alert>
-        )}
 
         {loading && !users ? (
           <LoadingState label="Loading users…" />
@@ -174,7 +161,7 @@ function AdminUsersPage() {
         onClose={() => setCreateOpen(false)}
         onCreated={(name) => {
           setCreateOpen(false);
-          setMessage(`${name} was added as an instructor.`);
+          toast.success(`${name} was added as an instructor.`);
           setRole("Instructor");
           reload();
         }}

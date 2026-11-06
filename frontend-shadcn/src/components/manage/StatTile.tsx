@@ -22,14 +22,14 @@ function StatTile({ label, value, icon: Icon, hint, prefix, suffix, tone = "defa
       className={cn(
         panelStyle,
         "group flex items-start gap-4 p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 motion-reduce:hover:translate-y-0",
-        tone === "warning" && value > 0 && "border-amber-300 bg-amber-50/60",
+        tone === "warning" && value > 0 && "border-amber-300 dark:border-amber-800/70 bg-amber-50/60 dark:bg-amber-950/30",
       )}
     >
       <span
         className={cn(
           "flex size-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:-rotate-6",
           tone === "warning" && value > 0
-            ? "bg-amber-100 text-amber-700"
+            ? "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300"
             : "bg-sand/15 text-sand-deep",
         )}
       >

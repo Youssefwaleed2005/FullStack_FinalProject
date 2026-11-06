@@ -81,7 +81,7 @@ function SubmitAssignmentDialog({
 
           {assignment.isPastDue && (
             <Alert>
-              <TriangleAlert className="text-amber-600" />
+              <TriangleAlert className="text-amber-600 dark:text-amber-400" />
               <AlertDescription>
                 The due date has passed. Your submission will be marked as
                 late.

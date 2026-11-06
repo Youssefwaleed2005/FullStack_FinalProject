@@ -10,6 +10,7 @@ import LoadingState from "@/components/LoadingState";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDate } from "@/lib/course";
 import { canPreview, resolveMaterialUrl } from "@/lib/materialLinks";
 import { getApiErrorMessage } from "@/services/api";
@@ -39,7 +40,7 @@ function MaterialsTab({ courseId }: { courseId: number }) {
   const [formKey, setFormKey] = useState(0);
   const [viewing, setViewing] = useState<Material | null>(null);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [error, setError] = useState("");
+  const toast = useToast();
 
   function openForm(material: Material | null) {
     setEditing(material);
@@ -50,6 +51,7 @@ function MaterialsTab({ courseId }: { courseId: number }) {
   async function handleUpload(file: File, title: string, description?: string) {
     await uploadMaterial(courseId, file, title, description);
     setFormOpen(false);
+    toast.success("File uploaded.", title);
     reload();
   }
 
@@ -57,6 +59,7 @@ function MaterialsTab({ courseId }: { courseId: number }) {
     if (editing) await updateMaterial(editing.id, payload);
     else await createMaterial(courseId, payload);
     setFormOpen(false);
+    toast.success(editing ? "Material updated." : "Material added.", payload.title);
     reload();
   }
 
@@ -69,10 +72,10 @@ function MaterialsTab({ courseId }: { courseId: number }) {
       onConfirm: async () => {
         try {
           await deleteMaterial(material.id);
-          setError("");
+          toast.success("Material deleted.", material.title);
           reload();
         } catch (err) {
-          setError(getApiErrorMessage(err, "Could not delete the material."));
+          toast.error("Could not delete the material.", getApiErrorMessage(err, "Please try again."));
         }
       },
     });
@@ -99,11 +102,6 @@ function MaterialsTab({ courseId }: { courseId: number }) {
 
   return (
     <>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
 
       {materials.length === 0 ? (
         <EmptyNote icon={FileText} title="No materials yet" description="Share slides, PDFs, videos or useful links with your students." action={addButton} />

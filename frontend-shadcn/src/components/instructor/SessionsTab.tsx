@@ -10,6 +10,7 @@ import LoadingState from "@/components/LoadingState";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDateTime } from "@/lib/course";
 import { getApiErrorMessage } from "@/services/api";
 import {
@@ -37,7 +38,7 @@ function SessionsTab({ courseId, onChanged }: { courseId: number; onChanged?: ()
   const [formKey, setFormKey] = useState(0); // new key = fresh form
   const [attendanceFor, setAttendanceFor] = useState<number | null>(null);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [error, setError] = useState("");
+  const toast = useToast();
 
   function refresh() {
     reload();
@@ -54,6 +55,7 @@ function SessionsTab({ courseId, onChanged }: { courseId: number; onChanged?: ()
     if (editing) await updateSession(editing.id, payload);
     else await createSession(courseId, payload);
     setFormOpen(false);
+    toast.success(editing ? "Session updated." : "Session added.", payload.title);
     refresh();
   }
 
@@ -66,10 +68,10 @@ function SessionsTab({ courseId, onChanged }: { courseId: number; onChanged?: ()
       onConfirm: async () => {
         try {
           await deleteSession(session.id);
-          setError("");
+          toast.success("Session deleted.", session.title);
           refresh();
         } catch (err) {
-          setError(getApiErrorMessage(err, "Could not delete the session."));
+          toast.error("Could not delete the session.", getApiErrorMessage(err, "Please try again."));
         }
       },
     });
@@ -91,12 +93,6 @@ function SessionsTab({ courseId, onChanged }: { courseId: number; onChanged?: ()
 
   return (
     <>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       {sessions.length === 0 ? (
         <EmptyNote icon={CalendarDays} title="No sessions yet" description="Plan your first class so learners know when to join." action={addButton} />
       ) : (

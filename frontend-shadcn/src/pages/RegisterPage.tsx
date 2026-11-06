@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import { getApiErrorMessage } from "@/services/api";
 
 const EMAIL_PATTERN = /^\S+@\S+\.\S+$/;
@@ -30,6 +31,7 @@ const linkStyle =
 
 function RegisterPage() {
   const { register } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   // Carried over from the login page, so the user still lands where they were heading
@@ -79,7 +81,7 @@ function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await register({
+      const signedUp = await register({
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
@@ -90,6 +92,7 @@ function RegisterPage() {
         preferredLanguage: form.preferredLanguage || undefined,
         acceptedTerms,
       });
+      toast.success("Your account is ready", `Welcome to Andalusia Academy, ${signedUp.firstName}!`);
       navigate(from, { replace: true });
     } catch (registerError) {
       setError(

@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useApiData } from "@/hooks/useApiData";
 import { useCelebrate } from "@/hooks/useCelebrate";
+import { useToast } from "@/hooks/useToast";
 import { formatDate } from "@/lib/course";
 import { canPreview, resolveMaterialUrl } from "@/lib/materialLinks";
 import { panelStyle } from "@/lib/styles";
@@ -61,13 +62,12 @@ function LearnerMaterialsTab({
   const [busyId, setBusyId] = useState<number | null>(null);
   const { celebrate } = useCelebrate();
   const [viewingId, setViewingId] = useState<number | null>(null);
-  const [saveError, setSaveError] = useState("");
+  const toast = useToast();
 
   const materials: LearnerMaterial[] = (data ?? []).map((m) => ({ ...m, ...changes[m.id] }));
 
   async function toggle(material: LearnerMaterial) {
     setBusyId(material.id);
-    setSaveError("");
     try {
       const result = await setMaterialCompletion(material.id, !material.isCompleted);
       setChanges((prev) => ({
@@ -86,7 +86,7 @@ function LearnerMaterialsTab({
       }
       onProgressChanged();
     } catch (err) {
-      setSaveError(getApiErrorMessage(err, "Could not update this material."));
+      toast.error("Could not update this material.", getApiErrorMessage(err, "Please try again."));
     } finally {
       setBusyId(null);
     }
@@ -135,8 +135,6 @@ function LearnerMaterialsTab({
         aria-label="Materials completed"
         className="mt-3"
       />
-
-      {saveError && <p className="mt-3 text-sm text-destructive">{saveError}</p>}
 
       <ul className={cn(panelStyle, "mt-5 divide-y")}>
         {materials.map((material) => {

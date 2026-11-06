@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { CircleAlert, CircleCheck, CloudOff, LoaderCircle } from "lucide-react";
+import { CircleAlert, CloudOff, LoaderCircle } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
 import Avatar from "@/components/Avatar";
 import FormField from "@/components/FormField";
@@ -8,6 +8,7 @@ import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDate } from "@/lib/course";
 import { panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -47,18 +48,16 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
   const [profile, setProfile] = useState(initialProfile);
   const [form, setForm] = useState(() => toForm(initialProfile));
   const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const toast = useToast();
 
   function setField(name: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [name]: value }));
-    setSaved(false);
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
-    setSaved(false);
 
     if (!form.firstName.trim() || !form.lastName.trim()) {
       setError("First and last name are required.");
@@ -76,7 +75,7 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
       });
       setProfile(updated);
       setForm(toForm(updated));
-      setSaved(true);
+      toast.success("Profile updated.");
     } catch (saveError) {
       setError(getApiErrorMessage(saveError, "Could not save your profile."));
     } finally {
@@ -128,17 +127,6 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
           <Alert variant="destructive" className="mt-5">
             <CircleAlert />
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {saved && (
-          <Alert
-            role="status"
-            className="mt-5 border-emerald-200 bg-emerald-50 text-emerald-900"
-          >
-            <CircleCheck />
-            <AlertDescription className="text-emerald-900/80">
-              Profile updated.
-            </AlertDescription>
           </Alert>
         )}
 

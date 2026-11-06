@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  CalendarDays,
   CreditCard,
   FileText,
   LayoutDashboard,
@@ -22,6 +23,7 @@ export const NAV_LINKS = [
 // A link with a role is only shown to users who have that role.
 export const ACCOUNT_LINKS = [
   { label: "Dashboard", to: "/learning", icon: LayoutDashboard, role: "Learner" },
+  { label: "Calendar", to: "/calendar", icon: CalendarDays, role: "Learner" },
   { label: "My learning", to: "/my-enrollments", icon: BookOpen, role: "Learner" },
   { label: "My applications", to: "/applications", icon: FileText, role: "Learner" },
   { label: "My payments", to: "/my-payments", icon: CreditCard, role: "Learner" },

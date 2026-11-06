@@ -46,7 +46,7 @@ function AccountLayout({ title, description, children }: AccountLayoutProps) {
                       cn(
                         "flex items-center gap-2 border-b-2 px-3 pt-2 pb-3 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                         isActive
-                          ? "border-primary text-foreground"
+                          ? "border-primary text-foreground dark:border-sand"
                           : "border-transparent text-muted-foreground hover:text-foreground",
                       )
                     }

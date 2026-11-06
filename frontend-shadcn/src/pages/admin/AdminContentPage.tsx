@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CircleCheck, Handshake, Info, MessageSquareQuote, Plus } from "lucide-react";
+import { Handshake, Info, MessageSquareQuote, Plus } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import PartnerEditorDialog from "@/components/admin/PartnerEditorDialog";
 import PartnersTable from "@/components/admin/PartnersTable";
@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
@@ -36,8 +37,7 @@ function AdminContentPage() {
   // Row whose Show / Hide request is running
   const [busy, setBusy] = useState<{ tab: Tab; id: number } | null>(null);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const toast = useToast();
   // undefined = closed, null = new, object = edit that item
   const [editingPartner, setEditingPartner] = useState<PartnerAdmin | null | undefined>(undefined);
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialAdmin | null | undefined>(undefined);
@@ -47,14 +47,12 @@ function AdminContentPage() {
   const current = isPartners ? partnerData : testimonialData;
 
   async function run(action: () => Promise<unknown>, success: string, failure: string, reload: () => void) {
-    setError("");
-    setMessage("");
     try {
       await action();
-      setMessage(success);
+      toast.success(success);
       reload();
     } catch (err) {
-      setError(getApiErrorMessage(err, failure));
+      toast.error(failure, getApiErrorMessage(err, "Please try again."));
     }
   }
 
@@ -143,8 +141,6 @@ function AdminContentPage() {
             onValueChange={(value) => {
               setTab(value as Tab);
               setSearch("");
-              setError("");
-              setMessage("");
             }}
           >
             <TabsList className="h-10! rounded-full bg-secondary p-1">
@@ -168,18 +164,6 @@ function AdminContentPage() {
             />
           )}
         </div>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {message && (
-          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800">
-            <CircleCheck />
-            <AlertDescription className="text-emerald-800">{message}</AlertDescription>
-          </Alert>
-        )}
 
         {isSite ? (
           <SiteInfoForm />
@@ -231,8 +215,7 @@ function AdminContentPage() {
           onClose={() => setEditingPartner(undefined)}
           onSaved={(name) => {
             setEditingPartner(undefined);
-            setError("");
-            setMessage(`${name} was saved.`);
+            toast.success(`${name} was saved.`);
             partnerData.reload();
           }}
         />
@@ -243,8 +226,7 @@ function AdminContentPage() {
           onClose={() => setEditingTestimonial(undefined)}
           onSaved={(name) => {
             setEditingTestimonial(undefined);
-            setError("");
-            setMessage(`${name}'s testimonial was saved.`);
+            toast.success(`${name}'s testimonial was saved.`);
             testimonialData.reload();
           }}
         />

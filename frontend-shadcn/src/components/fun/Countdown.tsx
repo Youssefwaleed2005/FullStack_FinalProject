@@ -17,7 +17,7 @@ function Countdown({ target }: { target: string }) {
 
   const diff = parseApiDate(target) - now;
   if (diff <= 0) {
-    return <p className="font-semibold text-emerald-700">Starting now — see you there!</p>;
+    return <p className="font-semibold text-emerald-700 dark:text-emerald-400">Starting now — see you there!</p>;
   }
 
   const total = Math.floor(diff / 1000);

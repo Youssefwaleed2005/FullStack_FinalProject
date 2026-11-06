@@ -1,17 +1,16 @@
+import { useState, type FocusEvent } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  CalendarDays,
-  CircleCheck,
-  Compass,
-  GraduationCap,
-  MonitorPlay,
-  Trophy,
-} from "lucide-react";
+import { ArrowRight, CircleCheck } from "lucide-react";
+import CareerRoadmap from "@/components/home/CareerRoadmap";
 import RotatingWord from "@/components/home/RotatingWord";
+import SkillArc from "@/components/home/SkillArc";
 import { Button } from "@/components/ui/button";
+import { useApiData } from "@/hooks/useApiData";
+import { useRotatingIndex } from "@/hooks/useRotatingIndex";
+import { getCareerPathRoadmaps } from "@/services/careerPathService";
 
-const ROLES = [
+// Shown while the career paths load, or if there are none / the API is down
+const FALLBACK_ROLES = [
   "full-stack developer",
   "data analyst",
   "UI/UX designer",
@@ -19,27 +18,34 @@ const ROLES = [
   "digital marketer",
 ];
 
-const HIGHLIGHTS = [
-  {
-    icon: GraduationCap,
-    title: "Taught by practitioners",
-    text: "Instructors who do the job every day",
-  },
-  {
-    icon: MonitorPlay,
-    title: "Online or on campus",
-    text: "Pick the format that fits your week",
-  },
-  {
-    icon: Compass,
-    title: "Guided career paths",
-    text: "A clear route from beginner to hired",
-  },
-];
+// How long each career path stays on screen (the gold word and the roadmap change together)
+const ROTATE_MS = 2600;
 
 const PROMISES = ["Expert instructors", "Flexible schedules", "Career guidance"];
 
+// "Full-Stack Developer" → "full-stack developer"; acronyms such as "UI/UX" stay as they are
+function toRoleWord(title: string) {
+  return title
+    .split(" ")
+    .map((word) => (word === word.toUpperCase() ? word : word.toLowerCase()))
+    .join(" ");
+}
+
 function HeroSection() {
+  const { data: paths, loading } = useApiData(getCareerPathRoadmaps);
+  // Hovering or tabbing into the roadmap holds the current path so it can be read and clicked
+  const [paused, setPaused] = useState(false);
+
+  const hasPaths = !!paths && paths.length > 0;
+  const words = hasPaths ? paths.map((path) => toRoleWord(path.title)) : FALLBACK_ROLES;
+  // The only rotation timer: the gold word and the roadmap both read this index
+  const index = useRotatingIndex(words.length, ROTATE_MS, paused);
+  const activePath = hasPaths ? paths[index] : null;
+
+  function handleBlur(event: FocusEvent<HTMLDivElement>) {
+    if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+  }
+
   return (
     <section className="relative overflow-hidden border-b border-border/70 bg-linear-to-b from-secondary/80 via-background to-background">
       {/* Decoration: star pattern + drifting glows */}
@@ -72,7 +78,7 @@ function HeroSection() {
 
           <p className="mt-5 font-heading text-2xl leading-snug sm:text-3xl">
             Start your journey to becoming a{" "}
-            <RotatingWord words={ROLES} />
+            <RotatingWord words={words} index={index} />
           </p>
 
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
@@ -107,16 +113,22 @@ function HeroSection() {
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
             {PROMISES.map((promise) => (
               <li key={promise} className="flex items-center gap-1.5">
-                <CircleCheck aria-hidden className="size-4 text-emerald-600" />
+                <CircleCheck aria-hidden className="size-4 text-emerald-600 dark:text-emerald-400" />
                 {promise}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Arch panel — a nod to Andalusian architecture — with floating cards around it */}
-        <div className="relative mx-auto w-full max-w-md duration-1000 animate-in fade-in zoom-in-95 motion-reduce:animate-none lg:max-w-none">
-          <div className="relative overflow-hidden rounded-t-[14rem] rounded-b-3xl bg-linear-to-b from-primary via-[#553b23] to-[#7a5632] px-6 pt-28 pb-6 shadow-2xl shadow-primary/30 sm:px-8 sm:pt-36 sm:pb-8">
+        {/* Arch panel — a nod to Andalusian architecture — holding the active career path's roadmap */}
+        <div
+          className="relative mx-auto w-full max-w-md duration-1000 animate-in fade-in zoom-in-95 motion-reduce:animate-none lg:max-w-none"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={handleBlur}
+        >
+          <div className="relative overflow-hidden rounded-t-[14rem] rounded-b-3xl bg-linear-to-b from-primary via-[#553b23] to-[#7a5632] px-6 pt-36 pb-6 shadow-2xl shadow-primary/30 sm:px-8 sm:pt-48 sm:pb-8">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-andalusia-pattern opacity-30"
@@ -130,69 +142,10 @@ function HeroSection() {
               className="pointer-events-none absolute -top-16 left-1/2 size-64 -translate-x-1/2 rounded-full bg-sand/30 blur-3xl"
             />
 
-            <ul className="relative space-y-3">
-              {HIGHLIGHTS.map((highlight, index) => (
-                <li
-                  key={highlight.title}
-                  style={{ animationDelay: `${300 + index * 150}ms` }}
-                  className="flex items-center gap-4 rounded-2xl bg-white/95 p-4 shadow-lg shadow-primary/20 backdrop-blur transition duration-300 fill-mode-both animate-in fade-in slide-in-from-right-6 hover:-translate-y-0.5 hover:shadow-xl motion-reduce:animate-none"
-                >
-                  <span
-                    aria-hidden
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-sand-deep"
-                  >
-                    <highlight.icon className="size-5" strokeWidth={1.75} />
-                  </span>
-                  <span>
-                    <span className="block text-sm font-semibold text-foreground">
-                      {highlight.title}
-                    </span>
-                    <span className="block text-sm text-muted-foreground">
-                      {highlight.text}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* New key per path: the chips play their entrance in step with the gold word */}
+            <SkillArc key={activePath?.id ?? "none"} skills={activePath?.recommendedSkills ?? null} />
 
-          {/* Floating cards (decorative, hidden on small screens) */}
-          <div
-            aria-hidden
-            className="absolute -top-4 -left-6 hidden w-56 animate-float rounded-2xl border border-border/80 bg-card/95 p-4 shadow-xl shadow-primary/15 backdrop-blur sm:block lg:-left-12"
-          >
-            <p className="text-xs font-semibold text-muted-foreground">Your progress</p>
-            <p className="mt-1 text-sm font-semibold">React from Scratch</p>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full w-3/4 rounded-full bg-linear-to-r from-sand-deep to-sand" />
-            </div>
-            <p className="mt-1.5 text-xs text-muted-foreground">75% · keep going! 🚀</p>
-          </div>
-
-          <div
-            aria-hidden
-            className="absolute top-1/2 -right-4 hidden animate-float-slow items-center gap-3 rounded-2xl border border-border/80 bg-card/95 px-4 py-3 shadow-xl shadow-primary/15 backdrop-blur [animation-delay:1.5s] sm:flex lg:-right-10"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full bg-sand text-primary">
-              <Trophy className="size-4" />
-            </span>
-            <span>
-              <span className="block text-sm font-semibold">Course complete!</span>
-              <span className="block text-xs text-muted-foreground">Badge unlocked 🏅</span>
-            </span>
-          </div>
-
-          <div
-            aria-hidden
-            className="absolute -bottom-5 left-6 hidden animate-float items-center gap-3 rounded-2xl border border-border/80 bg-card/95 px-4 py-3 shadow-xl shadow-primary/15 backdrop-blur [animation-delay:3s] sm:flex"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full bg-accent text-sand-deep">
-              <CalendarDays className="size-4" />
-            </span>
-            <span>
-              <span className="block text-sm font-semibold">Next session</span>
-              <span className="block text-xs text-muted-foreground">Sunday · 6:00 PM</span>
-            </span>
+            <CareerRoadmap path={activePath} loading={loading && !paths} />
           </div>
         </div>
       </div>

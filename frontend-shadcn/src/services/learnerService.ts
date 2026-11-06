@@ -1,6 +1,8 @@
 import api from "./api";
 import type {
+  CalendarEvent,
   LearnerAssignment,
+  LearnerCalendar,
   LearnerCourse,
   LearnerCourseDetail,
   LearnerDashboard,
@@ -67,6 +69,41 @@ export async function getLearnerAssignments(
     `/learner/courses/${courseId}/assignments`,
   );
   return response.data;
+}
+
+// Every session and assignment deadline across my courses, for the calendar page.
+// There is no single endpoint for this, so it asks each course; a course that fails is skipped.
+export async function getLearnerCalendar(): Promise<LearnerCalendar> {
+  // Cancelled enrollments can't open the course (the API answers 403)
+  const courses = (await getMyCourses()).filter(
+    (course) => course.enrollmentStatus !== "Cancelled",
+  );
+
+  const perCourse = await Promise.allSettled(
+    courses.map(async (course): Promise<CalendarEvent[]> => {
+      const [sessions, assignments] = await Promise.all([
+        getLearnerSessions(course.id),
+        getLearnerAssignments(course.id),
+      ]);
+      const base = { courseId: course.id, courseTitle: course.title };
+      return [
+        ...sessions.map((session) => ({ ...base, kind: "session" as const, key: `session-${session.id}`, session })),
+        ...assignments.map((assignment) => ({
+          ...base,
+          kind: "deadline" as const,
+          key: `deadline-${assignment.id}`,
+          assignment,
+        })),
+      ];
+    }),
+  );
+
+  return {
+    courseCount: courses.length,
+    events: perCourse.flatMap((result) =>
+      result.status === "fulfilled" ? result.value : [],
+    ),
+  };
 }
 
 export async function submitAssignment(

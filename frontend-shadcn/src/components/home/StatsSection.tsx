@@ -63,7 +63,7 @@ function StatsGrid({ data }: { data: Stats }) {
             <span className="flex size-11 items-center justify-center rounded-2xl bg-sand/15 text-sand-deep transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-6 motion-reduce:transform-none">
               <stat.icon className="size-5" />
             </span>
-            <span className="font-heading text-4xl font-semibold text-primary sm:text-5xl">
+            <span className="font-heading text-4xl font-semibold text-primary sm:text-5xl dark:text-sand">
               {inView ? <CountUp value={stat.value} suffix="+" /> : "0+"}
             </span>
             <span className="text-sm text-muted-foreground">{stat.label}</span>

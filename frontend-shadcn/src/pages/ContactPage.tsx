@@ -125,9 +125,9 @@ function ContactPage() {
             <p className="mt-1 text-sm text-muted-foreground">This opens your email app with the message ready to send.</p>
 
             {opened && (
-              <Alert className="mt-5 border-emerald-200 bg-emerald-50 text-emerald-800">
+              <Alert className="mt-5 border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200">
                 <CircleCheck />
-                <AlertDescription className="text-emerald-800">
+                <AlertDescription className="text-emerald-800 dark:text-emerald-200">
                   Your email app should open. You can also write to us at{" "}
                   <a href={`mailto:${academyEmail}`} className="font-medium underline underline-offset-4">
                     {academyEmail}

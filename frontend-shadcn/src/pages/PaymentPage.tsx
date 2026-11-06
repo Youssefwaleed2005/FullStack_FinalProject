@@ -16,6 +16,7 @@ import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useCelebrate } from "@/hooks/useCelebrate";
+import { useToast } from "@/hooks/useToast";
 import { formatAmount, formatDateTime } from "@/lib/course";
 import { panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,7 @@ type PaymentContentProps = {
 function PaymentContent({ id }: PaymentContentProps) {
   // Loading the pending payment
   const { celebrate } = useCelebrate();
+  const toast = useToast();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -132,11 +134,14 @@ function PaymentContent({ id }: PaymentContentProps) {
       // The status is now "Paid" or "Failed"
       setPayment(result);
       if (result.status === "Paid") {
+        toast.success("Payment successful", `You're enrolled in ${result.targetTitle}.`);
         celebrate({
           big: true,
           title: "You're enrolled!",
           message: "Payment successful. Welcome to the course!",
         });
+      } else if (result.status === "Failed") {
+        toast.error("Payment declined", "Check your card details, or try another card.");
       }
     } catch (error) {
       setFormError(getApiErrorMessage(error, "Payment could not be completed."));
@@ -214,7 +219,7 @@ function PaymentContent({ id }: PaymentContentProps) {
           <>
             <span
               aria-hidden
-              className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600"
+              className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
             >
               <CircleCheck className="size-7" strokeWidth={1.75} />
             </span>

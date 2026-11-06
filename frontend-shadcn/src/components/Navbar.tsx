@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { ArrowRight, LogOut, Menu } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import { ACCOUNT_LINKS, NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +32,7 @@ const mobileLinkStyle =
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout, hasRole } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
@@ -40,6 +43,7 @@ function Navbar() {
   function handleLogout() {
     setMenuOpen(false);
     logout();
+    toast.info("You've been logged out.", "See you next time!");
     navigate("/");
   }
 
@@ -71,6 +75,7 @@ function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             // Account menu
             <DropdownMenu>

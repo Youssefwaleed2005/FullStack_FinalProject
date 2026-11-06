@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDateTime } from "@/lib/course";
 import { getApiErrorMessage } from "@/services/api";
 import {
@@ -31,7 +32,7 @@ function AssignmentsTab({ courseId, onChanged }: { courseId: number; onChanged?:
   const [formKey, setFormKey] = useState(0);
   const [viewing, setViewing] = useState<Assignment | null>(null);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
-  const [error, setError] = useState("");
+  const toast = useToast();
 
   function refresh() {
     reload();
@@ -48,6 +49,7 @@ function AssignmentsTab({ courseId, onChanged }: { courseId: number; onChanged?:
     if (editing) await updateAssignment(editing.id, payload);
     else await createAssignment(courseId, payload);
     setFormOpen(false);
+    toast.success(editing ? "Assignment updated." : "Assignment added.", payload.title);
     refresh();
   }
 
@@ -60,10 +62,10 @@ function AssignmentsTab({ courseId, onChanged }: { courseId: number; onChanged?:
       onConfirm: async () => {
         try {
           await deleteAssignment(assignment.id);
-          setError("");
+          toast.success("Assignment deleted.", assignment.title);
           refresh();
         } catch (err) {
-          setError(getApiErrorMessage(err, "Could not delete the assignment."));
+          toast.error("Could not delete the assignment.", getApiErrorMessage(err, "Please try again."));
         }
       },
     });
@@ -85,12 +87,6 @@ function AssignmentsTab({ courseId, onChanged }: { courseId: number; onChanged?:
 
   return (
     <>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       {assignments.length === 0 ? (
         <EmptyNote icon={ClipboardList} title="No assignments yet" description="Create an assignment and grade submissions right here." action={addButton} />
       ) : (

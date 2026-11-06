@@ -1,7 +1,7 @@
 // Helpers for <input type="datetime-local"> on the instructor pages.
 // The API stores UTC times and sends them without a "Z".
 
-function toDate(value: string): Date {
+export function toDate(value: string): Date {
   const hasZone = /[zZ]|[+-]\d\d:\d\d$/.test(value);
   return new Date(value.includes("T") && !hasZone ? `${value}Z` : value);
 }

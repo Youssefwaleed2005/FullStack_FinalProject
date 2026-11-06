@@ -39,7 +39,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Andalusia Academy brand theme (light only) */
+/* Andalusia Academy brand theme (light; the dark version is below) */
 :root {
   /* Brand: warm sand for highlights, a darker sand that stays readable as text */
   --sand: #e9b682;
@@ -65,6 +65,34 @@
   --input: #ddd1c1;
   --ring: #c8955c;
   --radius: 0.75rem;
+}
+
+/* Dark mode: warm near-black surfaces with cream text.
+   Primary stays a deep brown (not flipped to light like stock shadcn) because it is also the
+   background of the footer, CTA and admin headers, and the text colour on sand badges. */
+.dark {
+  --sand: #e9b682;
+  /* Used as text on the page background, so it gets lighter instead of darker */
+  --sand-deep: #e0a86c;
+
+  --background: #1a1613;
+  --foreground: #f3ece3;
+  --card: #1c1815;
+  --card-foreground: #f3ece3;
+  --popover: #221d19;
+  --popover-foreground: #f3ece3;
+  --primary: #5a3e25;
+  --primary-foreground: #fbf4ea;
+  --secondary: #2a231d;
+  --secondary-foreground: #f0dfc8;
+  --muted: #241e19;
+  --muted-foreground: #b3a595;
+  --accent: #3a2c20;
+  --accent-foreground: #f6e6d3;
+  --destructive: #e5534b;
+  --border: #332a22;
+  --input: #3f342a;
+  --ring: #c8955c;
 }
 
 @layer base {

@@ -1,19 +1,11 @@
-import { useEffect, useState } from "react";
-
 type RotatingWordProps = {
   words: string[];
-  interval?: number; // ms
+  // Which word to show. The parent owns the timer (useRotatingIndex), so other parts can follow it.
+  index: number;
 };
 
-// Cycles through words with a soft blur-in, e.g. "developer" → "data analyst" → …
-function RotatingWord({ words, interval = 2600 }: RotatingWordProps) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % words.length), interval);
-    return () => window.clearInterval(id);
-  }, [words.length, interval]);
-
+// Shows one of the words with a soft blur-in, e.g. "developer" → "data analyst" → …
+function RotatingWord({ words, index }: RotatingWordProps) {
   return (
     <span className="relative inline-block">
       {/* Screen readers get the full list once instead of a changing word */}

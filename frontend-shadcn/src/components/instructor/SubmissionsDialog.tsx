@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { CircleAlert, CircleCheck, ExternalLink, LoaderCircle } from "lucide-react";
+import { CircleAlert, ExternalLink, LoaderCircle } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Chip from "@/components/manage/Chip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { formatDateTime } from "@/lib/course";
 import { getApiErrorMessage } from "@/services/api";
 import { getAssignmentSubmissions, gradeSubmission } from "@/services/instructorService";
@@ -84,7 +85,7 @@ function SubmissionCard({ submission, onGraded }: { submission: Submission; onGr
   const [feedback, setFeedback] = useState(submission.feedback ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
+  const toast = useToast();
   const isGraded = submission.status === "Graded";
 
   async function handleGrade() {
@@ -96,7 +97,7 @@ function SubmissionCard({ submission, onGraded }: { submission: Submission; onGr
     setSaving(true);
     try {
       await gradeSubmission(submission.id, { score: value, feedback: feedback.trim() || undefined });
-      setSaved(true);
+      toast.success("Grade saved.", `${submission.studentName}: ${value}/${submission.maxScore}`);
       onGraded();
     } catch (err) {
       setError(getApiErrorMessage(err, "Could not save the grade."));
@@ -145,11 +146,6 @@ function SubmissionCard({ submission, onGraded }: { submission: Submission; onGr
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      {saved && (
-        <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-emerald-700">
-          <CircleCheck aria-hidden className="size-4" /> Grade saved
-        </p>
-      )}
 
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <div className="relative sm:w-32">
@@ -160,10 +156,7 @@ function SubmissionCard({ submission, onGraded }: { submission: Submission; onGr
             aria-label={`Score out of ${submission.maxScore}`}
             placeholder="Score"
             value={score}
-            onChange={(e) => {
-              setScore(e.target.value);
-              setSaved(false);
-            }}
+            onChange={(e) => setScore(e.target.value)}
             className="h-10 bg-card pr-12 pl-3"
           />
           <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-muted-foreground">
@@ -174,10 +167,7 @@ function SubmissionCard({ submission, onGraded }: { submission: Submission; onGr
           aria-label="Feedback"
           placeholder="Feedback for the student (optional)"
           value={feedback}
-          onChange={(e) => {
-            setFeedback(e.target.value);
-            setSaved(false);
-          }}
+          onChange={(e) => setFeedback(e.target.value)}
           className="h-10 flex-1 bg-card px-3"
         />
         <Button className="h-10 rounded-full px-5" onClick={handleGrade} disabled={saving}>

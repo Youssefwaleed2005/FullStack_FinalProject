@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, CircleCheck, Pencil, Plus } from "lucide-react";
+import { BookOpen, Pencil, Plus } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import CourseEditorDialog from "@/components/admin/CourseEditorDialog";
 import CoverImage from "@/components/CoverImage";
@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useApiData } from "@/hooks/useApiData";
+import { useToast } from "@/hooks/useToast";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -47,8 +48,7 @@ function AdminCoursesPage() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>(ALL);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const toast = useToast();
   // undefined = closed, null = new course, number = edit that course
   const [editingId, setEditingId] = useState<number | null | undefined>(undefined);
 
@@ -58,12 +58,10 @@ function AdminCoursesPage() {
     const instructorId = Number(picked[course.id]);
     if (!instructorId || !data) return;
     setBusyId(course.id);
-    setError("");
-    setMessage("");
     try {
       await assignInstructor(course.id, instructorId);
       const name = data.instructors.find((i) => i.id === instructorId)?.fullName ?? "The instructor";
-      setMessage(`${name} now teaches "${course.title}".`);
+      toast.success(`${name} now teaches "${course.title}".`);
       setPicked((prev) => {
         const next = { ...prev };
         delete next[course.id];
@@ -71,7 +69,7 @@ function AdminCoursesPage() {
       });
       reload();
     } catch (err) {
-      setError(getApiErrorMessage(err, "Could not assign the instructor."));
+      toast.error("Could not assign the instructor.", getApiErrorMessage(err, "Please try again."));
     } finally {
       setBusyId(null);
     }
@@ -110,18 +108,6 @@ function AdminCoursesPage() {
             options={[{ value: ALL, label: "All statuses" }, ...(Object.keys(STATUS_META) as CourseStatus[]).map((s) => ({ value: s, label: STATUS_META[s].label }))]}
           />
         </div>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {message && (
-          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800">
-            <CircleCheck />
-            <AlertDescription className="text-emerald-800">{message}</AlertDescription>
-          </Alert>
-        )}
 
         {loading && !data ? (
           <LoadingState label="Loading courses…" />
@@ -207,7 +193,7 @@ function AdminCoursesPage() {
           onClose={() => setEditingId(undefined)}
           onSaved={(title) => {
             setEditingId(undefined);
-            setMessage(`"${title}" was saved.`);
+            toast.success(`"${title}" was saved.`);
             reload();
           }}
         />

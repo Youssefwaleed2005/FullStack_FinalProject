@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
 import { homeForRoles } from "@/lib/navigation";
 import { getApiErrorMessage } from "@/services/api";
 
@@ -18,6 +19,7 @@ const linkStyle =
 
 function LoginPage() {
   const { login } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   // Where the user was heading before being sent to log in
@@ -48,6 +50,7 @@ function LoginPage() {
     setSubmitting(true);
     try {
       const signedIn = await login({ email, password, rememberMe });
+      toast.success(`Welcome back, ${signedIn.firstName}!`);
       navigate(from ?? homeForRoles(signedIn.roles), { replace: true });
     } catch (loginError) {
       setError(getApiErrorMessage(loginError, "Could not sign you in."));
