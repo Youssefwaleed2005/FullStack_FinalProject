@@ -35,6 +35,29 @@ namespace Andalusia.Api.Controllers
             return Ok(await _adminService.GetPaymentsAsync(status, search));
         }
 
+        // GET /api/admin/payments/paged?status=Paid&search=omar&pageNumber=1&pageSize=10
+        [HttpGet("payments/paged")]
+        public async Task<ActionResult<AdminPaymentsPageDto>> GetPaymentsPage(
+            [FromQuery] PaymentStatus? status, [FromQuery] string? search, [FromQuery] AdminListQuery page)
+        {
+            return Ok(await _adminService.GetPaymentsPageAsync(status, search, page));
+        }
+
+        // GET /api/admin/users/paged?role=Learner&search=&pageNumber=1&pageSize=10
+        [HttpGet("users/paged")]
+        public async Task<ActionResult<PagedResponse<AdminUserDto>>> GetUsersPage(
+            [FromQuery] string? role, [FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] AdminListQuery page)
+        {
+            return Ok(await _adminService.GetUsersPageAsync(role, search, isActive, page));
+        }
+
+        // GET /api/admin/stats → revenue per month + enrollments per category (charts)
+        [HttpGet("stats")]
+        public async Task<ActionResult<AdminStatsDto>> GetStats()
+        {
+            return Ok(await _adminService.GetStatsAsync());
+        }
+
         // GET /api/admin/users?role=Instructor&search=ahmed&isActive=true
         [HttpGet("users")]
         public async Task<ActionResult<List<AdminUserDto>>> GetUsers(

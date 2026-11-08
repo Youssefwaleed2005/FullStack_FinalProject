@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Check } from "lucide-react";
+import { topicFor } from "@/lib/topics";
 import { cn } from "@/lib/utils";
 
 // Chips that fit along the arc without touching (fewer on phones, where the arch is smaller)
@@ -61,6 +61,7 @@ function SkillArc({ skills }: SkillArcProps) {
             animationDelay: `${index * 70}ms`,
           } as CSSProperties;
 
+          const topic = topicFor(skill);
           return (
             <li
               key={skill}
@@ -70,8 +71,10 @@ function SkillArc({ skills }: SkillArcProps) {
                 !onMobile && "hidden sm:block",
               )}
             >
-              <span className="flex items-center gap-1 rounded-full border border-sand/50 bg-card/95 px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-foreground shadow-md shadow-primary/20 backdrop-blur">
-                <Check aria-hidden className="size-3 text-sand-deep" strokeWidth={3} />
+              <span className="flex items-center gap-1.5 rounded-full border border-sand/50 bg-card/95 py-1 pr-3 pl-1 text-xs font-semibold whitespace-nowrap text-foreground shadow-md shadow-primary/20 backdrop-blur transition-transform duration-300 hover:scale-105">
+                <span aria-hidden className={cn("flex size-5.5 items-center justify-center rounded-full", topic.solid)}>
+                  <topic.icon className="size-3" strokeWidth={2.5} />
+                </span>
                 {skill}
               </span>
             </li>

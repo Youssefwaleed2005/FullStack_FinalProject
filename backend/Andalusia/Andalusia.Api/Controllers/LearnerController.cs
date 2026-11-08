@@ -25,6 +25,44 @@ namespace Andalusia.Api.Controllers
             return Ok(await _learnerService.GetDashboardAsync(User.GetUserId()));
         }
 
+        // GET /api/learner/activity → learning activity per day + streaks (dashboard heatmap)
+        [HttpGet("activity")]
+        public async Task<ActionResult<LearnerActivityDto>> GetActivity()
+        {
+            return Ok(await _learnerService.GetActivityAsync(User.GetUserId()));
+        }
+
+        // GET /api/learner/courses/5/review → my review (204 when none yet)
+        [HttpGet("courses/{courseId:int}/review")]
+        public async Task<ActionResult<CourseReviewDto>> GetMyReview(int courseId)
+        {
+            var review = await _learnerService.GetMyReviewAsync(User.GetUserId(), courseId);
+            if (review == null) return NoContent();
+            return Ok(review);
+        }
+
+        // PUT /api/learner/courses/5/review   { "rating": 5, "comment": "..." }
+        [HttpPut("courses/{courseId:int}/review")]
+        public async Task<ActionResult<CourseReviewDto>> SaveMyReview(int courseId, CourseReviewRequestDto dto)
+        {
+            return Ok(await _learnerService.SaveMyReviewAsync(User.GetUserId(), courseId, dto));
+        }
+
+        // DELETE /api/learner/courses/5/review
+        [HttpDelete("courses/{courseId:int}/review")]
+        public async Task<IActionResult> DeleteMyReview(int courseId)
+        {
+            await _learnerService.DeleteMyReviewAsync(User.GetUserId(), courseId);
+            return NoContent();
+        }
+
+        // GET /api/learner/notifications → graded work, new materials/assignments, deadlines and sessions coming up
+        [HttpGet("notifications")]
+        public async Task<ActionResult<List<LearnerNotificationDto>>> GetNotifications()
+        {
+            return Ok(await _learnerService.GetNotificationsAsync(User.GetUserId()));
+        }
+
         [HttpGet("courses")]
         public async Task<ActionResult<List<LearnerCourseDto>>> GetMyCourses()
         {

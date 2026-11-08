@@ -27,9 +27,18 @@ namespace Andalusia.Api.Mapping
                 InstructorId = course.InstructorId,
                 InstructorName = course.Instructor == null
                     ? null
-                    : $"{course.Instructor.FirstName} {course.Instructor.LastName}"
+                    : $"{course.Instructor.FirstName} {course.Instructor.LastName}",
+                AverageRating = AverageRating(course),
+                ReviewCount = course.Reviews.Count,
+                IsDeleted = course.IsDeleted,
+                UpdatedAt = course.UpdatedAt,
+                UpdatedBy = course.UpdatedBy
             };
         }
+
+        // Reviews are only counted when the query loaded them (Include(c => c.Reviews))
+        private static double? AverageRating(Course course) =>
+            course.Reviews.Count == 0 ? null : Math.Round(course.Reviews.Average(r => r.Rating), 1);
 
         
         public static CourseDetailsResponseDto ToDetailsResponseDto(this Course course)
@@ -60,7 +69,12 @@ namespace Andalusia.Api.Mapping
                 EndDate = course.EndDate,
                 Capacity = course.Capacity,
                 InstructorBio = course.Instructor?.Bio,
-                InstructorPhotoUrl = course.Instructor?.PhotoUrl
+                InstructorPhotoUrl = course.Instructor?.PhotoUrl,
+                AverageRating = AverageRating(course),
+                ReviewCount = course.Reviews.Count,
+                IsDeleted = course.IsDeleted,
+                UpdatedAt = course.UpdatedAt,
+                UpdatedBy = course.UpdatedBy
             };
         }
 

@@ -12,5 +12,8 @@ namespace Andalusia.Api.Services.Interfaces
         Task<PartnerResponseDto> UpdateAsync(int id, PartnerRequestDto dto);
         Task DeleteAsync(int id);
         Task<IEnumerable<PartnerAdminResponseDto>> GetAllForAdminAsync();
+
+        // Saves a logo image under wwwroot/uploads/partners and returns its address
+        Task<UploadedFileDto> UploadLogoAsync(IFormFile file);
     }
 }

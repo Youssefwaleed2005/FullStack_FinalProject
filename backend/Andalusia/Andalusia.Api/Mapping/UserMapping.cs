@@ -15,6 +15,7 @@ namespace Andalusia.Api.Mapping
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                PhotoUrl = user.PhotoUrl,
                 Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList()
             };
         }
@@ -28,6 +29,7 @@ namespace Andalusia.Api.Mapping
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                PhotoUrl = user.PhotoUrl,
                 PhoneNumber = user.PhoneNumber,
                 Country = user.Country,
                 PreferredLanguage = user.PreferredLanguage,

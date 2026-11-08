@@ -3,10 +3,11 @@ import { useParams } from "react-router-dom";
 import CourseCard from "@/components/CourseCard";
 import DetailsHeader from "@/components/DetailsHeader";
 import DetailsLoadError from "@/components/DetailsLoadError";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import ProgramCard from "@/components/ProgramCard";
 import SectionHeading from "@/components/SectionHeading";
 import { useApiData } from "@/hooks/useApiData";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { pageContainer, panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getCareerPathById } from "@/services/careerPathService";
@@ -29,8 +30,9 @@ function CareerPathDetailsContent({
     [careerPathId],
   );
   const { data: careerPath, loading, failed, error } = useApiData(loadCareerPath);
+  usePageTitle(careerPath?.title);
 
-  if (loading) return <LoadingState label="Loading career path…" />;
+  if (loading) return <PageSkeleton variant="details" label="Loading career path…" />;
 
   if (failed || !careerPath) {
     return (

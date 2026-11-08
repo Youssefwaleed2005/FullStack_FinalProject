@@ -43,6 +43,59 @@ namespace Andalusia.Api.Services
             };
         }
 
+        public async Task<AdminPaymentsPageDto> GetPaymentsPageAsync(PaymentStatus? status, string? search, AdminListQuery page)
+        {
+            var (items, total) = await _adminRepository.GetPaymentsPageAsync(status, search, page.PageNumber, page.PageSize);
+            return new AdminPaymentsPageDto
+            {
+                Items = items.Select(p => p.ToAdminDto()).ToList(),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = total,
+                PaidTotal = await _adminRepository.SumPaidAsync(status, search)
+            };
+        }
+
+        public async Task<PagedResponse<AdminUserDto>> GetUsersPageAsync(string? role, string? search, bool? isActive, AdminListQuery page)
+        {
+            var (items, total) = await _adminRepository.GetUsersPageAsync(role, search, isActive, page.PageNumber, page.PageSize);
+            return new PagedResponse<AdminUserDto>
+            {
+                Items = items.Select(u => u.ToAdminDto()).ToList(),
+                PageNumber = page.PageNumber,
+                PageSize = page.PageSize,
+                TotalCount = total
+            };
+        }
+
+        public async Task<AdminStatsDto> GetStatsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var firstMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-5);
+            var paid = await _adminRepository.GetPaidPaymentsSinceAsync(firstMonth);
+
+            var months = Enumerable.Range(0, 6).Select(i => firstMonth.AddMonths(i)).ToList();
+            var revenue = months.Select(month =>
+            {
+                var inMonth = paid.Where(p => p.PaidAt.HasValue
+                    && p.PaidAt.Value.Year == month.Year && p.PaidAt.Value.Month == month.Month).ToList();
+                return new MonthlyRevenueDto
+                {
+                    Month = month.ToString("MMM yyyy"),
+                    Revenue = inMonth.Sum(p => p.Amount),
+                    Payments = inMonth.Count
+                };
+            }).ToList();
+
+            var categories = (await _adminRepository.GetEnrollmentCategoryNamesAsync())
+                .GroupBy(name => name)
+                .Select(g => new CategoryCountDto { Category = g.Key, Count = g.Count() })
+                .OrderByDescending(c => c.Count)
+                .ToList();
+
+            return new AdminStatsDto { RevenueByMonth = revenue, EnrollmentsByCategory = categories };
+        }
+
         public async Task<List<AdminPaymentDto>> GetPaymentsAsync(PaymentStatus? status, string? search)
         {
             var payments = await _adminRepository.GetPaymentsAsync(status, search);

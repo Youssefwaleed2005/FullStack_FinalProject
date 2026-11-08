@@ -6,7 +6,7 @@ import Chip from "@/components/manage/Chip";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import EmptyNote from "@/components/manage/EmptyNote";
 import TableCard from "@/components/manage/TableCard";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -71,7 +71,7 @@ function AssignmentsTab({ courseId, onChanged }: { courseId: number; onChanged?:
     });
   }
 
-  if (loading) return <LoadingState label="Loading assignments…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading assignments…" />;
   if (failed || !assignments)
     return (
       <Alert variant="destructive">

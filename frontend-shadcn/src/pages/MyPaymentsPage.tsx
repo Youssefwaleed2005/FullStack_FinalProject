@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { CloudOff, CreditCard } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ function MyPaymentsPage() {
       title="My payments"
       description="Every payment you have made or started."
     >
-      {loading && <LoadingState label="Loading your payments…" />}
+      {loading && <PageSkeleton variant="list" label="Loading your payments…" />}
 
       {failed && (
         <StateMessage

@@ -12,9 +12,10 @@ import {
 import type { LucideIcon } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
 import CoverImage from "@/components/CoverImage";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import BadgeShelf from "@/components/fun/BadgeShelf";
+import ActivityHeatmap from "@/components/learner/ActivityHeatmap";
 import CountUp from "@/components/fun/CountUp";
 import Countdown from "@/components/fun/Countdown";
 import ProgressRing from "@/components/fun/ProgressRing";
@@ -137,7 +138,7 @@ function LearnerDashboardPage() {
       title={`${greeting()}, ${user?.firstName ?? ""}!`}
       description={data ? encouragement(data.averageProgress) : "Here is what's happening in your courses."}
     >
-      {loading && <LoadingState label="Loading your dashboard…" />}
+      {loading && <PageSkeleton variant="list" label="Loading your dashboard…" />}
 
       {failed && (
         <StateMessage
@@ -184,6 +185,10 @@ function LearnerDashboardPage() {
             <StatTile icon={CalendarClock} label="Upcoming sessions" value={data.upcomingSessionCount} />
             <StatTile icon={ListTodo} label="Assignments to do" value={data.pendingAssignmentCount} />
           </div>
+
+          <Reveal>
+            <ActivityHeatmap />
+          </Reveal>
 
           <Reveal>
             <section className={cn(panelStyle, "p-6")}>

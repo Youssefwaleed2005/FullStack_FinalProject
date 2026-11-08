@@ -10,8 +10,8 @@ import {
 import type { Course } from "../types/Course";
 import { Link } from "react-router-dom";
 import { STATUS_COLORS, STATUS_LABELS } from "../utils/statusLabels";
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=Course";
+import TopicCover from "./TopicCover";
+import WishlistButton from "./WishlistButton";
 
 type CourseCardProps = {
   course: Course;
@@ -19,13 +19,25 @@ type CourseCardProps = {
 
 function CourseCard({ course }: CourseCardProps) {
   return (
-    <Card sx={{ width: { xs: "100%", sm: 300 } }}>
-      <CardMedia
-        component="img"
-        height="160"
-        image={course.imageUrl ?? PLACEHOLDER_IMAGE}
-        alt={course.title}
-      />
+    <Card sx={{ width: { xs: "100%", sm: 300 }, "& .topic-cover": { display: "block", width: "100%", height: "100%" } }}>
+      <Box sx={{ position: "relative", height: 160 }}>
+        {course.imageUrl ? (
+          <CardMedia
+            component="img"
+            height="160"
+            image={course.imageUrl}
+            alt={course.title}
+          />
+        ) : (
+          // Illustrated cover picked from the course title/category
+          <TopicCover
+            title={course.title}
+            hint={course.categoryName}
+            className="topic-cover"
+          />
+        )}
+        <WishlistButton course={course} sx={{ position: "absolute", top: 8, right: 8 }} />
+      </Box>
       <CardContent>
         <Box
           sx={{

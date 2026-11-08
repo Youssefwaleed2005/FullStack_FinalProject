@@ -19,6 +19,7 @@ function AssignmentFormDialog({ open, assignment, onClose, onSave }: AssignmentF
   const [description, setDescription] = useState(assignment?.description ?? "");
   const [dueDate, setDueDate] = useState(toLocalInputValue(assignment?.dueDate));
   const [maxScore, setMaxScore] = useState(String(assignment?.maxScore ?? 100));
+  const [initial] = useState(() => JSON.stringify([assignment?.title ?? "", assignment?.description ?? "", toLocalInputValue(assignment?.dueDate), String(assignment?.maxScore ?? 100)]));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -52,6 +53,7 @@ function AssignmentFormDialog({ open, assignment, onClose, onSave }: AssignmentF
       error={error}
       saving={saving}
       submitLabel={assignment ? "Save changes" : "Add assignment"}
+      dirty={JSON.stringify([title, description, dueDate, maxScore]) !== initial}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

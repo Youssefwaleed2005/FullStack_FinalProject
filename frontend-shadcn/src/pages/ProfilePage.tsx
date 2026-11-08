@@ -1,19 +1,21 @@
-import { useState, type FormEvent } from "react";
-import { CircleAlert, CloudOff, LoaderCircle } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { Camera, CircleAlert, CloudOff, LoaderCircle } from "lucide-react";
+import ChangePasswordCard from "@/components/ChangePasswordCard";
 import AccountLayout from "@/components/AccountLayout";
 import Avatar from "@/components/Avatar";
 import FormField from "@/components/FormField";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { formatDate } from "@/lib/course";
 import { panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
-import { getProfile, updateProfile } from "@/services/authService";
+import { getProfile, updateProfile, uploadProfilePhoto } from "@/services/authService";
 import type { UserProfile } from "@/types/Auth";
 
 function ProfilePage() {
@@ -24,7 +26,7 @@ function ProfilePage() {
       title="My profile"
       description="Keep your personal details up to date."
     >
-      {loading && <LoadingState label="Loading your profile…" />}
+      {loading && <PageSkeleton variant="list" label="Loading your profile…" />}
 
       {failed && (
         <StateMessage
@@ -49,7 +51,30 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
   const [form, setForm] = useState(() => toForm(initialProfile));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  const { updateUser } = useAuth();
+
+  async function handlePhoto(file: File | undefined) {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("That photo is too big", "Choose an image up to 2 MB.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const updated = await uploadProfilePhoto(file);
+      setProfile(updated);
+      updateUser({ photoUrl: updated.photoUrl });
+      toast.success("Profile photo updated.");
+    } catch (uploadError) {
+      toast.error("Could not upload the photo", getApiErrorMessage(uploadError));
+    } finally {
+      setUploading(false);
+      if (photoInput.current) photoInput.current.value = "";
+    }
+  }
 
   function setField(name: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -75,6 +100,7 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
       });
       setProfile(updated);
       setForm(toForm(updated));
+      updateUser({ firstName: updated.firstName, lastName: updated.lastName });
       toast.success("Profile updated.");
     } catch (saveError) {
       setError(getApiErrorMessage(saveError, "Could not save your profile."));
@@ -89,10 +115,33 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
     <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
       {/* Summary card */}
       <aside className={cn(panelStyle, "h-fit p-6 text-center")}>
-        <Avatar
-          name={fullName}
-          className="mx-auto size-20 bg-primary text-2xl text-sand"
-        />
+        {/* Photo with a camera button to change it */}
+        <div className="relative mx-auto size-24">
+          <Avatar
+            name={fullName}
+            photoUrl={profile.photoUrl}
+            className="size-24 bg-primary text-2xl text-sand ring-4 ring-sand/30"
+          />
+          <button
+            type="button"
+            onClick={() => photoInput.current?.click()}
+            disabled={uploading}
+            aria-label="Change profile photo"
+            title="Change photo"
+            className="absolute -right-1 -bottom-1 flex size-9 items-center justify-center rounded-full bg-sand text-primary shadow-md ring-4 ring-card transition outline-none hover:scale-105 focus-visible:ring-ring/50 disabled:opacity-70"
+          >
+            {uploading ? <LoaderCircle aria-hidden className="size-4 animate-spin" /> : <Camera aria-hidden className="size-4" />}
+          </button>
+          <input
+            ref={photoInput}
+            type="file"
+            accept=".png,.jpg,.jpeg,.webp"
+            className="sr-only"
+            tabIndex={-1}
+            aria-label="Choose a profile photo"
+            onChange={(e) => void handlePhoto(e.target.files?.[0])}
+          />
+        </div>
         <h2 className="mt-4 text-xl font-semibold">{fullName}</h2>
         <p className="mt-1 text-sm break-all text-muted-foreground">
           {profile.email}
@@ -178,6 +227,8 @@ function ProfileForm({ profile: initialProfile }: ProfileFormProps) {
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </form>
+
+      <ChangePasswordCard className="lg:col-start-2" />
     </div>
   );
 }

@@ -1,10 +1,15 @@
 import { useState } from "react";
+import TopicCover from "@/components/TopicCover";
 import { cn } from "@/lib/utils";
 
 type CoverImageProps = {
   src: string | null;
   // Its first letter is shown on the placeholder
   title: string;
+  // Helps pick the illustration, e.g. the category name
+  hint?: string;
+  // "illustration" (default) = drawn scene for the topic; "letter" = first letter (e.g. partner logos)
+  fallback?: "illustration" | "letter";
   className?: string;
   // Extra classes for the <img> itself, e.g. a hover zoom
   imageClassName?: string;
@@ -15,6 +20,8 @@ type CoverImageProps = {
 function CoverImage({
   src,
   title,
+  hint,
+  fallback = "illustration",
   className,
   imageClassName,
   letterClassName,
@@ -31,6 +38,8 @@ function CoverImage({
           onError={() => setImageFailed(true)}
           className={cn("size-full object-cover", imageClassName)}
         />
+      ) : fallback === "illustration" ? (
+        <TopicCover title={title} hint={hint} className={cn("size-full", imageClassName)} />
       ) : (
         <div
           aria-hidden

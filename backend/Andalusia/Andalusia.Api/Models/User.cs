@@ -47,6 +47,13 @@ namespace Andalusia.Api.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Forgot password: only a hash of the one-time token is stored
+        [MaxLength(100)]
+        public string? PasswordResetTokenHash { get; set; }
+        public DateTime? PasswordResetExpiresAt { get; set; }
+
+        public ICollection<CourseReview> CourseReviews { get; set; } = new List<CourseReview>();
+
         // Courses this user teaches (only for instructors)
         public ICollection<Course> CoursesTaught { get; set; } = new List<Course>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

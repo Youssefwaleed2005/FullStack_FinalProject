@@ -33,6 +33,7 @@ namespace Andalusia.Api.Data
         public DbSet<Submission> Submissions { get; set; }
         public DbSet<MaterialCompletion> MaterialCompletions { get; set; }
         public DbSet<SiteSetting> SiteSettings { get; set; }
+        public DbSet<CourseReview> CourseReviews { get; set; }
 
         //save enums as text instead of numbers
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -97,6 +98,10 @@ namespace Andalusia.Api.Data
             modelBuilder.Entity<Attendance>().HasIndex(a => new { a.SessionId, a.UserId }).IsUnique();
             modelBuilder.Entity<Submission>().HasIndex(s => new { s.AssignmentId, s.UserId }).IsUnique();
             modelBuilder.Entity<MaterialCompletion>().HasIndex(m => new { m.MaterialId, m.UserId }).IsUnique();
+            modelBuilder.Entity<CourseReview>().HasIndex(r => new { r.CourseId, r.UserId }).IsUnique();
+
+            // Deleted partners disappear from every query (they have no related rows)
+            modelBuilder.Entity<Partner>().HasQueryFilter(p => !p.IsDeleted);
         }
     }
 }

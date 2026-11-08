@@ -76,3 +76,8 @@ export type CourseRequest = {
   categoryId: number;
   instructorId?: number;
 };
+
+export type AdminStats = {
+  revenueByMonth: { month: string; revenue: number; payments: number }[];
+  enrollmentsByCategory: { category: string; count: number }[];
+};

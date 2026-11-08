@@ -8,6 +8,9 @@ namespace Andalusia.Api.Services.Interfaces
     {
         Task<AdminDashboardDto> GetDashboardAsync();
         Task<List<AdminPaymentDto>> GetPaymentsAsync(PaymentStatus? status, string? search);
+        Task<AdminPaymentsPageDto> GetPaymentsPageAsync(PaymentStatus? status, string? search, AdminListQuery page);
+        Task<PagedResponse<AdminUserDto>> GetUsersPageAsync(string? role, string? search, bool? isActive, AdminListQuery page);
+        Task<AdminStatsDto> GetStatsAsync();
 
         Task<List<AdminUserDto>> GetUsersAsync(string? role, string? search, bool? isActive);
         Task<AdminUserDto> GetUserAsync(int id);

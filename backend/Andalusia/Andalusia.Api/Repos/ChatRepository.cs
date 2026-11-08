@@ -22,7 +22,7 @@ namespace Andalusia.Api.Repos
                 .AsNoTracking()
                 .Include(c => c.Category)
                 .Include(c => c.Instructor)
-                .Where(c => c.Status != CatalogStatus.Draft)
+                .Where(c => c.Status != CatalogStatus.Draft && !c.IsDeleted)
                 .OrderBy(c => c.Title)
                 .ToListAsync();
         }

@@ -28,6 +28,8 @@ function PartnersSection() {
               <li
                 key={`${partner.id}-${index}`}
                 aria-hidden={index >= partners.length}
+                // The repeated copies are only for the loop: keep them out of keyboard focus too
+                inert={index >= partners.length}
                 className="w-52 shrink-0 transition-transform duration-300 hover:-translate-y-1 motion-reduce:[&[aria-hidden=true]]:hidden"
               >
                 <PartnerLogo partner={partner} />

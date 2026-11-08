@@ -16,5 +16,9 @@ namespace Andalusia.Api.Models
         public string Value { get; set; } = string.Empty;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Name of the admin / content manager who saved it last
+        [MaxLength(150)]
+        public string? UpdatedBy { get; set; }
     }
 }

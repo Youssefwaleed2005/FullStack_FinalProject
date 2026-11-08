@@ -29,6 +29,7 @@ function MaterialFormDialog({ open, material, onClose, onSave, onUpload }: Mater
   const [type, setType] = useState<MaterialType>(material?.type ?? "Link");
   const [url, setUrl] = useState(material?.url ?? "");
   const [file, setFile] = useState<File | null>(null);
+  const [initial] = useState(() => JSON.stringify([material?.title ?? "", material?.description ?? "", material?.type ?? "Link", material?.url ?? ""]));
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -73,6 +74,7 @@ function MaterialFormDialog({ open, material, onClose, onSave, onUpload }: Mater
       saving={saving}
       submitLabel={uploading ? "Upload" : material ? "Save changes" : "Add material"}
       savingLabel={uploading ? "Uploading…" : "Saving…"}
+      dirty={file !== null || JSON.stringify([title, description, type, url]) !== initial}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

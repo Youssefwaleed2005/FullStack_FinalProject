@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Andalusia.Api.DTOs.Requests;
+using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Exceptions;
 using Andalusia.Api.Models;
 using Andalusia.Api.Repos.Interfaces;
@@ -39,8 +40,15 @@ namespace Andalusia.Api.Services
             return settings.ToDictionary(s => s.Key, s => s.Value);
         }
 
-        public async Task<Dictionary<string, string>> UpdateAsync(SiteSettingsUpdateDto dto)
+        public async Task<LastEditDto> GetLastEditAsync()
         {
+            var last = await _repo.GetLastEditedAsync();
+            return new LastEditDto { UpdatedAt = last?.UpdatedAt, UpdatedBy = last?.UpdatedBy };
+        }
+
+        public async Task<Dictionary<string, string>> UpdateAsync(SiteSettingsUpdateDto dto, int actorId)
+        {
+            var actor = await _repo.GetUserFullNameAsync(actorId);
             // Check everything first, so a bad value means nothing is saved
             var values = new Dictionary<string, string>();
             foreach (var (key, rawValue) in dto.Values)
@@ -57,10 +65,11 @@ namespace Andalusia.Api.Services
                 {
                     setting.Value = value;
                     setting.UpdatedAt = DateTime.UtcNow;
+                    setting.UpdatedBy = actor;
                 }
                 else
                 {
-                    await _repo.AddAsync(new SiteSetting { Key = key, Value = value });
+                    await _repo.AddAsync(new SiteSetting { Key = key, Value = value, UpdatedBy = actor });
                 }
             }
             await _repo.SaveChangesAsync();

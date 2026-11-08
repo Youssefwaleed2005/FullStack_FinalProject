@@ -4,12 +4,16 @@ import { Check } from "lucide-react";
 import ApplyButton from "@/components/ApplyButton";
 import Avatar from "@/components/Avatar";
 import CourseCard from "@/components/CourseCard";
+import CourseReviews from "@/components/CourseReviews";
+import CourseSchedule from "@/components/CourseSchedule";
 import DetailRow from "@/components/DetailRow";
 import DetailsHeader from "@/components/DetailsHeader";
 import DetailsLoadError from "@/components/DetailsLoadError";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StatusPill from "@/components/StatusPill";
+import WishlistButton from "@/components/WishlistButton";
 import { useApiData } from "@/hooks/useApiData";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import { pageContainer, panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -36,8 +40,9 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
     [courseId],
   );
   const { data, loading, failed, error } = useApiData(loadCourse);
+  usePageTitle(data?.[0].title);
 
-  if (loading) return <LoadingState label="Loading course…" />;
+  if (loading) return <PageSkeleton variant="details" label="Loading course…" />;
 
   if (failed || !data) {
     return (
@@ -111,6 +116,8 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
             </section>
           )}
 
+          <CourseSchedule courseId={course.id} />
+
           {course.instructorName && (
             <section>
               <h2 className="text-2xl font-semibold">Your instructor</h2>
@@ -131,10 +138,12 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
               </div>
             </section>
           )}
+
+          <CourseReviews courseId={course.id} />
         </div>
 
         {/* Key facts and the apply button; stays in view while scrolling on desktop */}
-        <aside className={cn(panelStyle, "p-6 lg:sticky lg:top-24")}>
+        <aside id="apply" className={cn(panelStyle, "scroll-mt-24 p-6 lg:sticky lg:top-24")}>
           <p className="text-sm text-muted-foreground">Price</p>
           <p className="mt-1 font-heading text-4xl font-semibold">
             {formatPrice(course.price)}
@@ -158,7 +167,24 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
           </dl>
 
           <ApplyButton courseId={course.id} status={course.status} />
+          <WishlistButton course={course} variant="button" className="mt-3" />
         </aside>
+      </div>
+
+      {/* Phones: price + a shortcut to the apply box, always at the bottom of the screen */}
+      <div className="sticky bottom-0 z-30 border-t border-border/70 bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+          <div>
+            <p className="text-xs text-muted-foreground">Price</p>
+            <p className="font-heading text-xl font-semibold">{formatPrice(course.price)}</p>
+          </div>
+          <a
+            href="#apply"
+            className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {course.status === "OpenForEnrollment" ? "Apply now" : "See details"}
+          </a>
+        </div>
       </div>
 
       {relatedCourses.length > 0 && (

@@ -17,7 +17,9 @@ namespace Andalusia.Api.Repos
             IQueryable<Course> courses = _dbSet
                 .AsNoTracking()
                 .Include(c => c.Category)
-                .Include(c => c.Instructor);
+                .Include(c => c.Instructor)
+                .Include(c => c.Reviews)
+                .Where(c => !c.IsDeleted);   // archived courses are not in the catalog
 
             //  Search in title and short description
             if (!string.IsNullOrWhiteSpace(query.Search))
@@ -83,7 +85,8 @@ namespace Andalusia.Api.Repos
                 .AsNoTracking()
                 .Include(c => c.Category)
                 .Include(c => c.Instructor)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .Include(c => c.Reviews)
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
         }
 
         public async Task<bool> HasApplicationsOrProgramsAsync(int courseId)
@@ -92,6 +95,29 @@ namespace Andalusia.Api.Repos
             var inPrograms = await _context.ProgramCourses.AnyAsync(pc => pc.CourseId == courseId);
 
             return hasApplications || inPrograms;
+        }
+
+        public async Task<string?> GetUserFullNameAsync(int userId)
+        {
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.FirstName + " " + u.LastName)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<CourseReview>> GetReviewsAsync(int courseId)
+        {
+            return await _context.CourseReviews
+                .AsNoTracking()
+                .Include(r => r.User)
+                .Where(r => r.CourseId == courseId)
+                .ToListAsync();
+        }
+
+        // Includes archived courses (for restore)
+        public async Task<Course?> GetIncludingDeletedAsync(int id)
+        {
+            return await _dbSet.FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task<bool> CategoryExistsAsync(int categoryId)
@@ -110,9 +136,11 @@ namespace Andalusia.Api.Repos
                 .AsNoTracking()
                 .Include(c => c.Category)
                 .Include(c => c.Instructor)
+                .Include(c => c.Reviews)
                 .Where(c => c.CategoryId == categoryId
                          && c.Id != courseId
-                         && c.Status != CatalogStatus.Draft)
+                         && c.Status != CatalogStatus.Draft
+                         && !c.IsDeleted)
                 .OrderByDescending(c => c.IsFeatured)
                 .ThenByDescending(c => c.CreatedAt)
                 .Take(take)

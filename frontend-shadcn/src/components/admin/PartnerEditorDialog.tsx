@@ -1,12 +1,14 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { ImageUp, LoaderCircle, X } from "lucide-react";
 import FormField from "@/components/FormField";
 import FormDialog from "@/components/manage/FormDialog";
 import { SelectField } from "@/components/manage/fields";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { isHttpUrl, orNull } from "@/lib/forms";
+import { resolveMaterialUrl } from "@/lib/materialLinks";
 import { getApiErrorMessage } from "@/services/api";
-import { createPartner, updatePartner } from "@/services/partnerService";
+import { createPartner, updatePartner, uploadPartnerLogo } from "@/services/partnerService";
 import type { PartnerAdmin, PartnerRequest, PartnerType } from "@/types/Partner";
 
 type PartnerEditorDialogProps = {
@@ -25,6 +27,9 @@ type FormState = {
 };
 
 type FieldErrors = Partial<Record<keyof FormState, string>>;
+
+const LOGO_TYPES = ".png,.jpg,.jpeg,.webp,.svg";
+const MAX_LOGO_MB = 2;
 
 function toForm(partner: PartnerAdmin | null): FormState {
   return {
@@ -59,9 +64,34 @@ function validate(form: FormState): FieldErrors {
 // Create or edit a partner / accreditation shown on the homepage
 function PartnerEditorDialog({ partner, onClose, onSaved }: PartnerEditorDialogProps) {
   const [form, setForm] = useState<FormState>(() => toForm(partner));
+  const [initial] = useState<FormState>(() => toForm(partner));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [previewFailed, setPreviewFailed] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  // Upload the chosen image straight away and put its address in the Logo field
+  async function handleLogoFile(file: File | undefined) {
+    if (!file) return;
+    if (file.size > MAX_LOGO_MB * 1024 * 1024) {
+      setFieldErrors((prev) => ({ ...prev, logoUrl: `The logo is too big. The maximum is ${MAX_LOGO_MB} MB.` }));
+      return;
+    }
+    setUploading(true);
+    setFieldErrors((prev) => ({ ...prev, logoUrl: undefined }));
+    try {
+      const url = await uploadPartnerLogo(file);
+      setPreviewFailed(false);
+      setForm((prev) => ({ ...prev, logoUrl: url }));
+    } catch (err) {
+      setFieldErrors((prev) => ({ ...prev, logoUrl: getApiErrorMessage(err, "Could not upload the logo.") }));
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  }
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -103,6 +133,8 @@ function PartnerEditorDialog({ partner, onClose, onSaved }: PartnerEditorDialogP
       error={error}
       saving={saving}
       submitLabel={partner ? "Save changes" : "Create partner"}
+      disabled={uploading}
+      dirty={JSON.stringify(form) !== JSON.stringify(initial)}
       onClose={onClose}
       onSubmit={handleSubmit}
     >
@@ -127,14 +159,68 @@ function PartnerEditorDialog({ partner, onClose, onSaved }: PartnerEditorDialogP
           onChange={(e) => set("displayOrder", e.target.value)}
         />
       </div>
-      <FormField
-        label="Logo URL"
-        placeholder="https:// or /files/partners/logo.svg"
-        hint="Optional. The name is shown instead when there is no logo."
-        value={form.logoUrl}
-        error={fieldErrors.logoUrl}
-        onChange={(e) => set("logoUrl", e.target.value)}
-      />
+      {/* Logo: upload an image, or paste a link */}
+      <div className="flex flex-col gap-3 rounded-xl border border-border/80 bg-secondary/30 p-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/80 bg-card p-2">
+            {form.logoUrl.trim() && !previewFailed ? (
+              <img
+                src={resolveMaterialUrl(form.logoUrl.trim())}
+                alt={`${form.name || "Partner"} logo preview`}
+                onError={() => setPreviewFailed(true)}
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : (
+              <span className="text-center text-xs text-muted-foreground">
+                {previewFailed ? "Can't load this logo" : "No logo yet"}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition outline-none hover:bg-primary/90 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-60"
+              >
+                {uploading ? <LoaderCircle aria-hidden className="size-4 animate-spin" /> : <ImageUp aria-hidden className="size-4" />}
+                {uploading ? "Uploading…" : form.logoUrl ? "Upload a new logo" : "Upload logo"}
+              </button>
+              {form.logoUrl && (
+                <button
+                  type="button"
+                  onClick={() => set("logoUrl", "")}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium transition outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <X aria-hidden className="size-4" /> Remove
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP or SVG, up to {MAX_LOGO_MB} MB. A wide logo on a transparent background looks best.</p>
+          </div>
+          <input
+            ref={fileInput}
+            type="file"
+            accept={LOGO_TYPES}
+            className="sr-only"
+            tabIndex={-1}
+            aria-label="Choose a logo image"
+            onChange={(e) => void handleLogoFile(e.target.files?.[0])}
+          />
+        </div>
+        <FormField
+          label="…or paste a logo link"
+          placeholder="https:// or /files/partners/logo.svg"
+          hint="Optional. The name is shown instead when there is no logo."
+          value={form.logoUrl}
+          error={fieldErrors.logoUrl}
+          onChange={(e) => {
+            setPreviewFailed(false);
+            set("logoUrl", e.target.value);
+          }}
+        />
+      </div>
       <FormField
         label="Website"
         placeholder="https://"

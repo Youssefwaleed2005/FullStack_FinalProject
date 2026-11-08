@@ -19,6 +19,13 @@ export async function updatePartner(id: number, payload: PartnerRequest): Promis
   return (await api.put<PartnerAdmin>(`/partners/${id}`, payload)).data;
 }
 
+// Uploads a logo image; returns its address, e.g. "/uploads/partners/3f2a....png"
+export async function uploadPartnerLogo(file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+  return (await api.post<{ url: string }>("/partners/logo", form)).data.url;
+}
+
 export async function deletePartner(id: number): Promise<void> {
   await api.delete(`/partners/${id}`);
 }

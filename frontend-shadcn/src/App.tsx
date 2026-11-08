@@ -30,6 +30,12 @@ import MyPaymentsPage from "@/pages/MyPaymentsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import PaymentPage from "@/pages/PaymentPage";
 import ProfilePage from "@/pages/ProfilePage";
+import ComparePage from "@/pages/ComparePage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import QuizPage from "@/pages/QuizPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import SavedCoursesPage from "@/pages/SavedCoursesPage";
+import CertificatePage from "@/pages/CertificatePage";
 import ProgramDetailsPage from "@/pages/ProgramDetailsPage";
 import ProgramsPage from "@/pages/ProgramsPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -61,6 +67,11 @@ function App() {
             {/* Not built yet (also placeholders in the MUI version) */}
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/saved" element={<SavedCoursesPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
             {/* Any signed-in user */}
             <Route element={<ProtectedRoute />}>
@@ -76,6 +87,10 @@ function App() {
               <Route
                 path="/learning/courses/:id"
                 element={<LearnerCoursePage />}
+              />
+              <Route
+                path="/learning/courses/:id/certificate"
+                element={<CertificatePage />}
               />
               <Route path="/payment/:applicationId" element={<PaymentPage />} />
               <Route path="/my-payments" element={<MyPaymentsPage />} />

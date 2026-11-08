@@ -76,3 +76,22 @@ export type GradeSubmissionRequest = {
   score: number;
   feedback?: string;
 };
+
+export type LabelCount = { label: string; count: number };
+
+export type CourseInsights = {
+  studentCount: number;
+  averageProgress: number;
+  averageScore: number | null;
+  progressBuckets: LabelCount[];
+  submissionsByWeek: LabelCount[];
+  attendanceBySession: { title: string; startTime: string; attended: number; total: number }[];
+  atRisk: {
+    userId: number;
+    fullName: string;
+    email: string;
+    progressPercent: number;
+    missedSessions: number;
+    missingAssignments: number;
+  }[];
+};

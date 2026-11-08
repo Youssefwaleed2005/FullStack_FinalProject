@@ -11,7 +11,7 @@ import {
 import CoverImage from "@/components/CoverImage";
 import Countdown from "@/components/fun/Countdown";
 import Reveal from "@/components/fun/Reveal";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import Chip from "@/components/manage/Chip";
 import EmptyNote from "@/components/manage/EmptyNote";
 import ManageHeader from "@/components/manage/ManageHeader";
@@ -43,7 +43,7 @@ function InstructorDashboardPage() {
   const { user } = useAuth();
   const { data, loading, failed, error, reload } = useApiData(loadDashboard);
 
-  if (loading) return <LoadingState label="Loading your dashboard…" />;
+  if (loading) return <PageSkeleton variant="dashboard" label="Loading your dashboard…" />;
   if (failed || !data)
     return (
       <div className="flex flex-1 items-center justify-center">

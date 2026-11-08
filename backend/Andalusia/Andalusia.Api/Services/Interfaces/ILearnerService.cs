@@ -7,6 +7,12 @@ namespace Andalusia.Api.Services.Interfaces
     {
         Task<LearnerDashboardDto> GetDashboardAsync(int userId);
         Task<List<LearnerCourseDto>> GetMyCoursesAsync(int userId);
+        Task<List<LearnerNotificationDto>> GetNotificationsAsync(int userId);
+        Task<LearnerActivityDto> GetActivityAsync(int userId);
+
+        Task<CourseReviewDto?> GetMyReviewAsync(int userId, int courseId);
+        Task<CourseReviewDto> SaveMyReviewAsync(int userId, int courseId, CourseReviewRequestDto dto);
+        Task DeleteMyReviewAsync(int userId, int courseId);
         Task<LearnerCourseDetailDto> GetCourseAsync(int userId, int courseId);
         Task<List<LearnerSessionDto>> GetSessionsAsync(int userId, int courseId);
         Task<List<LearnerMaterialDto>> GetMaterialsAsync(int userId, int courseId);

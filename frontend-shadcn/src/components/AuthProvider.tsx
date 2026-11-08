@@ -48,6 +48,19 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((changes: Partial<UserSummary>) => {
+    setUser((current) => {
+      if (!current) return current;
+      const next = { ...current, ...changes };
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify(next));
+      } catch {
+        // storage blocked: the change still shows until the page is reloaded
+      }
+      return next;
+    });
+  }, []);
+
   const hasRole = useCallback(
     (...roles: string[]) =>
       user !== null && roles.some((role) => user.roles.includes(role)),
@@ -61,9 +74,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateUser,
       hasRole,
     }),
-    [user, login, register, logout, hasRole],
+    [user, login, register, logout, updateUser, hasRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

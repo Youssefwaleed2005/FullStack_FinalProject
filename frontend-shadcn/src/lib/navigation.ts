@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CreditCard,
   FileText,
+  Heart,
   LayoutDashboard,
   Presentation,
   ShieldCheck,
@@ -29,6 +30,7 @@ export const ACCOUNT_LINKS = [
   { label: "My payments", to: "/my-payments", icon: CreditCard, role: "Learner" },
   { label: "Instructor dashboard", to: "/instructor", icon: Presentation, role: "Instructor" },
   { label: "Admin dashboard", to: "/admin", icon: ShieldCheck, role: "Admin" },
+  { label: "Saved courses", to: "/saved", icon: Heart, role: null },
   { label: "My profile", to: "/profile", icon: UserRound, role: null },
 ] as const;
 

@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { CalendarDays, CloudOff } from "lucide-react";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import { useApiData } from "@/hooks/useApiData";
@@ -33,7 +33,7 @@ function LearnerSessionsTab({ courseId }: LearnerSessionsTabProps) {
   );
   const { data: sessions, loading, failed, error } = useApiData(loadSessions);
 
-  if (loading) return <LoadingState label="Loading sessions…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading sessions…" />;
 
   if (failed || !sessions) {
     return (

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import DetailRow from "@/components/DetailRow";
 import FormField from "@/components/FormField";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,7 @@ function PaymentContent({ id }: PaymentContentProps) {
     );
   }
 
-  if (loading) return <LoadingState label="Preparing your payment…" />;
+  if (loading) return <PageSkeleton variant="details" label="Preparing your payment…" />;
 
   if (alreadyPaid) {
     return (

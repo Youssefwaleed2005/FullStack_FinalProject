@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CloudOff, FileText } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ function MyApplicationsPage() {
       title="My applications"
       description="Courses and programs you applied to, and what is left to do."
     >
-      {loading && <LoadingState label="Loading your applications…" />}
+      {loading && <PageSkeleton variant="list" label="Loading your applications…" />}
 
       {failed && (
         <StateMessage

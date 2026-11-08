@@ -8,6 +8,8 @@ export type AuthContextValue = {
   login: (payload: LoginRequest) => Promise<UserSummary>;
   register: (payload: RegisterRequest) => Promise<UserSummary>;
   logout: () => void;
+  // Changes the signed-in user in memory and storage, e.g. after editing the profile or photo
+  updateUser: (changes: Partial<UserSummary>) => void;
   hasRole: (...roles: string[]) => boolean;
 };
 

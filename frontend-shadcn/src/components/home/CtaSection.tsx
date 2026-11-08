@@ -54,7 +54,7 @@ function CtaSection() {
               variant="outline"
               className="h-12 rounded-full border-primary-foreground/25 bg-transparent px-6 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
             >
-              <Link to="/contact">Talk to us</Link>
+              <Link to="/quiz">Help me choose</Link>
             </Button>
           </div>
           {email && (

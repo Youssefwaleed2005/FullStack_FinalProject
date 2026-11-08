@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Banknote, CircleCheck, Hourglass, Wallet } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import PaymentsTable from "@/components/admin/PaymentsTable";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import EmptyNote from "@/components/manage/EmptyNote";
 import ManageHeader from "@/components/manage/ManageHeader";
 import StatTile from "@/components/manage/StatTile";
@@ -13,7 +13,8 @@ import { useApiData } from "@/hooks/useApiData";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
-import { getAdminPayments } from "@/services/adminService";
+import { getAdminPaymentsPage } from "@/services/adminService";
+import CoursePagination from "@/components/CoursePagination";
 import type { PaymentStatus } from "@/types/Payment";
 
 const FILTERS: (PaymentStatus | "All")[] = ["All", "Paid", "Pending", "Failed", "Refunded"];
@@ -22,17 +23,20 @@ const FILTERS: (PaymentStatus | "All")[] = ["All", "Paid", "Pending", "Failed", 
 function AdminPaymentsPage() {
   const [status, setStatus] = useState<PaymentStatus | "All">("All");
   const [search, setSearch] = useState("");
-  const handleSearch = useCallback((value: string) => setSearch(value), []);
+  const [page, setPage] = useState(1);
+  const handleSearch = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
 
   const load = useCallback(
-    () => getAdminPayments({ status: status === "All" ? undefined : status, search: search || undefined }),
-    [status, search],
+    () => getAdminPaymentsPage({ status: status === "All" ? undefined : status, search: search || undefined, pageNumber: page }),
+    [status, search, page],
   );
   const { data: payments, loading, failed, error } = useApiData(load);
 
-  const list = payments ?? [];
-  const paid = list.filter((p) => p.status === "Paid");
-  const paidTotal = paid.reduce((sum, p) => sum + p.amount, 0);
+  const list = payments?.items ?? [];
+  const paidTotal = payments?.paidTotal ?? 0;
   const pending = list.filter((p) => p.status === "Pending").length;
 
   return (
@@ -41,9 +45,9 @@ function AdminPaymentsPage() {
 
       <div className={cn(pageContainer, "flex flex-col gap-5 py-10")}>
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatTile label="Payments shown" value={list.length} icon={Wallet} />
-          <StatTile label="Paid (shown)" value={paidTotal} prefix="EGP " icon={Banknote} hint={`${paid.length} successful`} />
-          <StatTile label="Pending" value={pending} icon={Hourglass} tone="warning" />
+          <StatTile label="Payments found" value={payments?.totalCount ?? 0} icon={Wallet} />
+          <StatTile label="Paid (all results)" value={paidTotal} prefix="EGP " icon={Banknote} />
+          <StatTile label="Pending (this page)" value={pending} icon={Hourglass} tone="warning" />
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -54,7 +58,10 @@ function AdminPaymentsPage() {
                 type="button"
                 role="radio"
                 aria-checked={status === filter}
-                onClick={() => setStatus(filter)}
+                onClick={() => {
+                  setStatus(filter);
+                  setPage(1);
+                }}
                 className={cn(
                   "rounded-full border px-4 py-1.5 text-sm font-medium transition outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                   status === filter
@@ -71,17 +78,21 @@ function AdminPaymentsPage() {
         </div>
 
         {loading && !payments ? (
-          <LoadingState label="Loading payments…" />
+          <PageSkeleton variant="table" label="Loading payments…" />
         ) : failed || !payments ? (
           <Alert variant="destructive">
             <AlertDescription>{getApiErrorMessage(error, "Could not load payments.")}</AlertDescription>
           </Alert>
-        ) : payments.length === 0 ? (
+        ) : payments.items.length === 0 ? (
           <EmptyNote icon={Banknote} title="No payments found" description="Try another status or search." />
         ) : (
-          <TableCard title="Payments" description={`${payments.length} found`}>
-            <PaymentsTable payments={payments} detailed />
+          <TableCard title="Payments" description={`${payments.totalCount} found`}>
+            <PaymentsTable payments={payments.items} detailed />
           </TableCard>
+        )}
+
+        {payments && payments.totalPages > 1 && (
+          <CoursePagination page={page} totalPages={payments.totalPages} onPageChange={setPage} />
         )}
       </div>
     </>

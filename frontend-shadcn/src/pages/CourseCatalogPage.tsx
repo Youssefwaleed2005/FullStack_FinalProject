@@ -1,4 +1,5 @@
-import { CloudOff, RotateCw, SearchX } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, CloudOff, RotateCw, SearchX, Sparkles } from "lucide-react";
 import CourseCard from "@/components/CourseCard";
 import CourseCardSkeleton from "@/components/CourseCardSkeleton";
 import CourseFilterBar from "@/components/CourseFilterBar";
@@ -56,6 +57,21 @@ function CourseCatalogPage() {
           placeholder="Search courses"
           className="mt-8 max-w-xl"
         />
+        {/* "Help me choose" quiz — a bright pill so it stands out in light and dark mode */}
+        <Link
+          to="/quiz"
+          className="group mt-5 inline-flex max-w-xl items-center gap-3 rounded-full border border-sand/60 bg-linear-to-r from-sand/30 via-sand/15 to-transparent py-1.5 pr-4 pl-1.5 shadow-sm shadow-sand/20 outline-none transition hover:-translate-y-0.5 hover:border-sand hover:shadow-md hover:shadow-sand/30 focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:hover:translate-y-0"
+        >
+          <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sand to-[#d4894a] text-primary shadow-md">
+            <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-sand/40 motion-reduce:hidden" />
+            <Sparkles aria-hidden className="relative size-4.5" />
+          </span>
+          <span className="text-sm">
+            <span className="text-muted-foreground">Not sure where to start? </span>
+            <span className="font-semibold text-foreground">Take the 1-minute quiz</span>
+          </span>
+          <ArrowRight aria-hidden className="size-4 text-sand-deep transition-transform group-hover:translate-x-1" />
+        </Link>
       </PageHeader>
 
       <section

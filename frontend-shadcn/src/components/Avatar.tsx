@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveMaterialUrl } from "@/lib/materialLinks";
 import { cn } from "@/lib/utils";
 
 type AvatarProps = {
@@ -30,7 +31,7 @@ function Avatar({ name, photoUrl, className }: AvatarProps) {
     >
       {photoUrl && !photoFailed ? (
         <img
-          src={photoUrl}
+          src={resolveMaterialUrl(photoUrl)}
           alt=""
           loading="lazy"
           onError={() => setPhotoFailed(true)}

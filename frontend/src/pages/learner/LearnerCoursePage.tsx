@@ -136,6 +136,20 @@ function LearnerCoursePage() {
           </Typography>
         </Box>
 
+        {progress.progressPercent >= 100 && (
+          <Alert
+            severity="success"
+            sx={{ mt: 2 }}
+            action={
+              <Button color="inherit" size="small" component={Link} to={`/learning/courses/${course.id}/certificate`}>
+                View certificate
+              </Button>
+            }
+          >
+            You finished this course — your certificate is ready.
+          </Alert>
+        )}
+
         {!course.canSubmit && (
           <Alert severity="info" sx={{ mt: 2 }}>
             This enrollment is {course.enrollmentStatus.toLowerCase()}, so the

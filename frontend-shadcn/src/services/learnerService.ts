@@ -1,4 +1,7 @@
 import api from "./api";
+import type { LearnerNotification } from "@/types/Notification";
+import type { LearnerActivity } from "@/types/Activity";
+import type { CourseReview, CourseReviewRequest } from "@/types/Review";
 import type {
   CalendarEvent,
   LearnerAssignment,
@@ -115,4 +118,28 @@ export async function submitAssignment(
     payload,
   );
   return response.data;
+}
+
+// Bell in the navbar: graded work, new materials/assignments, deadlines and sessions coming up
+export async function getNotifications(): Promise<LearnerNotification[]> {
+  return (await api.get<LearnerNotification[]>("/learner/notifications")).data;
+}
+
+// Learning activity per day + streaks (dashboard heatmap)
+export async function getActivity(): Promise<LearnerActivity> {
+  return (await api.get<LearnerActivity>("/learner/activity")).data;
+}
+
+// My review of a course (null when I haven't written one)
+export async function getMyReview(courseId: number): Promise<CourseReview | null> {
+  const response = await api.get<CourseReview | "">(`/learner/courses/${courseId}/review`);
+  return response.status === 204 || !response.data ? null : (response.data as CourseReview);
+}
+
+export async function saveMyReview(courseId: number, payload: CourseReviewRequest): Promise<CourseReview> {
+  return (await api.put<CourseReview>(`/learner/courses/${courseId}/review`, payload)).data;
+}
+
+export async function deleteMyReview(courseId: number): Promise<void> {
+  await api.delete(`/learner/courses/${courseId}/review`);
 }

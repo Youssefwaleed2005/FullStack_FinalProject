@@ -18,6 +18,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -91,6 +92,13 @@ function Navbar() {
             </Button>
           ))}
         </Box>
+
+        {/* Saved courses (wishlist) */}
+        <Tooltip title="Saved courses">
+          <IconButton color="inherit" component={Link} to="/saved" aria-label="Saved courses" sx={{ ml: 1 }}>
+            <FavoriteBorderIcon />
+          </IconButton>
+        </Tooltip>
 
         {/* Account control — swaps between Log in and the avatar menu */}
         <Box sx={{ display: { xs: "none", md: "flex" }, ml: 1 }}>

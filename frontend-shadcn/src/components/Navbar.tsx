@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ArrowRight, LogOut, Menu } from "lucide-react";
+import { ArrowRight, Heart, LogOut, Menu } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Logo from "@/components/Logo";
+import NotificationsBell from "@/components/NotificationsBell";
+import SearchCommand from "@/components/SearchCommand";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,7 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
+import { useWishlist } from "@/hooks/useWishlist";
 import { ACCOUNT_LINKS, NAV_LINKS } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +37,7 @@ function Navbar() {
   const { user, logout, hasRole } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const savedCount = useWishlist().length;
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
   const accountLinks = ACCOUNT_LINKS.filter(
@@ -74,7 +78,22 @@ function Navbar() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <SearchCommand />
+          <Link
+            to="/saved"
+            aria-label={savedCount > 0 ? `Saved courses (${savedCount})` : "Saved courses"}
+            title="Saved courses"
+            className="relative hidden size-9 items-center justify-center rounded-full text-muted-foreground transition outline-none hover:bg-muted hover:text-rose-600 focus-visible:ring-3 focus-visible:ring-ring/50 sm:flex"
+          >
+            <Heart aria-hidden className={cn("size-5", savedCount > 0 && "fill-rose-600 text-rose-600")} />
+            {savedCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] leading-4.5 font-bold text-primary-foreground ring-2 ring-background">
+                {savedCount}
+              </span>
+            )}
+          </Link>
+          {hasRole("Learner") && <NotificationsBell />}
           <ThemeToggle />
           {user ? (
             // Account menu
@@ -87,6 +106,7 @@ function Navbar() {
                 >
                   <Avatar
                     name={fullName}
+                    photoUrl={user.photoUrl}
                     className="size-9 bg-primary text-sand transition-transform hover:scale-105"
                   />
                 </button>
@@ -187,7 +207,7 @@ function Navbar() {
                 {user && (
                   <nav aria-label="Account" className="mt-4 border-t pt-4">
                     <div className="flex items-center gap-3 px-4 pb-3">
-                      <Avatar name={fullName} className="size-10 bg-primary text-sand" />
+                      <Avatar name={fullName} photoUrl={user.photoUrl} className="size-10 bg-primary text-sand" />
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-semibold">
                           {fullName}

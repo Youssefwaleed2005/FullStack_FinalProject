@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import { homeForRoles } from "@/lib/navigation";
 import { getApiErrorMessage } from "@/services/api";
@@ -97,13 +98,18 @@ function LoginPage() {
           error={fieldErrors.password}
         />
 
-        <Label className="font-normal text-muted-foreground">
-          <Checkbox
-            checked={rememberMe}
-            onCheckedChange={(checked) => setRememberMe(checked === true)}
-          />
-          Remember me
-        </Label>
+        <div className="flex items-center justify-between gap-3">
+          <Label className="font-normal text-muted-foreground">
+            <Checkbox
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked === true)}
+            />
+            Remember me
+          </Label>
+          <Link to="/forgot-password" className={cn(linkStyle, "text-sm")}>
+            Forgot password?
+          </Link>
+        </div>
 
         <Button
           type="submit"

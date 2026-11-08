@@ -4,6 +4,7 @@ using Andalusia.Api.Helpers;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Andalusia.Api.Controllers
 {
@@ -20,6 +21,7 @@ namespace Andalusia.Api.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting(RateLimitPolicies.Chat)]
         public async Task<ActionResult<ChatResponseDto>> Ask(ChatRequestDto request)
         {
             int? learnerId = User.Identity?.IsAuthenticated == true && User.IsInRole(Roles.Learner)

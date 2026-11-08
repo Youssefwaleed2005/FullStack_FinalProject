@@ -10,10 +10,40 @@ namespace Andalusia.Api.Services
     public class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly ISessionRepository _sessionRepository;
 
-        public CourseService(ICourseRepository courseRepository)
+        public CourseService(ICourseRepository courseRepository, ISessionRepository sessionRepository)
         {
             _courseRepository = courseRepository;
+            _sessionRepository = sessionRepository;
+        }
+
+        public async Task<CourseReviewsDto> GetReviewsAsync(int id)
+        {
+            _ = await _courseRepository.GetByIdWithDetailsAsync(id)
+                ?? throw new NotFoundException($"Course with id {id} was not found.");
+
+            return (await _courseRepository.GetReviewsAsync(id)).ToSummaryDto();
+        }
+
+        // The course's sessions in order (titles and times only; no meeting links)
+        public async Task<List<CourseScheduleItemDto>> GetScheduleAsync(int id)
+        {
+            _ = await _courseRepository.GetByIdWithDetailsAsync(id)
+                ?? throw new NotFoundException($"Course with id {id} was not found.");
+
+            var sessions = await _sessionRepository.GetByCourseAsync(id);
+            return sessions
+                .OrderBy(s => s.StartTime)
+                .Select(s => new CourseScheduleItemDto
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    Description = s.Description,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime
+                })
+                .ToList();
         }
 
         public async Task<PagedResponse<CourseResponseDto>> GetAllAsync(CourseQueryParameters query)
@@ -42,11 +72,13 @@ namespace Andalusia.Api.Services
             return course.ToDetailsResponseDto();
         }
 
-        public async Task<CourseDetailsResponseDto> CreateAsync(CourseRequestDto dto)
+        public async Task<CourseDetailsResponseDto> CreateAsync(CourseRequestDto dto, int actorId)
         {
             await ValidateAsync(dto);
 
             var course = dto.ToEntity();
+            course.UpdatedAt = DateTime.UtcNow;
+            course.UpdatedBy = await _courseRepository.GetUserFullNameAsync(actorId);
 
             await _courseRepository.AddAsync(course);
             await _courseRepository.SaveChangesAsync();
@@ -54,7 +86,7 @@ namespace Andalusia.Api.Services
             return await GetByIdAsync(course.Id);
         }
 
-        public async Task<CourseDetailsResponseDto> UpdateAsync(int id, CourseRequestDto dto)
+        public async Task<CourseDetailsResponseDto> UpdateAsync(int id, CourseRequestDto dto, int actorId)
         {
             var course = await _courseRepository.GetByIdAsync(id);
 
@@ -64,6 +96,8 @@ namespace Andalusia.Api.Services
             await ValidateAsync(dto);
 
             dto.UpdateEntity(course);
+            course.UpdatedAt = DateTime.UtcNow;
+            course.UpdatedBy = await _courseRepository.GetUserFullNameAsync(actorId);
 
             _courseRepository.Update(course);
             await _courseRepository.SaveChangesAsync();
@@ -71,17 +105,41 @@ namespace Andalusia.Api.Services
             return await GetByIdAsync(id);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, int actorId)
         {
-            var course = await _courseRepository.GetByIdAsync(id);
+            var course = await _courseRepository.GetIncludingDeletedAsync(id);
 
-            if (course == null)
+            if (course == null || course.IsDeleted)
                 throw new NotFoundException($"Course with id {id} was not found.");
 
+            // Courses with history are archived (soft delete) so enrollments and payments stay intact
             if (await _courseRepository.HasApplicationsOrProgramsAsync(id))
-                throw new ConflictException("This course cannot be deleted because it has applications or belongs to a program. Change its status instead.");
+            {
+                course.IsDeleted = true;
+                course.DeletedAt = DateTime.UtcNow;
+                course.UpdatedAt = DateTime.UtcNow;
+                course.UpdatedBy = await _courseRepository.GetUserFullNameAsync(actorId);
+                await _courseRepository.SaveChangesAsync();
+                return true;
+            }
 
             _courseRepository.Delete(course);
+            await _courseRepository.SaveChangesAsync();
+            return false;
+        }
+
+        public async Task RestoreAsync(int id, int actorId)
+        {
+            var course = await _courseRepository.GetIncludingDeletedAsync(id)
+                ?? throw new NotFoundException($"Course with id {id} was not found.");
+
+            if (!course.IsDeleted)
+                throw new BadRequestException("This course is not archived.");
+
+            course.IsDeleted = false;
+            course.DeletedAt = null;
+            course.UpdatedAt = DateTime.UtcNow;
+            course.UpdatedBy = await _courseRepository.GetUserFullNameAsync(actorId);
             await _courseRepository.SaveChangesAsync();
         }
 

@@ -10,3 +10,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 export async function updateSiteSettings(values: SiteSettingsUpdate): Promise<SiteSettings> {
   return (await api.put<SiteSettings>("/site-settings", { values })).data;
 }
+
+// Who saved the site info last, and when
+export async function getSiteSettingsLastEdit(): Promise<{ updatedAt: string | null; updatedBy: string | null }> {
+  return (await api.get<{ updatedAt: string | null; updatedBy: string | null }>("/site-settings/last-edit")).data;
+}

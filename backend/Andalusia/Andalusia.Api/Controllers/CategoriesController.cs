@@ -2,6 +2,7 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Andalusia.Api.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -19,6 +20,7 @@ namespace Andalusia.Api.Controllers
         }
 
         
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAll()
         {
@@ -27,6 +29,7 @@ namespace Andalusia.Api.Controllers
         }
 
       
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<CategoryResponseDto>> GetById(int id)
         {

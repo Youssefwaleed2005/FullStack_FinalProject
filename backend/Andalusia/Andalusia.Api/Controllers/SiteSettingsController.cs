@@ -1,4 +1,6 @@
 using Andalusia.Api.DTOs.Requests;
+using Andalusia.Api.DTOs.Responses;
+using Microsoft.AspNetCore.OutputCaching;
 using Andalusia.Api.Helpers;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +20,7 @@ namespace Andalusia.Api.Controllers
         }
 
         [HttpGet]
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         public async Task<ActionResult<Dictionary<string, string>>> GetAll()
         {
             return Ok(await _siteSettingService.GetAllAsync());
@@ -25,9 +28,20 @@ namespace Andalusia.Api.Controllers
 
         [Authorize(Roles = Roles.AdminOrContentManager)]
         [HttpPut]
-        public async Task<ActionResult<Dictionary<string, string>>> Update(SiteSettingsUpdateDto dto)
+        public async Task<ActionResult<Dictionary<string, string>>> Update(
+            SiteSettingsUpdateDto dto, [FromServices] IOutputCacheStore cache, CancellationToken ct)
         {
-            return Ok(await _siteSettingService.UpdateAsync(dto));
+            var result = await _siteSettingService.UpdateAsync(dto, User.GetUserId());
+            await cache.EvictByTagAsync(CacheTags.PublicContent, ct);
+            return Ok(result);
+        }
+
+        // GET /api/site-settings/last-edit → who saved the site info last, and when
+        [Authorize(Roles = Roles.AdminOrContentManager)]
+        [HttpGet("last-edit")]
+        public async Task<ActionResult<LastEditDto>> GetLastEdit()
+        {
+            return Ok(await _siteSettingService.GetLastEditAsync());
         }
     }
 }

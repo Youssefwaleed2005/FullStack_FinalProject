@@ -9,6 +9,9 @@ import {
 import Avatar from "@/components/Avatar";
 import CoverImage from "@/components/CoverImage";
 import StatusPill from "@/components/StatusPill";
+import CompareToggle from "@/components/CompareToggle";
+import { StarRating } from "@/components/StarRating";
+import WishlistButton from "@/components/WishlistButton";
 import { cardImageZoom, cardStyle } from "@/lib/styles";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import type { Course } from "@/types/Course";
@@ -26,6 +29,7 @@ function CourseCard({ course }: CourseCardProps) {
         <CoverImage
           src={course.imageUrl}
           title={course.title}
+          hint={course.categoryName}
           className="aspect-[16/10]"
           imageClassName={cardImageZoom}
         />
@@ -34,6 +38,10 @@ function CourseCard({ course }: CourseCardProps) {
           status={STATUS_META[course.status]}
           className="absolute top-3 left-3 bg-card/95 shadow-sm ring-0 backdrop-blur"
         />
+
+        {/* Above the card's stretched link, so it can be clicked on its own */}
+        <CompareToggle course={course} className="absolute bottom-3 left-3" />
+        <WishlistButton course={course} className="absolute right-3 bottom-3" />
 
         {course.isFeatured && (
           <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">
@@ -56,6 +64,14 @@ function CourseCard({ course }: CourseCardProps) {
             {course.title}
           </Link>
         </h3>
+
+        {course.reviewCount ? (
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <StarRating value={course.averageRating ?? 0} />
+            <span className="font-semibold text-foreground">{course.averageRating?.toFixed(1)}</span>
+            ({course.reviewCount})
+          </p>
+        ) : null}
 
         {course.shortDescription && (
           <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">

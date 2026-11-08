@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { GraduationCap, Presentation, UserPlus, Users } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import CreateInstructorDialog from "@/components/admin/CreateInstructorDialog";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import Chip from "@/components/manage/Chip";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import EmptyNote from "@/components/manage/EmptyNote";
@@ -27,7 +27,8 @@ import { formatDate } from "@/lib/course";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
-import { getAdminUsers, setUserStatus } from "@/services/adminService";
+import { getAdminUsersPage, setUserStatus } from "@/services/adminService";
+import CoursePagination from "@/components/CoursePagination";
 import type { AdminUser } from "@/types/Admin";
 
 type Role = "Learner" | "Instructor";
@@ -36,12 +37,16 @@ type Role = "Learner" | "Instructor";
 function AdminUsersPage() {
   const [role, setRole] = useState<Role>("Learner");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
   const toast = useToast();
 
-  const load = useCallback(() => getAdminUsers({ role, search: search || undefined }), [role, search]);
+  const load = useCallback(
+    () => getAdminUsersPage({ role, search: search || undefined, pageNumber: page }),
+    [role, search, page],
+  );
   const { data: users, loading, failed, error: loadError, reload } = useApiData(load);
 
   function askToggle(user: AdminUser) {
@@ -87,7 +92,13 @@ function AdminUsersPage() {
 
       <div className={cn(pageContainer, "flex flex-col gap-5 py-10")}>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Tabs value={role} onValueChange={(value) => setRole(value as Role)}>
+          <Tabs
+            value={role}
+            onValueChange={(value) => {
+              setRole(value as Role);
+              setPage(1);
+            }}
+          >
             <TabsList className="h-10! rounded-full bg-secondary p-1">
               <TabsTrigger value="Learner" className="gap-2 rounded-full px-4">
                 <GraduationCap aria-hidden /> Learners
@@ -97,19 +108,27 @@ function AdminUsersPage() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <SearchInput value={search} onSearch={setSearch} placeholder="Search name or email" className="w-full sm:w-80" />
+          <SearchInput
+            value={search}
+            onSearch={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            placeholder="Search name or email"
+            className="w-full sm:w-80"
+          />
         </div>
 
         {loading && !users ? (
-          <LoadingState label="Loading users…" />
+          <PageSkeleton variant="table" label="Loading users…" />
         ) : failed || !users ? (
           <Alert variant="destructive">
             <AlertDescription>{getApiErrorMessage(loadError, "Could not load users.")}</AlertDescription>
           </Alert>
-        ) : users.length === 0 ? (
+        ) : users.items.length === 0 ? (
           <EmptyNote icon={Users} title="No users found" description={search ? "Try a different name or email." : undefined} />
         ) : (
-          <TableCard title={role === "Learner" ? "Learners" : "Instructors"} description={`${users.length} found`}>
+          <TableCard title={role === "Learner" ? "Learners" : "Instructors"} description={`${users.totalCount} found`}>
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
@@ -122,7 +141,7 @@ function AdminUsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {users.items.map((user) => (
                   <TableRow key={user.id} className={cn(!user.isActive && "opacity-60")}>
                     <TableCell>
                       <PersonCell name={user.fullName} detail={[user.email, user.specialization].filter(Boolean).join(" · ")} />
@@ -153,6 +172,10 @@ function AdminUsersPage() {
             </Table>
           </TableCard>
         )}
+
+        {users && users.totalPages > 1 && (
+          <CoursePagination page={page} totalPages={users.totalPages} onPageChange={setPage} />
+        )}
       </div>
 
       <CreateInstructorDialog
@@ -163,6 +186,7 @@ function AdminUsersPage() {
           setCreateOpen(false);
           toast.success(`${name} was added as an instructor.`);
           setRole("Instructor");
+          setPage(1);
           reload();
         }}
       />

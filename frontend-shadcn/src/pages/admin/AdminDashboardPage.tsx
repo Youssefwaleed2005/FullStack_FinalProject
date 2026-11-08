@@ -12,8 +12,9 @@ import {
   UserCheck,
 } from "lucide-react";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
+import AdminCharts from "@/components/admin/AdminCharts";
 import PaymentsTable from "@/components/admin/PaymentsTable";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import EmptyNote from "@/components/manage/EmptyNote";
 import ManageHeader from "@/components/manage/ManageHeader";
 import StatTile from "@/components/manage/StatTile";
@@ -37,7 +38,7 @@ const QUICK_ACTIONS = [
 function AdminDashboardPage() {
   const { data, loading, failed, error, reload } = useApiData(getAdminDashboard);
 
-  if (loading) return <LoadingState label="Loading the dashboard…" />;
+  if (loading) return <PageSkeleton variant="dashboard" label="Loading the dashboard…" />;
   if (failed || !data)
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -141,6 +142,9 @@ function AdminDashboardPage() {
             ))}
           </section>
         </div>
+
+        {/* Charts */}
+        <AdminCharts />
 
         {/* Recent payments */}
         <TableCard

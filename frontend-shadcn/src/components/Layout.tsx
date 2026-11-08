@@ -4,6 +4,8 @@ import ChatWidget from "@/components/chat/ChatWidget";
 import BackToTop from "@/components/fun/BackToTop";
 import ScrollProgress from "@/components/fun/ScrollProgress";
 import Navbar from "@/components/Navbar";
+import RouteTitle from "@/components/RouteTitle";
+import CompareBar from "@/components/CompareBar";
 
 // Shared frame for every page: navbar on top, footer at the bottom, the page in between
 function Layout() {
@@ -18,6 +20,7 @@ function Layout() {
       >
         Skip to content
       </a>
+      <RouteTitle />
       <ScrollProgress />
       <Navbar />
       <main id="main" className="flex flex-1 flex-col">
@@ -30,6 +33,7 @@ function Layout() {
         </div>
       </main>
       <Footer />
+      <CompareBar />
       <BackToTop />
       <ChatWidget />
     </div>

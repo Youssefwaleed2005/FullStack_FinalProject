@@ -33,6 +33,13 @@ namespace Andalusia.Api.Controllers
         }
 
         // GET /api/instructor/courses/5/students
+        // GET /api/instructor/courses/5/insights → charts: progress spread, submissions per week, attendance, at-risk students
+        [HttpGet("courses/{courseId:int}/insights")]
+        public async Task<ActionResult<CourseInsightsDto>> GetCourseInsights(int courseId)
+        {
+            return Ok(await _instructorService.GetCourseInsightsAsync(User.GetUserId(), courseId));
+        }
+
         [HttpGet("courses/{courseId:int}/students")]
         public async Task<ActionResult<List<CourseStudentDto>>> GetCourseStudents(int courseId)
         {

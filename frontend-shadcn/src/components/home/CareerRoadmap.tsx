@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Clock, Compass } from "lucide-react";
+import { ArrowRight, Clock, Compass, Flag, MapPin, MonitorPlay, Trophy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { topicFor } from "@/lib/topics";
 import { cn } from "@/lib/utils";
 import type { CareerPathDetails } from "@/types/CareerPath";
 
@@ -31,6 +32,7 @@ function CareerRoadmap({ path, loading }: CareerRoadmapProps) {
 
   const steps = path.recommendedCourses.slice(0, MAX_STEPS);
   const more = path.recommendedCourses.length - steps.length;
+  const totalHours = path.recommendedCourses.reduce((sum, course) => sum + course.durationHours, 0);
 
   return (
     // A new key per path remounts the steps, so they play the same entrance as the gold word
@@ -39,11 +41,27 @@ function CareerRoadmap({ path, loading }: CareerRoadmapProps) {
       <h2 className="mt-1 animate-word truncate font-heading text-2xl font-semibold text-primary-foreground">
         {path.title}
       </h2>
+      <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-primary-foreground/75">
+        <span className="inline-flex items-center gap-1">
+          <Flag aria-hidden className="size-3.5 text-sand" />
+          {path.recommendedCourses.length} {path.recommendedCourses.length === 1 ? "course" : "courses"}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Clock aria-hidden className="size-3.5 text-sand" />
+          {totalHours} hours in total
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Trophy aria-hidden className="size-3.5 text-sand" />
+          Job-ready
+        </span>
+      </p>
 
       <ol aria-label={`${path.title}: courses in order`} className={cn("mt-5 flex flex-col gap-3", listHeight)}>
         {steps.map((course, index) => {
           const isFirst = index === 0;
           const isLast = index === steps.length - 1;
+          const topic = topicFor(course.title);
+          const TypeIcon = course.type === "Online" ? MonitorPlay : MapPin;
           return (
             <li
               key={course.id}
@@ -54,7 +72,7 @@ function CareerRoadmap({ path, loading }: CareerRoadmapProps) {
               {!isLast && (
                 <span
                   aria-hidden
-                  className="absolute top-1/2 left-4.5 h-[calc(100%+0.75rem)] w-px -translate-x-1/2 bg-sand/40"
+                  className="absolute top-1/2 left-4.5 h-[calc(100%+0.75rem)] w-0.5 -translate-x-1/2 rounded-full bg-linear-to-b from-sand to-sand/20"
                 />
               )}
               <span
@@ -66,26 +84,46 @@ function CareerRoadmap({ path, loading }: CareerRoadmapProps) {
                     : "bg-primary text-primary-foreground ring-1 ring-sand/50",
                 )}
               >
-                {index + 1}
+                {/* Soft pulse around the first step */}
+                {isFirst && (
+                  <span className="absolute inset-0 animate-ping rounded-full bg-sand/40 [animation-duration:2.5s] motion-reduce:hidden" />
+                )}
+                <span className="relative">{index + 1}</span>
               </span>
               <Link
                 to={`/courses/${course.id}`}
                 className={cn(
                   stepCard,
-                  "flex min-w-0 flex-1 items-center gap-3 px-4 py-3 outline-none transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-3 focus-visible:ring-sand/60 motion-reduce:hover:translate-y-0",
+                  "group/step flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 outline-none transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-3 focus-visible:ring-sand/60 motion-reduce:hover:translate-y-0",
                   isFirst && "ring-2 ring-sand",
                 )}
               >
+                {/* Course icon, coloured by topic (SQL, Python, React…) */}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "flex size-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover/step:-rotate-6 group-hover/step:scale-110 motion-reduce:transform-none",
+                    topic.soft,
+                  )}
+                >
+                  <topic.icon className="size-5" />
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="sr-only">Step {index + 1}: </span>
                   <span className="block truncate text-sm font-semibold text-foreground">{course.title}</span>
-                  <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock aria-hidden className="size-3.5 shrink-0" />
-                    {course.durationHours} hours · {course.type}
+                  <span className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock aria-hidden className="size-3.5 shrink-0" />
+                      {course.durationHours} hours
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <TypeIcon aria-hidden className="size-3.5 shrink-0" />
+                      {course.type === "Online" ? "Online" : "On campus"}
+                    </span>
                   </span>
                 </span>
                 {isFirst && (
-                  <span className="hidden shrink-0 rounded-full bg-accent px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-sand-deep uppercase sm:inline">
+                  <span className="hidden shrink-0 rounded-full bg-sand px-2.5 py-1 text-[0.65rem] font-bold tracking-wide text-primary uppercase shadow-sm sm:inline">
                     Start here
                   </span>
                 )}

@@ -64,6 +64,78 @@ namespace Andalusia.Api.Services
             return result;
         }
 
+        public async Task<CourseInsightsDto> GetCourseInsightsAsync(int instructorId, int courseId)
+        {
+            // Also checks that I teach this course
+            var students = await GetCourseStudentsAsync(instructorId, courseId);
+            var course = (await _instructorRepository.GetCourseWithActivityAsync(courseId))!;
+            var studentIds = students.Select(s => s.UserId).ToHashSet();
+            var now = DateTime.UtcNow;
+
+            var buckets = new[] { ("0–24%", 0, 24), ("25–49%", 25, 49), ("50–74%", 50, 74), ("75–100%", 75, 100) }
+                .Select(b => new LabelCountDto
+                {
+                    Label = b.Item1,
+                    Count = students.Count(s => s.ProgressPercent >= b.Item2 && s.ProgressPercent <= b.Item3)
+                })
+                .ToList();
+
+            // Weeks start on Sunday; the last one is the current week
+            var thisWeek = now.Date.AddDays(-(int)now.DayOfWeek);
+            var submissions = course.Assignments
+                .SelectMany(a => a.Submissions)
+                .Where(s => studentIds.Contains(s.UserId))
+                .ToList();
+            var byWeek = Enumerable.Range(0, 8)
+                .Select(i => thisWeek.AddDays(-7 * (7 - i)))
+                .Select(start => new LabelCountDto
+                {
+                    Label = start.ToString("dd MMM"),
+                    Count = submissions.Count(s => s.SubmittedAt >= start && s.SubmittedAt < start.AddDays(7))
+                })
+                .ToList();
+
+            var attendance = course.Sessions
+                .Where(s => s.StartTime <= now)
+                .OrderByDescending(s => s.StartTime)
+                .Take(8)
+                .OrderBy(s => s.StartTime)
+                .Select(s => new SessionAttendanceRateDto
+                {
+                    Title = s.Title,
+                    StartTime = s.StartTime,
+                    Attended = s.Attendances.Count(a => studentIds.Contains(a.UserId)
+                        && (a.Status == AttendanceStatus.Present || a.Status == AttendanceStatus.Late)),
+                    Total = students.Count
+                })
+                .ToList();
+
+            var scores = students.Where(s => s.AverageScore.HasValue).Select(s => s.AverageScore!.Value).ToList();
+
+            return new CourseInsightsDto
+            {
+                StudentCount = students.Count,
+                AverageProgress = students.Count == 0 ? 0 : (int)Math.Round(students.Average(s => s.ProgressPercent)),
+                AverageScore = scores.Count == 0 ? null : (int)Math.Round(scores.Average()),
+                ProgressBuckets = buckets,
+                SubmissionsByWeek = byWeek,
+                AttendanceBySession = attendance,
+                AtRisk = students
+                    .Where(s => s.ProgressPercent < 40)
+                    .OrderBy(s => s.ProgressPercent)
+                    .Select(s => new AtRiskStudentDto
+                    {
+                        UserId = s.UserId,
+                        FullName = s.FullName,
+                        Email = s.Email,
+                        ProgressPercent = s.ProgressPercent,
+                        MissedSessions = s.PastSessions - s.AttendedSessions,
+                        MissingAssignments = s.TotalAssignments - s.SubmittedAssignments
+                    })
+                    .ToList()
+            };
+        }
+
         public async Task<List<CourseStudentDto>> GetCourseStudentsAsync(int instructorId, int courseId)
         {
             await EnsureOwnsCourseAsync(instructorId, courseId);

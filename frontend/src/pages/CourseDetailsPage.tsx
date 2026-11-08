@@ -18,8 +18,9 @@ import CourseCard from "../components/CourseCard";
 import InfoRow from "../components/InfoRow";
 import { STATUS_LABELS } from "../utils/statusLabels";
 import ApplyButton from "../components/ApplyButton";
+import TopicCover from "../components/TopicCover";
+import WishlistButton from "../components/WishlistButton";
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/1200x500?text=Course";
 
 // Reads the id from the URL and gives each course its own fresh page
 function CourseDetailsPage() {
@@ -90,18 +91,21 @@ function CourseDetailsContent({ courseId }: CourseDetailsContentProps) {
       </Button>
 
       {/* Image */}
-      <Box
-        component="img"
-        src={course.imageUrl ?? PLACEHOLDER_IMAGE}
-        alt={course.title}
-        sx={{
-          width: "100%",
-          maxHeight: 360,
-          objectFit: "cover",
-          borderRadius: 2,
-          mb: 3,
-        }}
-      />
+      <Box sx={{ position: "relative", mb: 3 }}>
+        {course.imageUrl ? (
+          <Box
+            component="img"
+            src={course.imageUrl}
+            alt={course.title}
+            sx={{ display: "block", width: "100%", maxHeight: 360, objectFit: "cover", borderRadius: 2 }}
+          />
+        ) : (
+          <Box sx={{ height: { xs: 220, md: 360 }, borderRadius: 2, overflow: "hidden", "& svg": { display: "block", width: "100%", height: "100%" } }}>
+            <TopicCover title={course.title} hint={course.categoryName} />
+          </Box>
+        )}
+        <WishlistButton course={course} sx={{ position: "absolute", top: 12, right: 12 }} />
+      </Box>
 
       {/* Title and chips */}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>

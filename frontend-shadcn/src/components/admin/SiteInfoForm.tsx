@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { LoaderCircle, RotateCcw, Save } from "lucide-react";
 import FormField from "@/components/FormField";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
@@ -12,7 +12,8 @@ import { useToast } from "@/hooks/useToast";
 import { EMAIL_PATTERN, isHttpUrl } from "@/lib/forms";
 import { SITE_SETTING_LIMITS, toSiteSettings } from "@/lib/siteSettings";
 import { getApiErrorMessage } from "@/services/api";
-import { updateSiteSettings } from "@/services/siteSettingService";
+import { getSiteSettingsLastEdit, updateSiteSettings } from "@/services/siteSettingService";
+import { timeAgo } from "@/lib/time";
 import type { SiteSettingKey, SiteSettingsUpdate } from "@/types/SiteSettings";
 
 type Field = {
@@ -88,6 +89,21 @@ function SiteInfoForm() {
   const [draft, setDraft] = useState<Partial<Values>>({});
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
+  const [lastEdit, setLastEdit] = useState<{ updatedAt: string | null; updatedBy: string | null } | null>(null);
+  const [saveCount, setSaveCount] = useState(0);
+
+  // "Last edited by …" under the title; refreshed after each save
+  useEffect(() => {
+    let active = true;
+    getSiteSettingsLastEdit()
+      .then((result) => {
+        if (active) setLastEdit(result);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [saveCount]);
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
 
@@ -103,6 +119,7 @@ function SiteInfoForm() {
     setSaving(true);
     try {
       site.replace(await updateSiteSettings(payload));
+      setSaveCount((count) => count + 1);
       setDraft({});
       setFieldErrors({});
       toast.success(success);
@@ -142,7 +159,12 @@ function SiteInfoForm() {
   return (
     <>
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-        <p className="text-sm text-muted-foreground">Leave a field empty to hide it on the site.</p>
+        <p className="text-sm text-muted-foreground">
+          Leave a field empty to hide it on the site.
+          {lastEdit?.updatedAt && lastEdit.updatedBy && (
+            <span className="ml-1 text-xs">· Last edited {timeAgo(lastEdit.updatedAt)} by {lastEdit.updatedBy}</span>
+          )}
+        </p>
 
         {error && (
           <Alert variant="destructive">

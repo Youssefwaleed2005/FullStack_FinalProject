@@ -4,7 +4,7 @@ import Chip from "@/components/manage/Chip";
 import EmptyNote from "@/components/manage/EmptyNote";
 import PersonCell from "@/components/manage/PersonCell";
 import TableCard from "@/components/manage/TableCard";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -25,7 +25,7 @@ function StudentsTab({ courseId }: { courseId: number }) {
   const load = useCallback(() => getCourseStudents(courseId), [courseId]);
   const { data, loading, failed, error } = useApiData(load);
 
-  if (loading) return <LoadingState label="Loading students…" />;
+  if (loading) return <PageSkeleton variant="table" label="Loading students…" />;
   if (failed || !data)
     return (
       <Alert variant="destructive">

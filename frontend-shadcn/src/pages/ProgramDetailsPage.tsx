@@ -6,10 +6,11 @@ import CoverImage from "@/components/CoverImage";
 import DetailRow from "@/components/DetailRow";
 import DetailsHeader from "@/components/DetailsHeader";
 import DetailsLoadError from "@/components/DetailsLoadError";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import ProgramCard from "@/components/ProgramCard";
 import StatusPill from "@/components/StatusPill";
 import { useApiData } from "@/hooks/useApiData";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import { pageContainer, panelStyle } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -36,8 +37,9 @@ function ProgramDetailsContent({ programId }: ProgramDetailsContentProps) {
     [programId],
   );
   const { data, loading, failed, error } = useApiData(loadProgram);
+  usePageTitle(data?.[0].title);
 
-  if (loading) return <LoadingState label="Loading program…" />;
+  if (loading) return <PageSkeleton variant="details" label="Loading program…" />;
 
   if (failed || !data) {
     return (

@@ -60,6 +60,7 @@ function validate(form: FormState): FieldErrors {
 // Create or edit a student testimonial shown on the homepage
 function TestimonialEditorDialog({ testimonial, onClose, onSaved }: TestimonialEditorDialogProps) {
   const [form, setForm] = useState<FormState>(() => toForm(testimonial));
+  const [initial] = useState<FormState>(() => toForm(testimonial));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -104,6 +105,7 @@ function TestimonialEditorDialog({ testimonial, onClose, onSaved }: TestimonialE
       error={error}
       saving={saving}
       submitLabel={testimonial ? "Save changes" : "Create testimonial"}
+      dirty={JSON.stringify(form) !== JSON.stringify(initial)}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

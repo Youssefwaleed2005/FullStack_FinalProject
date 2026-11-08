@@ -1,5 +1,6 @@
 import api from "./api";
 import type {
+  CourseInsights,
   CourseStudent,
   GradeSubmissionRequest,
   InstructorCourse,
@@ -182,4 +183,9 @@ export async function gradeSubmission(
       payload,
     )
   ).data;
+}
+
+// Charts: progress spread, submissions per week, attendance per session, at-risk students
+export async function getCourseInsights(courseId: number): Promise<CourseInsights> {
+  return (await api.get<CourseInsights>(`/instructor/courses/${courseId}/insights`)).data;
 }

@@ -24,5 +24,9 @@ namespace Andalusia.Api.Models
         public int DisplayOrder { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Soft delete: hidden everywhere (global query filter), but the row is kept
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

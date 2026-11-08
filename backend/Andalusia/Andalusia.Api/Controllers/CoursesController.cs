@@ -39,7 +39,7 @@ namespace Andalusia.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseDetailsResponseDto>> Create(CourseRequestDto dto)
         {
-            var created = await _courseService.CreateAsync(dto);
+            var created = await _courseService.CreateAsync(dto, User.GetUserId());
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -48,7 +48,7 @@ namespace Andalusia.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<CourseDetailsResponseDto>> Update(int id, CourseRequestDto dto)
         {
-            var updated = await _courseService.UpdateAsync(id, dto);
+            var updated = await _courseService.UpdateAsync(id, dto, User.GetUserId());
             return Ok(updated);
         }
 
@@ -57,10 +57,35 @@ namespace Andalusia.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _courseService.DeleteAsync(id);
+            // 200 + { archived: true } when the course had history and was archived instead
+            var archived = await _courseService.DeleteAsync(id, User.GetUserId());
+            if (archived) return Ok(new { archived = true });
+            return NoContent();
+        }
+
+        // PUT /api/courses/5/restore → brings an archived course back
+        [Authorize(Roles = Roles.Admin)]
+        [HttpPut("{id:int}/restore")]
+        public async Task<IActionResult> Restore(int id)
+        {
+            await _courseService.RestoreAsync(id, User.GetUserId());
             return NoContent();
         }
    
+        // GET /api/courses/5/reviews → average, star breakdown and the reviews (public)
+        [HttpGet("{id:int}/reviews")]
+        public async Task<ActionResult<CourseReviewsDto>> GetReviews(int id)
+        {
+            return Ok(await _courseService.GetReviewsAsync(id));
+        }
+
+        // GET /api/courses/5/schedule → the planned sessions (course outline), public
+        [HttpGet("{id:int}/schedule")]
+        public async Task<ActionResult<List<CourseScheduleItemDto>>> GetSchedule(int id)
+        {
+            return Ok(await _courseService.GetScheduleAsync(id));
+        }
+
         [HttpGet("{id:int}/related")]
         public async Task<ActionResult<IEnumerable<CourseResponseDto>>> GetRelated(int id, [FromQuery] int take = 4)
         {

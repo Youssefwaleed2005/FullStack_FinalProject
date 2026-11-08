@@ -8,7 +8,7 @@ import {
   Link2,
   type LucideIcon,
 } from "lucide-react";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import MaterialViewerDialog from "@/components/learner/MaterialViewerDialog";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ function LearnerMaterialsTab({
     else window.open(resolveMaterialUrl(material.url), "_blank", "noopener");
   }
 
-  if (loading) return <LoadingState label="Loading materials…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading materials…" />;
 
   if (failed || !data) {
     return (

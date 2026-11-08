@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { ClipboardList, CloudOff } from "lucide-react";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import SubmitAssignmentDialog from "@/components/learner/SubmitAssignmentDialog";
@@ -76,7 +76,7 @@ function LearnerAssignmentsTab({
     onSubmitted();
   }
 
-  if (loading) return <LoadingState label="Loading assignments…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading assignments…" />;
 
   if (failed || !assignments) {
     return (

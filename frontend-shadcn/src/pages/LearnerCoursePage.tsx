@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Info, Lock } from "lucide-react";
+import { ArrowLeft, Award, Info, Lock } from "lucide-react";
 import DetailsHeader from "@/components/DetailsHeader";
 import DetailsLoadError from "@/components/DetailsLoadError";
 import BadgeShelf from "@/components/fun/BadgeShelf";
 import CountUp from "@/components/fun/CountUp";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import LearnerAssignmentsTab from "@/components/learner/LearnerAssignmentsTab";
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiData } from "@/hooks/useApiData";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useCelebrate } from "@/hooks/useCelebrate";
 import { getCourseBadges } from "@/lib/badges";
 import { STATUS_META, formatDate } from "@/lib/course";
@@ -50,6 +51,7 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
   // reload() runs after a submission, so the progress bar updates
   const { data: course, loading, failed, error, reload } =
     useApiData(loadCourse);
+  usePageTitle(course?.title);
 
   // Big party the moment progress reaches 100% (not when the page opens already at 100%)
   const { celebrate } = useCelebrate();
@@ -68,7 +70,7 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
     previousPercent.current = percent;
   }, [percent, celebrate]);
 
-  if (loading) return <LoadingState label="Loading course…" />;
+  if (loading) return <PageSkeleton variant="details" label="Loading course…" />;
 
   if (failed || !course) {
     // 403 means the learner is not enrolled in this course
@@ -166,6 +168,18 @@ function LearnerCourseContent({ courseId }: LearnerCourseContentProps) {
             <p className="mt-1 text-sm text-muted-foreground">
               {when.join(" · ")}
             </p>
+          )}
+
+          {progress.progressPercent >= 100 && (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sand/60 bg-sand/10 p-4">
+              <p className="flex items-center gap-2 text-sm font-medium">
+                <Award aria-hidden className="size-5 text-sand-deep" />
+                You finished this course — your certificate is ready!
+              </p>
+              <Button asChild className="rounded-full px-4">
+                <Link to={`/learning/courses/${course.id}/certificate`}>View certificate</Link>
+              </Button>
+            </div>
           )}
 
           <div className="mt-6 border-t border-border/70 pt-5">

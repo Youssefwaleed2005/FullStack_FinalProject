@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, CloudOff } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
 import CoverImage from "@/components/CoverImage";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import StatusPill from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ function MyEnrollmentsPage() {
       title="My learning"
       description="Everything you are enrolled in, and how far along you are."
     >
-      {loading && <LoadingState label="Loading your enrollments…" />}
+      {loading && <PageSkeleton variant="list" label="Loading your enrollments…" />}
 
       {failed && (
         <StateMessage

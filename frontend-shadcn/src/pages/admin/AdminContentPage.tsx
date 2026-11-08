@@ -6,7 +6,7 @@ import PartnersTable from "@/components/admin/PartnersTable";
 import SiteInfoForm from "@/components/admin/SiteInfoForm";
 import TestimonialEditorDialog from "@/components/admin/TestimonialEditorDialog";
 import TestimonialsTable from "@/components/admin/TestimonialsTable";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import EmptyNote from "@/components/manage/EmptyNote";
 import ManageHeader from "@/components/manage/ManageHeader";
@@ -168,7 +168,7 @@ function AdminContentPage() {
         {isSite ? (
           <SiteInfoForm />
         ) : current.loading && !current.data ? (
-          <LoadingState label={isPartners ? "Loading partners…" : "Loading testimonials…"} />
+          <PageSkeleton variant="table" label={isPartners ? "Loading partners…" : "Loading testimonials…"} />
         ) : current.failed || !current.data ? (
           <Alert variant="destructive">
             <AlertDescription>

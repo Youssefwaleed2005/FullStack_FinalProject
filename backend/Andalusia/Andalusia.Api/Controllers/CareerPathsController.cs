@@ -2,6 +2,7 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Andalusia.Api.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -18,6 +19,7 @@ namespace Andalusia.Api.Controllers
             _careerPathService = careerPathService;
         }
 
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CareerPathResponseDto>>> GetPublished(
             [FromQuery] bool? isFeatured, [FromQuery] int? take)
@@ -26,6 +28,7 @@ namespace Andalusia.Api.Controllers
             return Ok(paths);
         }
 
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<CareerPathDetailsResponseDto>> GetById(int id)
         {

@@ -17,6 +17,7 @@ function ProgramCard({ program }: ProgramCardProps) {
         <CoverImage
           src={program.imageUrl}
           title={program.title}
+          hint={program.categoryName}
           className="aspect-[16/10]"
           imageClassName={cardImageZoom}
         />

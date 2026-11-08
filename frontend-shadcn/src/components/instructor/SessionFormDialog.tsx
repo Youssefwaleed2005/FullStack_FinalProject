@@ -20,6 +20,7 @@ function SessionFormDialog({ open, session, onClose, onSave }: SessionFormDialog
   const [start, setStart] = useState(toLocalInputValue(session?.startTime));
   const [end, setEnd] = useState(toLocalInputValue(session?.endTime));
   const [location, setLocation] = useState(session?.location ?? "");
+  const [initial] = useState(() => JSON.stringify([session?.title ?? "", session?.description ?? "", toLocalInputValue(session?.startTime), toLocalInputValue(session?.endTime), session?.location ?? ""]));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -53,6 +54,7 @@ function SessionFormDialog({ open, session, onClose, onSave }: SessionFormDialog
       error={error}
       saving={saving}
       submitLabel={session ? "Save changes" : "Add session"}
+      dirty={JSON.stringify([title, description, start, end, location]) !== initial}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

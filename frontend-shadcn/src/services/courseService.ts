@@ -5,6 +5,8 @@ import type {
   CourseStatus,
   CourseType,
 } from "@/types/Course";
+import type { CourseScheduleItem } from "@/types/CourseSchedule";
+import type { CourseReviews } from "@/types/Review";
 import type { PagedResponse } from "@/types/PagedResponse";
 
 export type CourseQueryParams = {
@@ -46,4 +48,24 @@ export async function getRelatedCourses(
     params: { take },
   });
   return response.data;
+}
+
+// Planned sessions shown as the course outline (public)
+export async function getCourseSchedule(id: number): Promise<CourseScheduleItem[]> {
+  return (await api.get<CourseScheduleItem[]>(`/courses/${id}/schedule`)).data;
+}
+
+// Average rating, star breakdown and reviews (public)
+export async function getCourseReviews(id: number): Promise<CourseReviews> {
+  return (await api.get<CourseReviews>(`/courses/${id}/reviews`)).data;
+}
+
+// Admin: deletes the course, or archives it when it has history. Returns true when archived.
+export async function deleteCourse(id: number): Promise<boolean> {
+  const response = await api.delete<{ archived?: boolean } | "">(`/courses/${id}`);
+  return typeof response.data === "object" && response.data?.archived === true;
+}
+
+export async function restoreCourse(id: number): Promise<void> {
+  await api.put(`/courses/${id}/restore`);
 }

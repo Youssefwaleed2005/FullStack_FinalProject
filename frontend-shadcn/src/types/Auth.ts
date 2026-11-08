@@ -3,6 +3,7 @@ export type UserSummary = {
   firstName: string;
   lastName: string;
   email: string;
+  photoUrl?: string | null;
   roles: string[];
 };
 
@@ -17,6 +18,7 @@ export type UserProfile = {
   firstName: string;
   lastName: string;
   email: string;
+  photoUrl: string | null;
   phoneNumber: string | null;
   country: string | null;
   preferredLanguage: string | null;
@@ -48,4 +50,23 @@ export type UpdateProfileRequest = {
   phoneNumber?: string;
   country?: string;
   preferredLanguage?: string;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type ResetPasswordRequest = {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type ForgotPasswordResponse = {
+  message: string;
+  // Development only: the backend has no email service, so it returns the link for the demo
+  devResetLink: string | null;
 };

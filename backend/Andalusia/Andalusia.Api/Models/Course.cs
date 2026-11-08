@@ -45,6 +45,16 @@ namespace Andalusia.Api.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Audit: who changed the course last, and when
+        public DateTime? UpdatedAt { get; set; }
+
+        [MaxLength(150)]
+        public string? UpdatedBy { get; set; }
+
+        // Soft delete: archived courses leave the catalog, but enrolled learners keep their history
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
        
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
@@ -57,5 +67,6 @@ namespace Andalusia.Api.Models
         public ICollection<Session> Sessions { get; set; } = new List<Session>();
         public ICollection<Material> Materials { get; set; } = new List<Material>();
         public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
+        public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     }
 }

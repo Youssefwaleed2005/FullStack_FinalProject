@@ -28,6 +28,8 @@ import AdminPaymentsPage from "./pages/admin/AdminPaymentsPage";
 import AdminCoursesPage from "./pages/admin/AdminCoursesPage";
 import LearnerCoursePage from "./pages/learner/LearnerCoursePage";
 import LearnerDashboardPage from "./pages/learner/LearnerDashboardPage";
+import CertificatePage from "./pages/learner/CertificatePage";
+import SavedCoursesPage from "./pages/SavedCoursesPage";
 
 function App() {
   return (
@@ -46,6 +48,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/courses" element={<CourseCatalogPage />} />
             <Route path="/courses/:id" element={<CourseDetailsPage />} />
+            <Route path="/saved" element={<SavedCoursesPage />} />
             <Route path="/programs" element={<ProgramsPage />} />
             <Route path="/programs/:id" element={<ProgramDetailsPage />} />
             <Route path="/career-paths" element={<CareerPathsPage />} />
@@ -68,6 +71,7 @@ function App() {
               <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
               <Route path="/payment/:applicationId" element={<PaymentPage />} />
               <Route path="/my-payments" element={<MyPaymentsPage />} />
+              <Route path="/learning/courses/:id/certificate" element={<CertificatePage />} />
             </Route>
 
             {/* Instructors only */}

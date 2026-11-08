@@ -19,5 +19,9 @@ namespace Andalusia.Api.Repos.Interfaces
         Task SaveChangesAsync();
 
         Task<bool> CourseExistsAsync(int courseId);
+
+        Task<CourseReview?> GetMyReviewAsync(int courseId, int userId);
+        Task AddReviewAsync(CourseReview review);
+        void RemoveReview(CourseReview review);
     }
 }

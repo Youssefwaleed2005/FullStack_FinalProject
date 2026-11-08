@@ -21,5 +21,14 @@ namespace Andalusia.Api.DTOs.Responses
 
         public int? InstructorId { get; set; }
         public string? InstructorName { get; set; }
+
+        // Reviews (null average = no reviews yet)
+        public double? AverageRating { get; set; }
+        public int ReviewCount { get; set; }
+
+        // For the admin list
+        public bool IsDeleted { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public string? UpdatedBy { get; set; }
     }
 }

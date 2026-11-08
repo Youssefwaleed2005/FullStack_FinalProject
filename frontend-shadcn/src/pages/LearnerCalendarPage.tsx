@@ -4,7 +4,7 @@ import { CalendarX2, ChevronLeft, ChevronRight, CloudOff } from "lucide-react";
 import AccountLayout from "@/components/AccountLayout";
 import CalendarAgenda from "@/components/learner/CalendarAgenda";
 import CalendarMonth from "@/components/learner/CalendarMonth";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import StateMessage from "@/components/StateMessage";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
@@ -71,7 +71,7 @@ function LearnerCalendarPage() {
 
   return (
     <AccountLayout title="My calendar" description="Your upcoming sessions and assignment deadlines, month by month.">
-      {loading && !data && <LoadingState label="Loading your calendar…" />}
+      {loading && !data && <PageSkeleton variant="list" label="Loading your calendar…" />}
 
       {failed && (
         <StateMessage

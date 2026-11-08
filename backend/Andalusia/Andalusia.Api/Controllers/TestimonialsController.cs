@@ -2,6 +2,7 @@
 using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Andalusia.Api.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -18,6 +19,7 @@ namespace Andalusia.Api.Controllers
             _service = service;
         }
 
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TestimonialResponseDto>>> GetPublished([FromQuery] int? take)
             => Ok(await _service.GetPublishedAsync(take));

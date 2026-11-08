@@ -10,11 +10,44 @@ namespace Andalusia.Api.Services
 {
     public class PartnerService : IPartnerService
     {
-        private readonly IPartnerRepository _repo;
+        private const long MaxLogoBytes = 2 * 1024 * 1024; // 2 MB
+        private static readonly HashSet<string> AllowedLogoTypes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".webp", ".svg"
+        };
 
-        public PartnerService(IPartnerRepository repo)
+        private readonly IPartnerRepository _repo;
+        private readonly IWebHostEnvironment _environment;
+
+        public PartnerService(IPartnerRepository repo, IWebHostEnvironment environment)
         {
             _repo = repo;
+            _environment = environment;
+        }
+
+        public async Task<UploadedFileDto> UploadLogoAsync(IFormFile file)
+        {
+            if (file.Length == 0)
+                throw new BadRequestException("The file is empty.");
+            if (file.Length > MaxLogoBytes)
+                throw new BadRequestException("The logo is too big. The maximum is 2 MB.");
+
+            var extension = Path.GetExtension(file.FileName);
+            if (!AllowedLogoTypes.Contains(extension))
+                throw new BadRequestException("Use a PNG, JPG, WEBP or SVG image for the logo.");
+
+            // Random name, so logos never overwrite each other
+            var webRoot = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var folder = Path.Combine(webRoot, "uploads", "partners");
+            Directory.CreateDirectory(folder);
+            var fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+
+            await using (var stream = File.Create(Path.Combine(folder, fileName)))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return new UploadedFileDto { Url = $"/uploads/partners/{fileName}" };
         }
 
         public async Task<IEnumerable<PartnerResponseDto>> GetActiveAsync(PartnerType? type, int? take)
@@ -51,7 +84,11 @@ namespace Andalusia.Api.Services
         {
             var partner = await _repo.GetByIdAsync(id)
                 ?? throw new NotFoundException($"Partner {id} not found");
-            _repo.Delete(partner);
+            // Soft delete: the global query filter hides it everywhere from now on
+            partner.IsDeleted = true;
+            partner.IsActive = false;
+            partner.DeletedAt = DateTime.UtcNow;
+            _repo.Update(partner);
             await _repo.SaveChangesAsync();
         }
 

@@ -58,6 +58,7 @@ function CreateInstructorDialog({ open, onClose, onCreated }: CreateInstructorDi
       saving={saving}
       submitLabel="Create instructor"
       savingLabel="Creating…"
+      dirty={[firstName, lastName, email, password, phoneNumber, specialization, bio].some((v) => v.trim() !== "")}
       onClose={onClose}
       onSubmit={handleSubmit}
     >

@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Pencil, Plus } from "lucide-react";
+import { Archive, ArchiveRestore, BookOpen, Pencil, Plus } from "lucide-react";
+import Chip from "@/components/manage/Chip";
+import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import { ADMIN_LINKS } from "@/components/admin/adminLinks";
 import CourseEditorDialog from "@/components/admin/CourseEditorDialog";
 import CoverImage from "@/components/CoverImage";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import EmptyNote from "@/components/manage/EmptyNote";
 import { SelectField } from "@/components/manage/fields";
 import ManageHeader from "@/components/manage/ManageHeader";
@@ -27,6 +29,8 @@ import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/services/api";
+import { deleteCourse, restoreCourse } from "@/services/courseService";
+import { timeAgo } from "@/lib/time";
 import { assignInstructor, getAdminCourses, getAdminUsers } from "@/services/adminService";
 import type { Course, CourseStatus } from "@/types/Course";
 
@@ -49,6 +53,37 @@ function AdminCoursesPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>(ALL);
   const toast = useToast();
+  const [confirm, setConfirm] = useState<ConfirmRequest | null>(null);
+
+  // Courses with applications are archived (hidden from the catalog) instead of deleted
+  function askArchive(course: Course) {
+    setConfirm({
+      title: `Remove "${course.title}"?`,
+      description:
+        "If learners already applied or it belongs to a program, it is archived: hidden from the catalog, but their enrollments and payments stay. You can restore it any time.",
+      confirmLabel: "Remove course",
+      danger: true,
+      onConfirm: async () => {
+        try {
+          const archived = await deleteCourse(course.id);
+          toast.success(archived ? `"${course.title}" was archived.` : `"${course.title}" was deleted.`);
+          reload();
+        } catch (err) {
+          toast.error("Could not remove the course.", getApiErrorMessage(err, "Please try again."));
+        }
+      },
+    });
+  }
+
+  async function handleRestore(course: Course) {
+    try {
+      await restoreCourse(course.id);
+      toast.success(`"${course.title}" is back in the catalog.`);
+      reload();
+    } catch (err) {
+      toast.error("Could not restore the course.", getApiErrorMessage(err, "Please try again."));
+    }
+  }
   // undefined = closed, null = new course, number = edit that course
   const [editingId, setEditingId] = useState<number | null | undefined>(undefined);
 
@@ -110,7 +145,7 @@ function AdminCoursesPage() {
         </div>
 
         {loading && !data ? (
-          <LoadingState label="Loading courses…" />
+          <PageSkeleton variant="table" label="Loading courses…" />
         ) : failed || !data ? (
           <Alert variant="destructive">
             <AlertDescription>{getApiErrorMessage(loadError, "Could not load courses.")}</AlertDescription>
@@ -126,7 +161,7 @@ function AdminCoursesPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Starts</TableHead>
                   <TableHead className="min-w-64">Instructor</TableHead>
-                  <TableHead className="text-right">Edit</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -134,7 +169,7 @@ function AdminCoursesPage() {
                   const value = picked[course.id] ?? (course.instructorId ? String(course.instructorId) : "");
                   const changed = value !== "" && Number(value) !== course.instructorId;
                   return (
-                    <TableRow key={course.id}>
+                    <TableRow key={course.id} className={cn(course.isDeleted && "bg-muted/40 opacity-70")}>
                       <TableCell>
                         <div className="flex min-w-60 items-center gap-3">
                           <CoverImage src={course.imageUrl} title={course.title} className="size-12 shrink-0 rounded-lg" letterClassName="text-lg" />
@@ -149,11 +184,17 @@ function AdminCoursesPage() {
                               {course.categoryName} · {formatPrice(course.price)}
                               {course.isFeatured && " · ★ Featured"}
                             </p>
+                            {course.updatedAt && (
+                              <p className="text-[0.7rem] text-muted-foreground/80">
+                                Edited {timeAgo(course.updatedAt)}
+                                {course.updatedBy && ` by ${course.updatedBy}`}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <StatusPill status={STATUS_META[course.status]} />
+                        {course.isDeleted ? <Chip tone="neutral"><Archive aria-hidden className="size-3" /> Archived</Chip> : <StatusPill status={STATUS_META[course.status]} />}
                       </TableCell>
                       <TableCell className="whitespace-nowrap">{course.startDate ? formatDate(course.startDate) : "TBA"}</TableCell>
                       <TableCell>
@@ -172,10 +213,21 @@ function AdminCoursesPage() {
                           </Button>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon-sm" aria-label={`Edit ${course.title}`} onClick={() => setEditingId(course.id)}>
-                          <Pencil />
-                        </Button>
+                      <TableCell className="text-right whitespace-nowrap">
+                        {course.isDeleted ? (
+                          <Button variant="outline" size="sm" className="rounded-full px-3" onClick={() => void handleRestore(course)}>
+                            <ArchiveRestore aria-hidden /> Restore
+                          </Button>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="icon-sm" aria-label={`Edit ${course.title}`} onClick={() => setEditingId(course.id)}>
+                              <Pencil />
+                            </Button>
+                            <Button variant="ghost" size="icon-sm" aria-label={`Remove ${course.title}`} className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => askArchive(course)}>
+                              <Archive />
+                            </Button>
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
@@ -198,6 +250,8 @@ function AdminCoursesPage() {
           }}
         />
       )}
+
+      <ConfirmDialog request={confirm} onClose={() => setConfirm(null)} />
     </>
   );
 }

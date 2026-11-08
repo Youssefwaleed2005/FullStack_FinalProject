@@ -2,11 +2,13 @@ import api from "./api";
 import type {
   AdminDashboard,
   AdminPayment,
+  AdminStats,
   AdminUser,
   CourseRequest,
   CreateInstructorRequest,
 } from "@/types/Admin";
 import type { Course, CourseDetails } from "@/types/Course";
+import type { PagedResponse } from "@/types/PagedResponse";
 import type { PaymentStatus } from "@/types/Payment";
 
 export async function getAdminDashboard(): Promise<AdminDashboard> {
@@ -60,4 +62,29 @@ export async function createCourse(payload: CourseRequest): Promise<CourseDetail
 
 export async function updateCourse(id: number, payload: CourseRequest): Promise<CourseDetails> {
   return (await api.put<CourseDetails>(`/courses/${id}`, payload)).data;
+}
+
+export const ADMIN_PAGE_SIZE = 10;
+
+export async function getAdminUsersPage(params: {
+  role?: string;
+  search?: string;
+  pageNumber: number;
+}): Promise<PagedResponse<AdminUser>> {
+  return (await api.get<PagedResponse<AdminUser>>("/admin/users/paged", { params: { ...params, pageSize: ADMIN_PAGE_SIZE } })).data;
+}
+
+export type AdminPaymentsPage = PagedResponse<AdminPayment> & { paidTotal: number };
+
+export async function getAdminPaymentsPage(params: {
+  status?: PaymentStatus;
+  search?: string;
+  pageNumber: number;
+}): Promise<AdminPaymentsPage> {
+  return (await api.get<AdminPaymentsPage>("/admin/payments/paged", { params: { ...params, pageSize: ADMIN_PAGE_SIZE } })).data;
+}
+
+// Revenue per month + enrollments per category (overview charts)
+export async function getAdminStats(): Promise<AdminStats> {
+  return (await api.get<AdminStats>("/admin/stats")).data;
 }

@@ -46,6 +46,7 @@ namespace Andalusia.Api.Mapping
                 RecommendedCourses = orderedPrograms
                     .SelectMany(p => p.ProgramCourses.OrderBy(pc => pc.SortOrder))
                     .Select(pc => pc.Course)
+                    .Where(c => !c.IsDeleted)
                     .DistinctBy(c => c.Id)
                     .Select(c => c.ToResponseDto())
                     .ToList()

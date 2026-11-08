@@ -6,7 +6,7 @@ import Chip from "@/components/manage/Chip";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import EmptyNote from "@/components/manage/EmptyNote";
 import TableCard from "@/components/manage/TableCard";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
@@ -86,7 +86,7 @@ function MaterialsTab({ courseId }: { courseId: number }) {
     else window.open(resolveMaterialUrl(material.url), "_blank", "noopener");
   }
 
-  if (loading) return <LoadingState label="Loading materials…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading materials…" />;
   if (failed || !materials)
     return (
       <Alert variant="destructive">

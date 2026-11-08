@@ -3,6 +3,7 @@ using Andalusia.Api.DTOs.Responses;
 using Andalusia.Api.Enums;
 using Andalusia.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Andalusia.Api.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -19,6 +20,7 @@ namespace Andalusia.Api.Controllers
             _partnerService = partnerService;
         }
 
+        [OutputCache(PolicyName = CacheTags.PublicContentPolicy)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PartnerResponseDto>>> GetActive(
             [FromQuery] PartnerType? type, [FromQuery] int? take)
@@ -56,6 +58,17 @@ namespace Andalusia.Api.Controllers
         {
             await _partnerService.DeleteAsync(id);
             return NoContent();
+        }
+
+        // POST /api/partners/logo   (multipart/form-data: file) → { "url": "/uploads/partners/....png" }
+        // The admin uploads the image first, then saves the partner with that url as its LogoUrl.
+        [Authorize(Roles = Roles.AdminOrContentManager)]
+        [HttpPost("logo")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(3 * 1024 * 1024)]
+        public async Task<ActionResult<UploadedFileDto>> UploadLogo([FromForm] UploadPartnerLogoRequestDto dto)
+        {
+            return Ok(await _partnerService.UploadLogoAsync(dto.File));
         }
 
         [Authorize(Roles = Roles.AdminOrContentManager)]

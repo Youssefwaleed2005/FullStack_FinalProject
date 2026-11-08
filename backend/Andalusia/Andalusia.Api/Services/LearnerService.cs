@@ -60,6 +60,168 @@ namespace Andalusia.Api.Services
             return ToCourseDtos(courses, access, DateTime.UtcNow);
         }
 
+        // ---------- Activity heatmap ----------
+
+        public async Task<LearnerActivityDto> GetActivityAsync(int userId)
+        {
+            var today = DateTime.UtcNow.Date;
+            var from = today.AddDays(-7 * 18 + 1);
+            var (courses, _) = await LoadMyCoursesAsync(userId);
+
+            // Every learning action, as a date
+            var dates = new List<DateTime>();
+            foreach (var course in courses)
+            {
+                dates.AddRange(course.Sessions
+                    .Where(s => s.Attendances.Any(a => a.UserId == userId
+                        && (a.Status == AttendanceStatus.Present || a.Status == AttendanceStatus.Late)))
+                    .Select(s => s.StartTime.Date));
+                dates.AddRange(course.Assignments
+                    .SelectMany(a => a.Submissions.Where(s => s.UserId == userId))
+                    .Select(s => s.SubmittedAt.Date));
+                dates.AddRange(course.Materials
+                    .SelectMany(m => m.Completions.Where(c => c.UserId == userId))
+                    .Select(c => c.CompletedAt.Date));
+            }
+
+            var perDay = dates.Where(d => d <= today).GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+
+            var days = Enumerable.Range(0, (today - from).Days + 1)
+                .Select(i => from.AddDays(i))
+                .Select(d => new ActivityDayDto
+                {
+                    Date = d.ToString("yyyy-MM-dd"),
+                    Count = perDay.TryGetValue(d, out var n) ? n : 0
+                })
+                .ToList();
+
+            // Current streak: counts back from today (or from yesterday, so the streak isn't "lost" before you study today)
+            var current = 0;
+            var day = perDay.ContainsKey(today) ? today : today.AddDays(-1);
+            while (perDay.ContainsKey(day))
+            {
+                current++;
+                day = day.AddDays(-1);
+            }
+
+            var longest = 0;
+            var run = 0;
+            DateTime? previous = null;
+            foreach (var d in perDay.Keys.OrderBy(d => d))
+            {
+                run = previous.HasValue && (d - previous.Value).Days == 1 ? run + 1 : 1;
+                longest = Math.Max(longest, run);
+                previous = d;
+            }
+
+            return new LearnerActivityDto
+            {
+                Days = days,
+                CurrentStreak = current,
+                LongestStreak = longest,
+                TotalActions = days.Sum(d => d.Count)
+            };
+        }
+
+        // ---------- My review of a course ----------
+
+        public async Task<CourseReviewDto?> GetMyReviewAsync(int userId, int courseId)
+        {
+            await EnsureCanAccessCourseAsync(userId, courseId);
+            var review = await _learnerRepository.GetMyReviewAsync(courseId, userId);
+            return review?.ToDto();
+        }
+
+        // Only learners enrolled in the course can review it (one review each, editable)
+        public async Task<CourseReviewDto> SaveMyReviewAsync(int userId, int courseId, CourseReviewRequestDto dto)
+        {
+            await EnsureCanAccessCourseAsync(userId, courseId);
+
+            var comment = string.IsNullOrWhiteSpace(dto.Comment) ? null : dto.Comment.Trim();
+            var review = await _learnerRepository.GetMyReviewAsync(courseId, userId);
+            if (review == null)
+            {
+                review = new CourseReview { CourseId = courseId, UserId = userId, Rating = dto.Rating, Comment = comment };
+                await _learnerRepository.AddReviewAsync(review);
+            }
+            else
+            {
+                review.Rating = dto.Rating;
+                review.Comment = comment;
+                review.UpdatedAt = DateTime.UtcNow;
+            }
+            await _learnerRepository.SaveChangesAsync();
+
+            // Reload with the author, for the name on the card
+            return (await _learnerRepository.GetMyReviewAsync(courseId, userId))!.ToDto();
+        }
+
+        public async Task DeleteMyReviewAsync(int userId, int courseId)
+        {
+            var review = await _learnerRepository.GetMyReviewAsync(courseId, userId)
+                ?? throw new NotFoundException("You haven't reviewed this course yet.");
+            _learnerRepository.RemoveReview(review);
+            await _learnerRepository.SaveChangesAsync();
+        }
+
+        // ---------- Notifications bell ----------
+
+        // Recent and upcoming events from my active courses, newest / soonest first
+        public async Task<List<LearnerNotificationDto>> GetNotificationsAsync(int userId)
+        {
+            var now = DateTime.UtcNow;
+            var since = now.AddDays(-14);
+            var (courses, access) = await LoadMyCoursesAsync(userId);
+            var items = new List<LearnerNotificationDto>();
+
+            foreach (var course in courses.Where(c => access[c.Id].Status == EnrollmentStatus.Active))
+            {
+                foreach (var assignment in course.Assignments)
+                {
+                    var mine = assignment.Submissions.FirstOrDefault(s => s.UserId == userId);
+
+                    if (mine?.GradedAt is DateTime gradedAt && gradedAt >= since)
+                        items.Add(Notification($"graded-{mine.Id}", "Graded", "Assignment graded",
+                            $"\"{assignment.Title}\": {mine.Score}/{assignment.MaxScore}", course, gradedAt));
+
+                    if (mine == null && assignment.DueDate > now && assignment.DueDate <= now.AddDays(3))
+                        items.Add(Notification($"due-{assignment.Id}", "DueSoon", "Assignment due soon",
+                            $"\"{assignment.Title}\" is due {assignment.DueDate:dd MMM, HH:mm} UTC", course, assignment.DueDate));
+                    else if (assignment.CreatedAt >= since)
+                        items.Add(Notification($"assignment-{assignment.Id}", "NewAssignment", "New assignment",
+                            assignment.Title, course, assignment.CreatedAt));
+                }
+
+                foreach (var material in course.Materials.Where(m => m.CreatedAt >= since))
+                    items.Add(Notification($"material-{material.Id}", "NewMaterial", "New material",
+                        material.Title, course, material.CreatedAt));
+
+                foreach (var session in course.Sessions.Where(s => s.StartTime > now && s.StartTime <= now.AddDays(2)))
+                    items.Add(Notification($"session-{session.Id}", "SessionSoon", "Session coming up",
+                        session.Title, course, session.StartTime));
+            }
+
+            // Upcoming things first (soonest), then past events (newest)
+            return items
+                .OrderByDescending(i => i.Time > now)
+                .ThenBy(i => i.Time > now ? i.Time : DateTime.MaxValue)
+                .ThenByDescending(i => i.Time)
+                .Take(20)
+                .ToList();
+        }
+
+        private static LearnerNotificationDto Notification(
+            string id, string type, string title, string message, Course course, DateTime time) => new()
+        {
+            Id = id,
+            Type = type,
+            Title = title,
+            Message = message,
+            CourseId = course.Id,
+            CourseTitle = course.Title,
+            Time = time
+        };
+
         // ---------- One course ----------
 
         public async Task<LearnerCourseDetailDto> GetCourseAsync(int userId, int courseId)

@@ -180,3 +180,31 @@
     animation: none !important;
   }
 }
+
+/* Notifications bell: a short wiggle when there is something new */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(5deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[wiggle_1s_ease-in-out_2\] { animation: none !important; }
+}
+
+/* Printing the certificate: only the certificate is printed, on a landscape A4 page */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body * { visibility: hidden; }
+  #certificate, #certificate * { visibility: visible; }
+  #certificate {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -46,6 +46,7 @@ function PartnersTable({ partners, busyId, onToggle, onEdit, onDelete }: Partner
                 <CoverImage
                   src={partner.logoUrl ? resolveMaterialUrl(partner.logoUrl) : null}
                   title={partner.name}
+                  fallback="letter"
                   className="size-12 shrink-0 rounded-lg border border-border/70 bg-card"
                   imageClassName="object-contain p-1.5"
                   letterClassName="text-lg"

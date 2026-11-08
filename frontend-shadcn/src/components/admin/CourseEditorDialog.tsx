@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { STATUS_META } from "@/lib/course";
 import { toDateInputValue } from "@/lib/dates";
-import { getApiErrorMessage } from "@/services/api";
+import { getApiErrorMessage, getApiFieldErrors } from "@/services/api";
 import { createCourse, updateCourse } from "@/services/adminService";
 import { getCategories } from "@/services/categoryService";
 import { getCourseById } from "@/services/courseService";
@@ -76,6 +76,9 @@ function SectionTitle({ children }: { children: string }) {
 // Create a course or edit any course (admin only)
 function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseEditorDialogProps) {
   const [form, setForm] = useState<FormState>(EMPTY);
+  // What the form started with, to know if anything changed
+  const [initial, setInitial] = useState<FormState>(EMPTY);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -88,7 +91,7 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
         if (!active) return;
         setCategories(cats);
         if (course) {
-          setForm({
+          const loaded: FormState = {
             title: course.title,
             shortDescription: course.shortDescription ?? "",
             fullDescription: course.fullDescription ?? "",
@@ -106,7 +109,9 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
             isFeatured: course.isFeatured,
             categoryId: String(course.categoryId),
             instructorId: course.instructorId ? String(course.instructorId) : NONE,
-          });
+          };
+          setForm(loaded);
+          setInitial(loaded);
         }
       })
       .catch((err) => {
@@ -164,6 +169,7 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
       else await createCourse(payload);
       onSaved(payload.title);
     } catch (err) {
+      setFieldErrors(getApiFieldErrors(err));
       setError(getApiErrorMessage(err, "Could not save the course."));
     } finally {
       setSaving(false);
@@ -180,6 +186,7 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
       saving={saving}
       disabled={loading}
       submitLabel={courseId ? "Save changes" : "Create course"}
+      dirty={JSON.stringify(form) !== JSON.stringify(initial)}
       onClose={onClose}
       onSubmit={handleSubmit}
     >
@@ -190,7 +197,7 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
       ) : (
         <>
           <SectionTitle>Basic information</SectionTitle>
-          <FormField label="Title" value={form.title} onChange={(e) => set("title", e.target.value)} />
+          <FormField label="Title" value={form.title} error={fieldErrors.title} onChange={(e) => set("title", e.target.value)} />
           <div className="grid gap-4 sm:grid-cols-2">
             <SelectField
               label="Category"
@@ -209,7 +216,7 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
           <FormField label="Short description" hint="Shown on the course card" value={form.shortDescription} onChange={(e) => set("shortDescription", e.target.value)} />
           <TextareaField label="Full description" value={form.fullDescription} onChange={(e) => set("fullDescription", e.target.value)} rows={4} />
           <TextareaField label="Objectives" hint="One per line" value={form.objectives} onChange={(e) => set("objectives", e.target.value)} rows={3} />
-          <FormField label="Image URL" placeholder="https://" value={form.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
+          <FormField label="Image URL" placeholder="https://" value={form.imageUrl} error={fieldErrors.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} />
 
           <SectionTitle>Schedule & location</SectionTitle>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -221,9 +228,9 @@ function CourseEditorDialog({ courseId, instructors, onClose, onSaved }: CourseE
 
           <SectionTitle>Enrollment</SectionTitle>
           <div className="grid gap-4 sm:grid-cols-3">
-            <FormField label="Price (EGP)" type="number" min={0} value={form.price} onChange={(e) => set("price", e.target.value)} />
-            <FormField label="Duration (hours)" type="number" min={1} value={form.durationHours} onChange={(e) => set("durationHours", e.target.value)} />
-            <FormField label="Capacity" type="number" min={1} value={form.capacity} onChange={(e) => set("capacity", e.target.value)} />
+            <FormField label="Price (EGP)" type="number" min={0} value={form.price} error={fieldErrors.price} onChange={(e) => set("price", e.target.value)} />
+            <FormField label="Duration (hours)" type="number" min={1} value={form.durationHours} error={fieldErrors.durationHours} onChange={(e) => set("durationHours", e.target.value)} />
+            <FormField label="Capacity" type="number" min={1} value={form.capacity} error={fieldErrors.capacity} onChange={(e) => set("capacity", e.target.value)} />
           </div>
           <div className="grid items-end gap-4 sm:grid-cols-3">
             <SelectField

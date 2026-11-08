@@ -23,7 +23,7 @@ namespace Andalusia.Api.Repos
 
         public async Task<int> CountCoursesAsync(CatalogStatus? status = null)
         {
-            var query = _context.Courses.AsQueryable();
+            var query = _context.Courses.Where(c => !c.IsDeleted);
             if (status != null)
                 query = query.Where(c => c.Status == status);
             return await query.CountAsync();
@@ -56,6 +56,32 @@ namespace Andalusia.Api.Repos
         // Newest first, with optional filters
         public async Task<List<Payment>> GetPaymentsAsync(PaymentStatus? status, string? search, int? take = null)
         {
+            var query = PaymentsQuery(status, search);
+            if (take != null)
+                query = query.Take(take.Value);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<(List<Payment> Items, int TotalCount)> GetPaymentsPageAsync(
+            PaymentStatus? status, string? search, int pageNumber, int pageSize)
+        {
+            var query = PaymentsQuery(status, search);
+            var total = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return (items, total);
+        }
+
+        // Sum of paid payments in each query result, for the payments page header
+        public async Task<decimal> SumPaidAsync(PaymentStatus? status, string? search)
+        {
+            return await PaymentsQuery(status, search)
+                .Where(p => p.Status == PaymentStatus.Paid)
+                .SumAsync(p => (decimal?)p.Amount) ?? 0;
+        }
+
+        private IQueryable<Payment> PaymentsQuery(PaymentStatus? status, string? search)
+        {
             var query = _context.Payments
                 .AsNoTracking()
                 .Include(p => p.Application).ThenInclude(a => a.User)
@@ -76,14 +102,45 @@ namespace Andalusia.Api.Repos
                     (p.TransactionId != null && p.TransactionId.Contains(term)));
             }
 
-            query = query.OrderByDescending(p => p.CreatedAt);
-            if (take != null)
-                query = query.Take(take.Value);
+            return query.OrderByDescending(p => p.CreatedAt);
+        }
 
-            return await query.ToListAsync();
+        // ---------- Chart data for the admin overview ----------
+
+        public async Task<List<Payment>> GetPaidPaymentsSinceAsync(DateTime from)
+        {
+            return await _context.Payments
+                .AsNoTracking()
+                .Where(p => p.Status == PaymentStatus.Paid && p.PaidAt >= from)
+                .ToListAsync();
+        }
+
+        // One category name per enrollment (from its course, or from its program)
+        public async Task<List<string>> GetEnrollmentCategoryNamesAsync()
+        {
+            return await _context.Enrollments
+                .AsNoTracking()
+                .Select(e => e.Application.Course != null
+                    ? e.Application.Course.Category.Name
+                    : e.Application.Program != null ? e.Application.Program.Category.Name : "Other")
+                .ToListAsync();
         }
 
         public async Task<List<User>> GetUsersAsync(string? role, string? search, bool? isActive)
+        {
+            return await UsersQuery(role, search, isActive).ToListAsync();
+        }
+
+        public async Task<(List<User> Items, int TotalCount)> GetUsersPageAsync(
+            string? role, string? search, bool? isActive, int pageNumber, int pageSize)
+        {
+            var query = UsersQuery(role, search, isActive);
+            var total = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return (items, total);
+        }
+
+        private IQueryable<User> UsersQuery(string? role, string? search, bool? isActive)
         {
             var query = UsersWithDetails().AsNoTracking();
 
@@ -102,10 +159,9 @@ namespace Andalusia.Api.Repos
                     u.Email.Contains(term));
             }
 
-            return await query
+            return query
                 .OrderBy(u => u.FirstName)
-                .ThenBy(u => u.LastName)
-                .ToListAsync();
+                .ThenBy(u => u.LastName);
         }
 
         public async Task<User?> GetUserAsync(int id)
@@ -126,11 +182,14 @@ namespace Andalusia.Api.Repos
         // Every course, drafts included (the public list hides drafts)
         public async Task<List<Course>> GetAllCoursesAsync()
         {
+            // Archived courses are included (shown with a Restore button), at the end of the list
             return await _context.Courses
                 .AsNoTracking()
                 .Include(c => c.Category)
                 .Include(c => c.Instructor)
-                .OrderBy(c => c.Title)
+                .Include(c => c.Reviews)
+                .OrderBy(c => c.IsDeleted)
+                .ThenBy(c => c.Title)
                 .ToListAsync();
         }
 

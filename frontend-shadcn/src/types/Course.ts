@@ -24,6 +24,13 @@ export type Course = {
   categoryName: string;
   instructorId: number | null;
   instructorName: string | null;
+  // Reviews (averageRating is null when there are none yet)
+  averageRating?: number | null;
+  reviewCount?: number;
+  // Admin list only
+  isDeleted?: boolean;
+  updatedAt?: string | null;
+  updatedBy?: string | null;
 };
 
 export type CourseDetails = Course & {

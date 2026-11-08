@@ -50,6 +50,19 @@ export function getApiErrorMessage(
   return fallback;
 }
 
+// Per-field messages from a 400 response: { errors: { "email": "…" } } → { email: "…" }
+export function getApiFieldErrors(error: unknown): Record<string, string> {
+  if (!axios.isAxiosError(error)) return {};
+  const errors = (error.response?.data as { errors?: Record<string, unknown> } | undefined)?.errors;
+  if (!errors || typeof errors !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(errors).map(([field, value]) => [
+      field.charAt(0).toLowerCase() + field.slice(1),
+      Array.isArray(value) ? String(value[0]) : String(value),
+    ]),
+  );
+}
+
 // True when the API answered with the given HTTP status, e.g. 404 or 409
 export function hasStatus(error: unknown, status: number): boolean {
   return axios.isAxiosError(error) && error.response?.status === status;

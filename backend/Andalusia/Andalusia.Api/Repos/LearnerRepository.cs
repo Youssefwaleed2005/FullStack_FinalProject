@@ -94,6 +94,23 @@ namespace Andalusia.Api.Repos
             _context.MaterialCompletions.Remove(completion);
         }
 
+        public async Task<CourseReview?> GetMyReviewAsync(int courseId, int userId)
+        {
+            return await _context.CourseReviews
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.CourseId == courseId && r.UserId == userId);
+        }
+
+        public async Task AddReviewAsync(CourseReview review)
+        {
+            await _context.CourseReviews.AddAsync(review);
+        }
+
+        public void RemoveReview(CourseReview review)
+        {
+            _context.CourseReviews.Remove(review);
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

@@ -1,11 +1,12 @@
 import { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, ClipboardList, FileText, Lock, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChartColumnBig, ClipboardList, FileText, Lock, Users } from "lucide-react";
 import AssignmentsTab from "@/components/instructor/AssignmentsTab";
+import InsightsTab from "@/components/instructor/InsightsTab";
 import MaterialsTab from "@/components/instructor/MaterialsTab";
 import SessionsTab from "@/components/instructor/SessionsTab";
 import StudentsTab from "@/components/instructor/StudentsTab";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import Chip from "@/components/manage/Chip";
 import ManageHeader from "@/components/manage/ManageHeader";
 import StateMessage from "@/components/StateMessage";
@@ -13,6 +14,7 @@ import StatusPill from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApiData } from "@/hooks/useApiData";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATUS_META, formatDate } from "@/lib/course";
 import { pageContainer } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -24,6 +26,7 @@ const TABS = [
   { value: "sessions", label: "Sessions & attendance", icon: CalendarDays },
   { value: "materials", label: "Materials", icon: FileText },
   { value: "assignments", label: "Assignments & grading", icon: ClipboardList },
+  { value: "insights", label: "Insights", icon: ChartColumnBig },
 ];
 
 // Reads the id from the URL and gives each course its own fresh page
@@ -37,9 +40,10 @@ function InstructorCourseContent({ courseId }: { courseId: number }) {
   // Only courses I teach are returned, so "not found" also means "not mine"
   const { data: courses, loading, failed, error, reload } = useApiData(getMyTeachingCourses);
   const course = courses?.find((c) => c.id === courseId);
+  usePageTitle(course ? `Manage · ${course.title}` : undefined);
   const refreshHeader = useCallback(() => reload(), [reload]);
 
-  if (loading && !courses) return <LoadingState label="Loading course…" />;
+  if (loading && !courses) return <PageSkeleton variant="details" label="Loading course…" />;
 
   if (failed || !course) {
     return (
@@ -107,6 +111,9 @@ function InstructorCourseContent({ courseId }: { courseId: number }) {
           </TabsContent>
           <TabsContent value="assignments">
             <AssignmentsTab courseId={courseId} onChanged={refreshHeader} />
+          </TabsContent>
+          <TabsContent value="insights">
+            <InsightsTab courseId={courseId} />
           </TabsContent>
         </Tabs>
       </div>

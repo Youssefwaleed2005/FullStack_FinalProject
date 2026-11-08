@@ -6,7 +6,7 @@ import Chip from "@/components/manage/Chip";
 import ConfirmDialog, { type ConfirmRequest } from "@/components/manage/ConfirmDialog";
 import EmptyNote from "@/components/manage/EmptyNote";
 import TableCard from "@/components/manage/TableCard";
-import LoadingState from "@/components/LoadingState";
+import PageSkeleton from "@/components/PageSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useApiData } from "@/hooks/useApiData";
@@ -77,7 +77,7 @@ function SessionsTab({ courseId, onChanged }: { courseId: number; onChanged?: ()
     });
   }
 
-  if (loading) return <LoadingState label="Loading sessions…" />;
+  if (loading) return <PageSkeleton variant="list" label="Loading sessions…" />;
   if (failed || !sessions)
     return (
       <Alert variant="destructive">
