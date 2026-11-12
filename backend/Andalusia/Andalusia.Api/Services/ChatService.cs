@@ -51,7 +51,10 @@ namespace Andalusia.Api.Services
             {
                 new("system", BuildSystemPrompt(catalog.Text, learnerContext))
             };
-            messages.AddRange(request.Messages.Select(m => new OllamaMessage(m.Role, m.Content.Trim())));
+            // Only the latest messages: shorter prompts answer faster
+            messages.AddRange(request.Messages
+                .TakeLast(Math.Max(1, _settings.MaxHistoryMessages))
+                .Select(m => new OllamaMessage(m.Role, m.Content.Trim())));
 
             var reply = await CallOllamaAsync(messages);
 
@@ -60,6 +63,27 @@ namespace Andalusia.Api.Services
                 Reply = reply,
                 Links = FindMentionedItems(reply, catalog.Items)
             };
+        }
+
+        // Sends the same instructions + catalog as a real question with a tiny reply, so Ollama
+        // loads the model into memory and caches the catalog part of the prompt.
+        public async Task<bool> WarmUpAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var catalog = await BuildCatalogAsync();
+                var messages = new List<OllamaMessage>
+                {
+                    new("system", BuildSystemPrompt(catalog.Text, null)),
+                    new("user", "Hello")
+                };
+                await CallOllamaAsync(messages, maxReplyTokens: 1, cancellationToken);
+                return true;
+            }
+            catch (ServiceUnavailableException)
+            {
+                return false;
+            }
         }
 
         // ---------- Retrieval: the catalog as compact text ----------
@@ -86,9 +110,9 @@ namespace Andalusia.Api.Services
                     $" | {Price(c.Price)} | {c.DurationHours} hours | starts {Date(c.StartDate)}, ends {Date(c.EndDate)}" +
                     $"{Optional("schedule", c.Schedule)}{Optional("location", c.Location)} | instructor: {instructor}");
                 if (!string.IsNullOrWhiteSpace(c.ShortDescription))
-                    text.AppendLine($"  About: {Shorten(c.ShortDescription, 220)}");
+                    text.AppendLine($"  About: {Shorten(c.ShortDescription, 160)}");
                 if (!string.IsNullOrWhiteSpace(c.Objectives))
-                    text.AppendLine($"  You will learn: {Shorten(c.Objectives.Replace("\n", "; ").Replace("\r", ""), 260)}");
+                    text.AppendLine($"  You will learn: {Shorten(c.Objectives.Replace("\n", "; ").Replace("\r", ""), 180)}");
             }
 
             text.AppendLine();
@@ -101,7 +125,7 @@ namespace Andalusia.Api.Services
                     $"- {p.Title} | category: {p.Category.Name} | {StatusLabel(p.Status)} | {Price(p.Price)} | {p.DurationWeeks} weeks" +
                     $" | starts {Date(p.StartDate)}{Optional("schedule", p.Schedule)} | includes: {(included.Length > 0 ? included : "-")}");
                 if (!string.IsNullOrWhiteSpace(p.ShortDescription))
-                    text.AppendLine($"  About: {Shorten(p.ShortDescription, 220)}");
+                    text.AppendLine($"  About: {Shorten(p.ShortDescription, 160)}");
                 if (!string.IsNullOrWhiteSpace(p.Requirements))
                     text.AppendLine($"  Requirements: {Shorten(p.Requirements, 160)}");
             }
@@ -114,7 +138,7 @@ namespace Andalusia.Api.Services
                 var route = string.Join(" → ", cp.CareerPathPrograms.OrderBy(x => x.SortOrder).Select(x => x.Program.Title));
                 text.AppendLine($"- {cp.Title} | route: {(route.Length > 0 ? route : "-")}{Optional("skills", cp.RecommendedSkills)}");
                 if (!string.IsNullOrWhiteSpace(cp.ShortDescription))
-                    text.AppendLine($"  About: {Shorten(cp.ShortDescription, 220)}");
+                    text.AppendLine($"  About: {Shorten(cp.ShortDescription, 160)}");
             }
 
             return new Catalog(text.ToString(), items);
@@ -201,20 +225,21 @@ namespace Andalusia.Api.Services
             [property: JsonPropertyName("message")] OllamaMessage? Message,
             [property: JsonPropertyName("error")] string? Error);
 
-        private async Task<string> CallOllamaAsync(List<OllamaMessage> messages)
+        private async Task<string> CallOllamaAsync(
+            List<OllamaMessage> messages, int maxReplyTokens = 400, CancellationToken cancellationToken = default)
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
             var body = new OllamaRequest(
                 _settings.Model,
                 messages,
                 Stream: false,
-                new OllamaOptions(_settings.ContextSize, _settings.Temperature, NumPredict: 400),
-                KeepAlive: "30m");
+                new OllamaOptions(_settings.ContextSize, _settings.Temperature, NumPredict: maxReplyTokens),
+                KeepAlive: _settings.KeepAlive);
 
             HttpResponseMessage response;
             try
             {
-                response = await client.PostAsJsonAsync("/api/chat", body);
+                response = await client.PostAsJsonAsync("/api/chat", body, cancellationToken);
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
             {
@@ -226,7 +251,7 @@ namespace Andalusia.Api.Services
             OllamaResponse? result = null;
             try
             {
-                result = await response.Content.ReadFromJsonAsync<OllamaResponse>();
+                result = await response.Content.ReadFromJsonAsync<OllamaResponse>(cancellationToken);
             }
             catch (Exception ex)
             {

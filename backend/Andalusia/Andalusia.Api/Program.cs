@@ -162,6 +162,8 @@ builder.Services.AddHttpClient(ChatService.HttpClientName, client =>
 });
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatService, ChatService>();
+// Loads the chatbot model in the background at startup, so the first question is fast
+builder.Services.AddHostedService<ChatWarmUpService>();
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
