@@ -3,6 +3,7 @@ import AuthProvider from "@/components/AuthProvider";
 import CelebrationProvider from "@/components/fun/CelebrationProvider";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import MyLearningProvider from "@/components/MyLearningProvider";
 import SiteSettingsProvider from "@/components/SiteSettingsProvider";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToastProvider from "@/components/ToastProvider";
@@ -46,6 +47,7 @@ function App() {
       <ThemeProvider>
       <ToastProvider>
       <AuthProvider>
+        <MyLearningProvider>
         <SiteSettingsProvider>
         <CelebrationProvider>
         <Routes>
@@ -119,6 +121,7 @@ function App() {
         </Routes>
         </CelebrationProvider>
         </SiteSettingsProvider>
+        </MyLearningProvider>
       </AuthProvider>
       </ToastProvider>
       </ThemeProvider>

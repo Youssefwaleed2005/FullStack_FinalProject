@@ -10,8 +10,10 @@ import Avatar from "@/components/Avatar";
 import CoverImage from "@/components/CoverImage";
 import StatusPill from "@/components/StatusPill";
 import CompareToggle from "@/components/CompareToggle";
+import LearningBadge from "@/components/LearningBadge";
 import { StarRating } from "@/components/StarRating";
 import WishlistButton from "@/components/WishlistButton";
+import { useMyLearning } from "@/hooks/useMyLearning";
 import { cardImageZoom, cardStyle } from "@/lib/styles";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import type { Course } from "@/types/Course";
@@ -22,6 +24,7 @@ type CourseCardProps = {
 
 function CourseCard({ course }: CourseCardProps) {
   const isOnline = course.type === "Online";
+  const learning = useMyLearning().courseState(course.id);
 
   return (
     <article className={cardStyle}>
@@ -43,10 +46,15 @@ function CourseCard({ course }: CourseCardProps) {
         <CompareToggle course={course} className="absolute bottom-3 left-3" />
         <WishlistButton course={course} className="absolute right-3 bottom-3" />
 
-        {course.isFeatured && (
-          <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">
-            Featured
-          </span>
+        {/* "Enrolled" / "Payment pending" matters more to the learner than "Featured" */}
+        {learning ? (
+          <LearningBadge state={learning} className="absolute top-3 right-3" />
+        ) : (
+          course.isFeatured && (
+            <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">
+              Featured
+            </span>
+          )
         )}
       </div>
 

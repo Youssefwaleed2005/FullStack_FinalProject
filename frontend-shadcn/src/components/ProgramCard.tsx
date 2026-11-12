@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, BookOpen, CalendarDays, Clock } from "lucide-react";
 import CoverImage from "@/components/CoverImage";
+import LearningBadge from "@/components/LearningBadge";
 import StatusPill from "@/components/StatusPill";
+import { useMyLearning } from "@/hooks/useMyLearning";
 import { STATUS_META, formatDate, formatPrice } from "@/lib/course";
 import { cardImageZoom, cardStyle } from "@/lib/styles";
 import type { Program } from "@/types/Program";
@@ -11,6 +13,8 @@ type ProgramCardProps = {
 };
 
 function ProgramCard({ program }: ProgramCardProps) {
+  const learning = useMyLearning().programState(program.id);
+
   return (
     <article className={cardStyle}>
       <div className="relative">
@@ -27,10 +31,14 @@ function ProgramCard({ program }: ProgramCardProps) {
           className="absolute top-3 left-3 bg-card/95 shadow-sm ring-0 backdrop-blur"
         />
 
-        {program.isFeatured && (
-          <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">
-            Featured
-          </span>
+        {learning ? (
+          <LearningBadge state={learning} className="absolute top-3 right-3" />
+        ) : (
+          program.isFeatured && (
+            <span className="absolute top-3 right-3 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-primary shadow-sm">
+              Featured
+            </span>
+          )
         )}
       </div>
 

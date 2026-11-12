@@ -185,6 +185,8 @@ if (app.Environment.IsDevelopment())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.MigrateAsync();
     await DbSeeder.SeedAsync(context);
+    // Runs once per database, existing ones included
+    await ReactCourseDemoSeeder.SeedAsync(context);
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

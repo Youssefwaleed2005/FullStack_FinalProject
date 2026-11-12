@@ -16,6 +16,7 @@ import StateMessage from "@/components/StateMessage";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useCelebrate } from "@/hooks/useCelebrate";
+import { useMyLearning } from "@/hooks/useMyLearning";
 import { useToast } from "@/hooks/useToast";
 import { formatAmount, formatDateTime } from "@/lib/course";
 import { panelStyle } from "@/lib/styles";
@@ -58,6 +59,7 @@ function PaymentContent({ id }: PaymentContentProps) {
   // Loading the pending payment
   const { celebrate } = useCelebrate();
   const toast = useToast();
+  const { refresh: refreshMyLearning } = useMyLearning();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -135,6 +137,8 @@ function PaymentContent({ id }: PaymentContentProps) {
       setPayment(result);
       if (result.status === "Paid") {
         toast.success("Payment successful", `You're enrolled in ${result.targetTitle}.`);
+        // Course cards and Apply buttons switch to "Enrolled"
+        refreshMyLearning();
         celebrate({
           big: true,
           title: "You're enrolled!",
