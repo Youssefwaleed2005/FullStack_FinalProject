@@ -187,6 +187,8 @@ if (app.Environment.IsDevelopment())
     await DbSeeder.SeedAsync(context);
     // Runs once per database, existing ones included
     await ReactCourseDemoSeeder.SeedAsync(context);
+    // Demo graduate with a finished course, for showing the certificate
+    await CertificateDemoSeeder.SeedAsync(context);
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
